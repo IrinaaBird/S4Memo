@@ -43,7 +43,6 @@
             align-items: center;
             position: absolute;
             z-index: 10;
-            transition: transform 0.05s ease-out;
             cursor: move;
         }
 
@@ -64,33 +63,12 @@
             object-fit: cover;
             background-color: #334155;
             transition: box-shadow 0.2s, border-color 0.2s, transform 0.2s;
+            pointer-events: none; /* Megakadályozza a böngésző natív kép-húzási mechanizmusát */
         }
 
         .sim-node:hover .sim-avatar {
             transform: scale(1.06);
             box-shadow: 0 0 25px rgba(16, 185, 129, 0.8);
-        }
-
-        .sim-node.locked .sim-avatar {
-            border-color: #64748b !important;
-            box-shadow: 0 0 10px rgba(100, 116, 139, 0.5) !important;
-        }
-
-        /* Testreszabott lebegő elem (Custom Drag Ghost) */
-        #custom-drag-ghost {
-            position: fixed;
-            top: -1000px;
-            left: -1000px;
-            background: rgba(15, 23, 42, 0.95);
-            border: 2px solid #10b981;
-            box-shadow: 0 0 20px rgba(16, 185, 129, 0.6);
-            border-radius: 9999px;
-            padding: 6px 16px 6px 6px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            z-index: 9999;
-            pointer-events: none;
         }
 
         /* Vonal összekötő SVG réteg */
@@ -161,12 +139,6 @@
 </head>
 <body class="h-screen flex flex-col justify-between">
 
-    <!-- Egyedi Drag Ghost elem -->
-    <div id="custom-drag-ghost">
-        <img id="ghost-img" class="w-10 h-10 rounded-full border border-emerald-400 object-cover">
-        <span id="ghost-name" class="text-xs font-bold text-emerald-400 tracking-wide"></span>
-    </div>
-
     <!-- Jobb Klikk Kontextus Menü -->
     <div id="context-menu" class="bg-slate-900/95 backdrop-blur border border-slate-700 text-slate-200 rounded-xl shadow-2xl py-2 w-52 text-sm">
         <div class="px-3 py-1.5 border-b border-slate-800 text-[11px] font-bold text-slate-400 uppercase tracking-wider" id="ctx-sim-name">Sim Neve</div>
@@ -196,7 +168,7 @@
                 <i class="fa-solid fa-gem text-3xl text-emerald-400 animate-pulse"></i>
                 <div>
                     <h1 class="text-xl font-bold tracking-wide">Plumtree Legacy Engine</h1>
-                    <p class="text-xs text-slate-400">Görgess a Zoomhoz • Jobb klikk nyomva tartás = Mozgatás</p>
+                    <p class="text-xs text-slate-400">Bal klikk nyomva tartás = Mozgás / Sim húzás • Görgő = Zoom</p>
                 </div>
             </div>
             <!-- Zoom Vezérlő Gombok -->
@@ -420,7 +392,7 @@
             localStorage.setItem('sim_positions', JSON.stringify(simPositions));
         }
 
-        /* --- ZOOM & PAN ENGINE --- */
+        /* --- BAL KLIKKES MOZGATÁS ÉS DRAG LOGIKA --- */
         function setupPanZoomListeners() {
             const viewport = document.getElementById('viewport');
 
@@ -431,7 +403,8 @@
             }, { passive: false });
 
             viewport.addEventListener('mousedown', (e) => {
-                if (e.button === 2) { // Jobb egérgomb panelés
+                // Bal egérgomb nyomás a vásznon (de nem Sim node-on): Nézet Mozgatása (Panning)
+                if (e.button === 0 && !activeDragNode) {
                     isPanning = true;
                     startPanX = e.clientX - panX;
                     startPanY = e.clientY - panY;
@@ -439,12 +412,8 @@
             });
 
             window.addEventListener('mousemove', (e) => {
-                if (isPanning) {
-                    panX = e.clientX - startPanX;
-                    panY = e.clientY - startPanY;
-                    updateWorldTransform();
-                } else if (activeDragNode) {
-                    // Node szabad húzása
+                if (activeDragNode) {
+                    // Sim csúsztatása a vásznon
                     const world = document.getElementById('pan-zoom-world').getBoundingClientRect();
                     const newX = (e.clientX - world.left) / scale - dragOffsetX;
                     const newY = (e.clientY - world.top) / scale - dragOffsetY;
@@ -458,29 +427,33 @@
                     simPositions[simId].y = newY;
 
                     drawConnectors();
+                } else if (isPanning) {
+                    // Vászon mozgatása
+                    panX = e.clientX - startPanX;
+                    panY = e.clientY - startPanY;
+                    updateWorldTransform();
                 }
             });
 
             window.addEventListener('mouseup', (e) => {
-                if (e.button === 2) isPanning = false;
-                if (activeDragNode) {
-                    activeDragNode = null;
-                    savePositionsToStorage();
+                if (e.button === 0) {
+                    isPanning = false;
+                    if (activeDragNode) {
+                        activeDragNode = null;
+                        savePositionsToStorage();
+                    }
                 }
             });
 
-            // Gyári letiltás a jobb klikkes böngésző menüre a viewporton
+            // Gyári letiltás a jobb klikkes böngésző menüre
             viewport.addEventListener('contextmenu', e => e.preventDefault());
         }
 
         function applyZoom(factor, cursorX = window.innerWidth / 2, cursorY = window.innerHeight / 2) {
             const newScale = Math.min(Math.max(0.3, scale * factor), 2.5);
-            
-            // Cursor-centric zoom számítás
             panX = cursorX - (cursorX - panX) * (newScale / scale);
             panY = cursorY - (cursorY - panY) * (newScale / scale);
             scale = newScale;
-
             updateWorldTransform();
         }
 
@@ -551,13 +524,9 @@
                 return;
             }
 
-            // Kezdeti pozicionálás kiszámítása generációk szerint
-            const maxGen = Math.max(...localSims.map(s => parseInt(s.generation) || 1), 1);
-
-            localSims.forEach((sim, index) => {
+            localSims.forEach((sim) => {
                 const gen = parseInt(sim.generation) || 1;
                 
-                // Ha nincs még mentett pozíciója, generálunk egy automatikusat szép hálóban
                 if (!simPositions[sim.id]) {
                     const rowSims = localSims.filter(s => (parseInt(s.generation) || 1) === gen);
                     const simIndexInRow = rowSims.findIndex(s => s.id === sim.id);
@@ -579,10 +548,18 @@
 
                 const avatarSrc = sim.image_url || `https://via.placeholder.com/88/10b981/ffffff?text=${sim.first_name[0]}`;
 
+                // Visszakerültek a gombok: Ceruza (Szerkesztés) és Plusz (Gyerek hozzáadása)
                 node.innerHTML = `
                     <div class="sim-avatar-wrapper">
-                        <img src="${avatarSrc}" class="sim-avatar">
-                        ${pos.isLocked ? '<div class="absolute -top-1 -right-1 bg-amber-500 text-slate-900 rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-md"><i class="fa-solid fa-lock"></i></div>' : ''}
+                        <img src="${avatarSrc}" class="sim-avatar" draggable="false">
+                        <div class="absolute -top-1 -right-1 flex space-x-1">
+                            <button onclick="openEditSimModal('${sim.id}')" title="Szerkesztés" class="bg-blue-600 hover:bg-blue-500 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center shadow transition hover:scale-110">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                        </div>
+                        <button onclick="addChildTo('${sim.id}')" title="Gyerek hozzáadása" class="absolute -bottom-1 right-1/2 translate-x-1/2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center shadow-lg border-2 border-slate-900 hover:scale-110 transition">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
                     </div>
                     <div class="mt-2 text-center pointer-events-none">
                         <p class="text-xs font-bold text-slate-100">${sim.first_name} ${sim.last_name}</p>
@@ -590,18 +567,21 @@
                     </div>
                 `;
 
-                // Node bal-klikkes húzás
+                // Bal-klikkes megfogás és húzás (csak ha nincs lelakatolva)
                 node.addEventListener('mousedown', (e) => {
-                    if (e.button === 0 && !simPositions[sim.id]?.isLocked) {
+                    // Ha nem az ikon gombokra kattintott, hanem a Simre
+                    if (e.button === 0 && !e.target.closest('button')) {
                         e.stopPropagation();
-                        activeDragNode = node;
-                        const rect = node.getBoundingClientRect();
-                        dragOffsetX = (e.clientX - rect.left) / scale;
-                        dragOffsetY = (e.clientY - rect.top) / scale;
+                        if (!simPositions[sim.id]?.isLocked) {
+                            activeDragNode = node;
+                            const rect = node.getBoundingClientRect();
+                            dragOffsetX = (e.clientX - rect.left) / scale;
+                            dragOffsetY = (e.clientY - rect.top) / scale;
+                        }
                     }
                 });
 
-                // Node jobb-klikkes helyi menü megnyitása
+                // Jobb-klikkes helyi menü megnyitása
                 node.addEventListener('contextmenu', (e) => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -657,7 +637,6 @@
 
         function openRelFromCtx() {
             if (contextSimId) {
-                // Kiválaszthatunk egy másik Simet a kapcsolathoz
                 const otherSims = localSims.filter(s => s.id !== contextSimId);
                 if (otherSims.length === 0) {
                     alert("Legalább 2 Simre van szükség kapcsolat létrehozásához!");
@@ -745,6 +724,16 @@
         /* --- RELATIONS & MODALS --- */
         let draggedSimId = null;
         let targetSimId = null;
+
+        function addChildTo(parentId) {
+            openAddSimModal();
+            updateParentDropdown(null, parentId);
+            const parentSim = localSims.find(s => s.id === parentId);
+            if(parentSim) {
+                document.getElementById('sim-generation').value = (parentSim.generation || 1) + 1;
+                document.getElementById('modal-title').innerHTML = `<i class="fa-solid fa-baby mr-2"></i> ${parentSim.first_name} ${parentSim.last_name} Gyermekének Felvétele`;
+            }
+        }
 
         function openRelationshipModal() {
             const sim1 = localSims.find(s => s.id === draggedSimId);
