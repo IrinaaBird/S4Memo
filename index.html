@@ -111,13 +111,15 @@
         </div>
     </main>
 
-    <!-- Add Sim Modal -->
-    <div id="add-sim-modal" class="fixed inset-0 bg-black/70 hidden flex items-center justify-center z-50 p-4">
+    <!-- Add / Edit Sim Modal -->
+    <div id="sim-modal" class="fixed inset-0 bg-black/70 hidden flex items-center justify-center z-50 p-4">
         <div class="bg-slate-800 text-slate-100 rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-700 max-h-[90vh] overflow-y-auto">
-            <h2 class="text-xl font-bold mb-4 flex items-center text-emerald-400">
+            <h2 class="text-xl font-bold mb-4 flex items-center text-emerald-400" id="modal-title">
                 <i class="fa-solid fa-user-plus mr-2"></i> Új Sim Felvétele a Fára
             </h2>
-            <form id="sim-form" onsubmit="handleAddSim(event)" class="space-y-4">
+            <form id="sim-form" onsubmit="handleSaveSim(event)" class="space-y-4">
+                <input type="hidden" id="sim-edit-id" value="">
+
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 mb-1">Keresztnév *</label>
@@ -137,7 +139,7 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Generáció (Automatikusan számolva)</label>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Generáció</label>
                         <input type="number" id="sim-generation" min="1" value="1" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none">
                     </div>
                 </div>
@@ -168,7 +170,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">Fotó feltöltése gépről</label>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Fotó módosítása / feltöltése</label>
                     <input type="file" id="sim-file" accept="image/*" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-slate-300 focus:ring-2 focus:ring-emerald-500 outline-none">
                 </div>
 
@@ -178,7 +180,7 @@
                 </div>
 
                 <div class="flex justify-end space-x-2 pt-4">
-                    <button type="button" onclick="closeAddSimModal()" class="px-4 py-2 rounded-lg text-sm text-slate-400 hover:bg-slate-700">Mégse</button>
+                    <button type="button" onclick="closeSimModal()" class="px-4 py-2 rounded-lg text-sm text-slate-400 hover:bg-slate-700">Mégse</button>
                     <button type="submit" id="save-btn" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">Mentés Családfára</button>
                 </div>
             </form>
@@ -230,23 +232,28 @@
             const { data, error } = await supabaseClient.from('sims').select('*');
             if(!error && data) {
                 localSims = data;
-                updateParentDropdown();
                 renderTree();
             }
         }
 
-        function updateParentDropdown() {
+        function updateParentDropdown(excludeId = null) {
             const parentSelect = document.getElementById('sim-parent');
             parentSelect.innerHTML = '<option value="">-- Nincs szülő (Alapító) --</option>';
             localSims.forEach(sim => {
-                const opt = document.createElement('option');
-                opt.value = sim.id;
-                opt.textContent = `${sim.first_name} ${sim.last_name} (Gen ${sim.generation || 1})`;
-                parentSelect.appendChild(opt);
+                if (sim.id !== excludeId) {
+                    const opt = document.createElement('option');
+                    opt.value = sim.id;
+                    opt.textContent = `${sim.first_name} ${sim.last_name} (Gen ${sim.generation || 1})`;
+                    parentSelect.appendChild(opt);
+                }
             });
         }
 
         function autoCalculateGen() {
+            const editId = document.getElementById('sim-edit-id').value;
+            // Csak akkor számoljon automatikusan, ha új Simet hozunk létre
+            if(editId) return;
+
             const parentId = document.getElementById('sim-parent').value;
             const genInput = document.getElementById('sim-generation');
             
@@ -300,9 +307,14 @@
                         node.innerHTML = `
                             <div class="relative">
                                 <img src="${avatarSrc}" class="sim-avatar">
-                                <button onclick="deleteSim('${sim.id}')" class="absolute -top-1 -right-1 bg-red-600 hover:bg-red-500 text-white rounded-full w-6 h-6 text-xs opacity-0 group-hover:opacity-100 transition shadow">
-                                    <i class="fa-solid fa-times"></i>
-                                </button>
+                                <div class="absolute -top-1 -right-1 flex space-x-1 opacity-0 group-hover:opacity-100 transition">
+                                    <button onclick="openEditSimModal('${sim.id}')" class="bg-blue-600 hover:bg-blue-500 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center shadow">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+                                    <button onclick="deleteSim('${sim.id}')" class="bg-red-600 hover:bg-red-500 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center shadow">
+                                        <i class="fa-solid fa-times"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="mt-2 text-center">
                                 <p class="text-sm font-bold text-slate-100 group-hover:text-emerald-400 transition">${sim.first_name} ${sim.last_name}</p>
@@ -317,18 +329,42 @@
         }
 
         function openAddSimModal() {
-            document.getElementById('add-sim-modal').classList.remove('hidden');
+            document.getElementById('sim-form').reset();
+            document.getElementById('sim-edit-id').value = '';
+            document.getElementById('modal-title').innerHTML = `<i class="fa-solid fa-user-plus mr-2"></i> Új Sim Felvétele a Fára`;
+            updateParentDropdown();
+            document.getElementById('sim-modal').classList.remove('hidden');
         }
 
-        function closeAddSimModal() {
-            document.getElementById('add-sim-modal').classList.add('hidden');
+        function openEditSimModal(id) {
+            const sim = localSims.find(s => s.id === id);
+            if(!sim) return;
+
+            document.getElementById('sim-edit-id').value = sim.id;
+            document.getElementById('sim-firstname').value = sim.first_name;
+            document.getElementById('sim-lastname').value = sim.last_name;
+            document.getElementById('sim-generation').value = sim.generation || 1;
+            document.getElementById('sim-lifestage').value = sim.life_stage || 'Fiatal Felnőtt';
+            document.getElementById('sim-occult').value = sim.occult_status || 'Ember';
+            document.getElementById('sim-traits').value = sim.traits ? sim.traits.join(', ') : '';
+
+            updateParentDropdown(sim.id);
+            document.getElementById('sim-parent').value = sim.parent_id || '';
+
+            document.getElementById('modal-title').innerHTML = `<i class="fa-solid fa-user-pen mr-2"></i> ${sim.first_name} ${sim.last_name} Szerkesztése`;
+            document.getElementById('sim-modal').classList.remove('hidden');
         }
 
-        async function handleAddSim(e) {
+        function closeSimModal() {
+            document.getElementById('sim-modal').classList.add('hidden');
+        }
+
+        async function handleSaveSim(e) {
             e.preventDefault();
             const saveBtn = document.getElementById('save-btn');
             saveBtn.disabled = true;
 
+            const editId = document.getElementById('sim-edit-id').value;
             const firstName = document.getElementById('sim-firstname').value;
             const lastName = document.getElementById('sim-lastname').value;
             const generation = parseInt(document.getElementById('sim-generation').value) || 1;
@@ -340,6 +376,7 @@
 
             let imageUrl = '';
 
+            // Új kép feltöltése ha választott ki fájlt
             if (fileInput.files.length > 0 && supabaseClient) {
                 const file = fileInput.files[0];
                 const fileExt = file.name.split('.').pop();
@@ -355,27 +392,36 @@
                         .getPublicUrl(fileName);
                     imageUrl = publicUrlData.publicUrl;
                 }
+            } else if(editId) {
+                // Megtartjuk a meglévő képet szerkesztéskor, ha nem töltött fel újat
+                const existingSim = localSims.find(s => s.id === editId);
+                if(existingSim) imageUrl = existingSim.image_url;
             }
 
-            const dummyTreeId = "00000000-0000-0000-0000-000000000000";
+            const simPayload = {
+                first_name: firstName,
+                last_name: lastName,
+                generation: generation,
+                parent_id: parentId,
+                life_stage: lifestage,
+                occult_status: occult,
+                image_url: imageUrl,
+                traits: traitsRaw ? traitsRaw.split(',').map(t => t.trim()) : [],
+                tree_id: "00000000-0000-0000-0000-000000000000"
+            };
 
             if(supabaseClient) {
-                await supabaseClient.from('sims').insert([{
-                    first_name: firstName,
-                    last_name: lastName,
-                    generation: generation,
-                    parent_id: parentId,
-                    life_stage: lifestage,
-                    occult_status: occult,
-                    image_url: imageUrl,
-                    traits: traitsRaw ? traitsRaw.split(',') : [],
-                    tree_id: dummyTreeId
-                }]);
+                if (editId) {
+                    // MÓDOSÍTÁS (UPDATE)
+                    await supabaseClient.from('sims').update(simPayload).eq('id', editId);
+                } else {
+                    // ÚJ LÉTREHOZÁSA (INSERT)
+                    await supabaseClient.from('sims').insert([simPayload]);
+                }
             }
 
             saveBtn.disabled = false;
-            closeAddSimModal();
-            document.getElementById('sim-form').reset();
+            closeSimModal();
             fetchSims();
         }
 
