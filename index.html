@@ -86,6 +86,8 @@
             font-weight: 600;
             margin-bottom: 18px;
             display: none;
+            text-align: left;
+            word-break: break-word;
         }
 
         .auth-msg.error {
@@ -217,15 +219,12 @@
         
         let supabaseClient = null;
 
-        // Supabase inicializálás hibakezeléssel
         try {
             if (window.supabase) {
                 supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            } else {
-                console.error("A Supabase SDK nem töltődött be.");
             }
         } catch (e) {
-            console.error("Hiba a Supabase inicializálásakor:", e);
+            console.error("Supabase Hiba:", e);
         }
 
         let currentMode = 'login';
@@ -301,7 +300,7 @@
             hideMessage();
 
             if (!supabaseClient) {
-                showMessage('Nem sikerült csatlakozni a szerverhez. Kérlek kapcsold ki a reklámblokkolót vagy frissítsd az oldalt!');
+                showMessage('Nem sikerült csatlakozni a Supabase szerverhez.');
                 return;
             }
 
@@ -309,7 +308,6 @@
             const password = passwordInput.value;
             const username = usernameInput.value.trim();
 
-            // --- REGISZTRÁCIÓ ---
             if (currentMode === 'register') {
                 if (!email || !password || !username) {
                     showMessage('Kérjük, tölts ki minden mezőt!');
@@ -318,28 +316,28 @@
 
                 authSubmitBtn.innerText = 'Regisztráció...';
 
-                const { data, error } = await supabaseClient.auth.signUp({
-                    email: email,
-                    password: password,
-                    options: {
-                        data: { display_name: username }
-                    }
-                });
+                try {
+                    const { data, error } = await supabaseClient.auth.signUp({
+                        email: email,
+                        password: password,
+                        options: { data: { display_name: username } }
+                    });
 
-                authSubmitBtn.innerText = 'Regisztráció';
+                    authSubmitBtn.innerText = 'Regisztráció';
 
-                if (error) {
-                    if (error.message.includes('User already registered')) {
-                        showMessage('Ez az e-mail cím már regisztrálva van!');
+                    if (error) {
+                        showMessage('Hiba regisztrációkor: ' + error.message);
+                    } else if (data.user && data.session === null) {
+                        showMessage('Sikeres regisztráció! Kérlek igazold vissza az e-mail címedet a kiküldött levélben a bejelentkezéshez.', false);
                     } else {
-                        showMessage('Hiba: ' + error.message);
+                        showMessage('Sikeres regisztráció!', false);
+                        setTimeout(() => authOverlay.classList.add('hidden'), 1000);
                     }
-                } else {
-                    showMessage('Sikeres regisztráció! Ellenőrizd az e-mail fiókodat a megerősítő linkért.', false);
+                } catch (err) {
+                    authSubmitBtn.innerText = 'Regisztráció';
+                    showMessage('Váratlan hiba: ' + err.message);
                 }
             }
-
-            // --- BEJELENTKEZÉS ---
             else if (currentMode === 'login') {
                 if (!email || !password) {
                     showMessage('Kérjük, add meg az e-mail címed és a jelszavad!');
@@ -348,21 +346,30 @@
 
                 authSubmitBtn.innerText = 'Bejelentkezés...';
 
-                const { data, error } = await supabaseClient.auth.signInWithPassword({
-                    email: email,
-                    password: password
-                });
+                try {
+                    const { data, error } = await supabaseClient.auth.signInWithPassword({
+                        email: email,
+                        password: password
+                    });
 
-                authSubmitBtn.innerText = 'Bejelentkezés';
+                    authSubmitBtn.innerText = 'Bejelentkezés';
 
-                if (error) {
-                    showMessage('Hibás e-mail cím vagy jelszó!');
-                } else {
-                    authOverlay.classList.add('hidden');
+                    if (error) {
+                        if (error.message.includes('Email not confirmed')) {
+                            showMessage('Az e-mail címed még nincs megerősítve! Kattints a kapott e-mailben lévő linkre, vagy kapcsold ki az E-mail confirmation-t a Supabase-ben.');
+                        } else if (error.message.includes('Invalid login credentials')) {
+                            showMessage('Hibás e-mail cím vagy jelszó!');
+                        } else {
+                            showMessage('Bejelentkezési hiba: ' + error.message);
+                        }
+                    } else {
+                        authOverlay.classList.add('hidden');
+                    }
+                } catch (err) {
+                    authSubmitBtn.innerText = 'Bejelentkezés';
+                    showMessage('Váratlan hiba: ' + err.message);
                 }
             }
-
-            // --- ELFELEJTETT JELSZÓ ---
             else if (currentMode === 'forgot') {
                 if (!email) {
                     showMessage('Kérjük, add meg az e-mail címed!');
@@ -372,11 +379,10 @@
                 authSubmitBtn.innerText = 'Küldés...';
 
                 const { error } = await supabaseClient.auth.resetPasswordForEmail(email);
-
                 authSubmitBtn.innerText = 'E-mail küldése';
 
                 if (error) {
-                    showMessage('Hiba történt a levél küldésekor!');
+                    showMessage('Hiba: ' + error.message);
                 } else {
                     showMessage('A jelszóvisszaállító linket elküldtük az e-mail címedre!', false);
                 }
@@ -385,11 +391,15 @@
 
         async function checkUserSession() {
             if (!supabaseClient) return;
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            if (session) {
-                authOverlay.classList.add('hidden');
-            } else {
-                authOverlay.classList.remove('hidden');
+            try {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (session) {
+                    authOverlay.classList.add('hidden');
+                } else {
+                    authOverlay.classList.remove('hidden');
+                }
+            } catch (e) {
+                console.error(e);
             }
         }
 
@@ -401,7 +411,6 @@
             switchMode('login');
         }
 
-        // Indításkor ellenőrizzük a munkamenetet
         checkUserSession();
     </script>
 </body>
