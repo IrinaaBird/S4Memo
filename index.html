@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>S4Memo - Sims 4 Memorable</title>
     <style>
-        /* -------------------------------------------------- */
-        /* TÉMA VÁLTOZÓK                                       */
-        /* -------------------------------------------------- */
         :root {
             --bg-color: #e8d3c5;
             --card-bg: #f5ebe1;
@@ -55,9 +52,6 @@
             min-height: 100vh;
         }
 
-        /* -------------------------------------------------- */
-        /* AUTH OVERLAY / BEJELENTKEZÉS ÉS REGISZTRÁCIÓ        */
-        /* -------------------------------------------------- */
         .auth-overlay {
             position: fixed;
             top: 0;
@@ -86,7 +80,6 @@
             max-width: 420px;
             text-align: center;
             border: 2px solid var(--border-color);
-            position: relative;
         }
 
         .auth-card h2 {
@@ -97,7 +90,6 @@
             font-weight: 700;
         }
 
-        /* Hibaüzenet & Sikeres üzenet stílusok */
         .auth-msg {
             padding: 10px 14px;
             border-radius: 12px;
@@ -205,9 +197,6 @@
             text-decoration: underline;
         }
 
-        /* -------------------------------------------------- */
-        /* ALKALMAZÁS FELÜLET                                */
-        /* -------------------------------------------------- */
         .top-nav-container { padding: 20px 20px 0 20px; }
         .top-nav {
             background-color: var(--nav-bg);
@@ -297,7 +286,6 @@
             text-transform: uppercase;
         }
 
-        /* Oldalsáv és nyíl */
         .right-sidebar {
             position: fixed;
             top: 20px;
@@ -352,7 +340,6 @@
 </head>
 <body>
 
-    <!-- BEJELENTKEZÉSI / REGISZTRÁCIÓS / ELFELEJTETT JELSZÓ ABOLAK -->
     <div class="auth-overlay" id="authOverlay">
         <div class="auth-card">
             <div class="logo" style="justify-content: center; margin-bottom: 15px;">
@@ -361,29 +348,24 @@
             
             <h2 id="authTitle">Bejelentkezés</h2>
             
-            <!-- Üzenetjelző (Hiba/Siker) -->
             <div id="authMsg" class="auth-msg"></div>
 
             <form id="authForm" onsubmit="handleAuthSubmit(event)">
-                <!-- Email mező (Regisztrációnál és Elfelejtett jelszónál kell) -->
                 <div class="form-group" id="emailGroup" style="display: none;">
                     <label for="email">E-mail cím</label>
                     <input type="email" id="email" placeholder="pelda@email.com">
                 </div>
 
-                <!-- Felhasználónév mező (Regisztrációnál és Bejelentkezésnél kell) -->
                 <div class="form-group" id="usernameGroup">
                     <label for="username">Felhasználónév</label>
                     <input type="text" id="username" placeholder="Felhasználónév">
                 </div>
 
-                <!-- Jelszó mező (Regisztrációnál, Bejelentkezésnél és Új jelszónál kell) -->
                 <div class="form-group" id="passwordGroup">
                     <label for="password" id="passwordLabel">Jelszó</label>
                     <input type="password" id="password" placeholder="••••••••">
                 </div>
 
-                <!-- Bejelentkezve maradok opció -->
                 <label class="form-checkbox" id="rememberMeGroup">
                     <input type="checkbox" id="rememberMe" checked>
                     <span>Bejelentkezve maradok</span>
@@ -392,7 +374,6 @@
                 <button type="submit" class="auth-btn" id="authSubmitBtn">Bejelentkezés</button>
             </form>
             
-            <!-- Váltó hivatkozások -->
             <div class="auth-actions">
                 <div id="forgotPasswordLinkContainer">
                     <a class="auth-link" onclick="switchMode('forgot')">Elfelejtetted a jelszavad?</a>
@@ -405,8 +386,6 @@
         </div>
     </div>
 
-
-    <!-- ALKALMAZÁS FELÜLET -->
     <div class="top-nav-container">
         <nav class="top-nav">
             <div class="nav-left">
@@ -428,7 +407,6 @@
         </nav>
     </div>
 
-    <!-- Főoldal tartalma -->
     <div class="main-container">
         <main class="main-card">
             <span class="beta-badge">Béta Verzió</span>
@@ -439,7 +417,6 @@
         </main>
     </div>
 
-    <!-- Jobb oldali előugró menü -->
     <div class="right-sidebar" id="sidebar">
         <ul>
             <li><a href="#">🏠 Főoldal</a></li>
@@ -450,22 +427,18 @@
         </ul>
     </div>
 
-    <!-- Nyilacska gomb -->
     <button class="toggle-btn" id="toggleBtn">
         <span class="arrow-icon">◀</span>
     </button>
 
-
-    <!-- JAVASCRIPT LOGIKA -->
     <script>
-        // Módok: 'login', 'register', 'forgot'
         let currentMode = 'login';
 
-        // DOM Elemek
         const authOverlay = document.getElementById('authOverlay');
         const authTitle = document.getElementById('authTitle');
         const authSubmitBtn = document.getElementById('authSubmitBtn');
         const authMsg = document.getElementById('authMsg');
+        const authForm = document.getElementById('authForm');
         
         const emailGroup = document.getElementById('emailGroup');
         const usernameGroup = document.getElementById('usernameGroup');
@@ -482,16 +455,18 @@
         const rememberMeInput = document.getElementById('rememberMe');
         const displayUsername = document.getElementById('displayUsername');
 
-        // Adatbázis elérése (localStorage)
         function getUsersDB() {
-            return JSON.parse(localStorage.getItem('s4memo_users_db')) || [];
+            try {
+                return JSON.parse(localStorage.getItem('s4memo_users_db')) || [];
+            } catch (e) {
+                return [];
+            }
         }
 
         function saveUsersDB(db) {
             localStorage.setItem('s4memo_users_db', JSON.stringify(db));
         }
 
-        // Üzenet megjelenítő
         function showMessage(text, isError = true) {
             authMsg.innerText = text;
             authMsg.className = 'auth-msg ' + (isError ? 'error' : 'success');
@@ -499,13 +474,12 @@
 
         function hideMessage() {
             authMsg.style.display = 'none';
+            authMsg.innerText = '';
         }
 
-        // Nézetek váltása (Login / Register / Forgot)
         function switchMode(mode) {
             currentMode = mode;
             hideMessage();
-            authForm.reset();
 
             if (mode === 'login') {
                 authTitle.innerText = 'Bejelentkezés';
@@ -551,70 +525,66 @@
             }
         }
 
-        // Űrlap feldolgozása
         function handleAuthSubmit(event) {
             event.preventDefault();
             hideMessage();
 
             const db = getUsersDB();
-            const email = emailInput.value.trim().toLowerCase();
-            const username = usernameInput.value.trim();
-            const password = passwordInput.value;
+            const email = (emailInput.value || '').trim().toLowerCase();
+            const username = (usernameInput.value || '').trim();
+            const password = passwordInput.value || '';
 
-            // --- 1. REGISZTRÁCIÓ LOGIKA ---
+            // --- REGISZTRÁCIÓ ---
             if (currentMode === 'register') {
                 if (!email || !username || !password) {
                     showMessage('Kérjük, tölts ki minden mezőt!');
                     return;
                 }
 
-                // Jelszó hossz ellenőrzése
                 if (password.length < 4) {
                     showMessage('A jelszónak legalább 4 karakterből kell állnia!');
                     return;
                 }
 
-                // Email duplikáció ellenőrzés
-                const emailExists = db.some(u => u.email === email);
+                // E-mail ellenőrzés
+                const emailExists = db.some(u => u.email && u.email.toLowerCase() === email);
                 if (emailExists) {
                     showMessage('Ez az e-mail cím már használatban van!');
                     return;
                 }
 
-                // Felhasználónév duplikáció ellenőrzés
-                const usernameExists = db.some(u => u.username.toLowerCase() === username.toLowerCase());
+                // Felhasználónév ellenőrzés
+                const usernameExists = db.some(u => u.username && u.username.toLowerCase() === username.toLowerCase());
                 if (usernameExists) {
                     showMessage('Ez a felhasználónév már használatban van!');
                     return;
                 }
 
-                // Sikeres regisztráció -> Mentés
+                // Mentés
                 db.push({ email, username, password });
                 saveUsersDB(db);
 
-                // Automatikus beléptetés regisztráció után
                 loginUser(username, true);
             }
 
-            // --- 2. BEJELENTKEZÉS LOGIKA ---
+            // --- BEJELENTKEZÉS ---
             else if (currentMode === 'login') {
                 if (!username || !password) {
                     showMessage('Kérjük, add meg a felhasználóneved és a jelszavad!');
                     return;
                 }
 
-                const user = db.find(u => u.username.toLowerCase() === username.toLowerCase() && u.password === password);
+                const user = db.find(u => u.username && u.username.toLowerCase() === username.toLowerCase() && u.password === password);
 
                 if (!user) {
                     showMessage('Hibás felhasználónév vagy jelszó!');
                     return;
                 }
 
-                // Sikeres bejelentkezés
                 loginUser(user.username, rememberMeInput.checked);
             }
 
-            // --- 3. ELFELEJTETT JELSZÓ LOGIKA ---
+            // --- ELFELEJTETT JELSZÓ ---
             else if (currentMode === 'forgot') {
                 if (!email || !password) {
                     showMessage('Add meg az e-mail címed és az új jelszót!');
@@ -626,13 +596,12 @@
                     return;
                 }
 
-                const userIndex = db.findIndex(u => u.email === email);
+                const userIndex = db.findIndex(u => u.email && u.email.toLowerCase() === email);
                 if (userIndex === -1) {
                     showMessage('Nem található fiók ezzel az e-mail címmel!');
                     return;
                 }
 
-                // Jelszó frissítése
                 db[userIndex].password = password;
                 saveUsersDB(db);
 
@@ -641,7 +610,6 @@
             }
         }
 
-        // Beléptető segédfunkció
         function loginUser(username, remember) {
             if (remember) {
                 localStorage.setItem('s4memo_active_user', username);
@@ -652,7 +620,6 @@
             authOverlay.classList.add('hidden');
         }
 
-        // Ellenőrizzük, hogy be van-e lépve
         function checkAutoLogin() {
             const loggedUser = localStorage.getItem('s4memo_active_user') || sessionStorage.getItem('s4memo_active_user');
             if (loggedUser) {
@@ -676,7 +643,6 @@
             alert('Saját profil kezelése: ' + displayUsername.innerText);
         }
 
-        // Témakezelés (Light / Dark)
         function initTheme() {
             const savedTheme = localStorage.getItem('s4memo_theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
@@ -691,13 +657,11 @@
             document.getElementById('themeBtn').innerText = newTheme === 'dark' ? '☀️ Light' : '🌙 Dark';
         }
 
-        // Nyilacska gomb
         toggleBtn.addEventListener('click', () => {
             sidebar.classList.toggle('open');
             toggleBtn.classList.toggle('open');
         });
 
-        // Inicializálás
         initTheme();
         checkAutoLogin();
     </script>
