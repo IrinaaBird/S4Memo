@@ -63,7 +63,7 @@
             object-fit: cover;
             background-color: #334155;
             transition: box-shadow 0.2s, border-color 0.2s, transform 0.2s;
-            pointer-events: none; /* Megakadályozza a böngésző natív kép-húzási mechanizmusát */
+            pointer-events: none;
         }
 
         .sim-node:hover .sim-avatar {
@@ -71,7 +71,7 @@
             box-shadow: 0 0 25px rgba(16, 185, 129, 0.8);
         }
 
-        /* Vonal összekötő SVG réteg */
+        /* SVG réteg */
         #svg-connectors {
             position: absolute;
             top: 0;
@@ -82,14 +82,27 @@
             z-index: 1;
         }
 
-        /* Szülő-Gyerek vonal */
-        .line-parent-child {
-            stroke: #10b981;
-            stroke-width: 3;
+        /* --- ARANYOS ANIMÁLT KÖTÉL FORMÁZÁS --- */
+        .line-rope-base {
+            stroke: #8b5a2b;
+            stroke-width: 8;
             fill: none;
-            stroke-dasharray: 6 3;
-            filter: drop-shadow(0px 0px 4px rgba(16, 185, 129, 0.6));
-            animation: dash 30s linear infinite;
+            stroke-linecap: round;
+            filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.5));
+        }
+
+        .line-rope-pattern {
+            stroke: #fcd34d;
+            stroke-width: 4;
+            fill: none;
+            stroke-linecap: round;
+            stroke-dasharray: 8 8;
+            animation: moveRope 1.2s linear infinite;
+        }
+
+        @keyframes moveRope {
+            from { stroke-dashoffset: 0; }
+            to { stroke-dashoffset: -16; }
         }
 
         /* Házastárs vonal */
@@ -123,10 +136,6 @@
             stroke-width: 2.5;
             fill: none;
             stroke-dasharray: 3 3;
-        }
-
-        @keyframes dash {
-            to { stroke-dashoffset: -1000; }
         }
 
         /* Jobb klikk menü */
@@ -363,7 +372,7 @@
         let dragOffsetY = 0;
         let contextSimId = null;
 
-        // Dynamic position store (id -> {x, y, isLocked})
+        // Dynamic position store
         let simPositions = {};
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -382,7 +391,6 @@
 
             setupPanZoomListeners();
 
-            // Globális kattintás a helyi menü elrejtéséhez
             window.addEventListener('click', () => {
                 document.getElementById('context-menu').style.display = 'none';
             });
@@ -403,7 +411,6 @@
             }, { passive: false });
 
             viewport.addEventListener('mousedown', (e) => {
-                // Bal egérgomb nyomás a vásznon (de nem Sim node-on): Nézet Mozgatása (Panning)
                 if (e.button === 0 && !activeDragNode) {
                     isPanning = true;
                     startPanX = e.clientX - panX;
@@ -413,7 +420,6 @@
 
             window.addEventListener('mousemove', (e) => {
                 if (activeDragNode) {
-                    // Sim csúsztatása a vásznon
                     const world = document.getElementById('pan-zoom-world').getBoundingClientRect();
                     const newX = (e.clientX - world.left) / scale - dragOffsetX;
                     const newY = (e.clientY - world.top) / scale - dragOffsetY;
@@ -428,7 +434,6 @@
 
                     drawConnectors();
                 } else if (isPanning) {
-                    // Vászon mozgatása
                     panX = e.clientX - startPanX;
                     panY = e.clientY - startPanY;
                     updateWorldTransform();
@@ -445,7 +450,6 @@
                 }
             });
 
-            // Gyári letiltás a jobb klikkes böngésző menüre
             viewport.addEventListener('contextmenu', e => e.preventDefault());
         }
 
@@ -548,7 +552,6 @@
 
                 const avatarSrc = sim.image_url || `https://via.placeholder.com/88/10b981/ffffff?text=${sim.first_name[0]}`;
 
-                // Visszakerültek a gombok: Ceruza (Szerkesztés) és Plusz (Gyerek hozzáadása)
                 node.innerHTML = `
                     <div class="sim-avatar-wrapper">
                         <img src="${avatarSrc}" class="sim-avatar" draggable="false">
@@ -567,9 +570,7 @@
                     </div>
                 `;
 
-                // Bal-klikkes megfogás és húzás (csak ha nincs lelakatolva)
                 node.addEventListener('mousedown', (e) => {
-                    // Ha nem az ikon gombokra kattintott, hanem a Simre
                     if (e.button === 0 && !e.target.closest('button')) {
                         e.stopPropagation();
                         if (!simPositions[sim.id]?.isLocked) {
@@ -581,7 +582,6 @@
                     }
                 });
 
-                // Jobb-klikkes helyi menü megnyitása
                 node.addEventListener('contextmenu', (e) => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -611,7 +611,7 @@
                 lockText.textContent = "Pozíció Feloldása";
                 lockIcon.className = "fa-solid fa-lock-open text-emerald-400";
             } else {
-                lockText.textContent = "Pozíció Fixálása (Lakat)";
+                lockText.textContent = "Pozíció Fixálása";
                 lockIcon.className = "fa-solid fa-lock text-amber-400";
             }
 
@@ -654,7 +654,7 @@
             document.getElementById('context-menu').style.display = 'none';
         }
 
-        /* --- CONNECTOR LINES --- */
+        /* --- CONNECTOR LINES (KÖTÉL RAJZOLÁSA) --- */
         function drawConnectors() {
             const world = document.getElementById('pan-zoom-world');
             const svg = document.getElementById('svg-connectors');
@@ -667,7 +667,7 @@
             const drawnPartnerPairs = new Set();
 
             localSims.forEach(sim => {
-                // Szülő-Gyerek vonal
+                // Szülő-Gyerek animált Kötél vonal
                 if (sim.parent_id) {
                     const parentNode = document.getElementById(`sim-node-${sim.parent_id}`);
                     const childNode = document.getElementById(`sim-node-${sim.id}`);
@@ -682,14 +682,21 @@
                         const controlY = pY + (cY - pY) / 2;
                         const d = `M ${pX} ${pY} C ${pX} ${controlY}, ${cX} ${controlY}, ${cX} ${cY}`;
 
-                        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                        path.setAttribute('d', d);
-                        path.setAttribute('class', 'line-parent-child');
-                        svg.appendChild(path);
+                        // 1. Kötél alapja (Sötétebb barna vastag vonal)
+                        const baseRope = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                        baseRope.setAttribute('d', d);
+                        baseRope.setAttribute('class', 'line-rope-base');
+                        svg.appendChild(baseRope);
+
+                        // 2. Kötél fonat mintázata (Világosbarna/Sárgás animált csíkozás)
+                        const patternRope = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                        patternRope.setAttribute('d', d);
+                        patternRope.setAttribute('class', 'line-rope-pattern');
+                        svg.appendChild(patternRope);
                     }
                 }
 
-                // Partner vonal
+                // Partner vonalak
                 if (sim.partner_id) {
                     const pairKey = [sim.id, sim.partner_id].sort().join('-');
                     if (!drawnPartnerPairs.has(pairKey)) {
