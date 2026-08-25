@@ -8,6 +8,7 @@
         :root {
             --bg-color: #e8d3c5;
             --card-bg: #f5ebe1;
+            --sidebar-bg: #efe2d7;
             --text-color: #3b2d25;
             --subtext-color: #614f45;
             --border-color: #d9c0b1;
@@ -21,6 +22,7 @@
         [data-theme="dark"] {
             --bg-color: #1a1614;
             --card-bg: #28221f;
+            --sidebar-bg: #221c19;
             --text-color: #eedcd0;
             --subtext-color: #b39f93;
             --border-color: #3d332e;
@@ -34,7 +36,7 @@
         * {
             box-sizing: border-box;
             font-family: 'Segoe UI', 'Quicksand', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-            transition: background-color 0.3s ease, color 0.3s ease;
+            transition: background-color 0.3s ease, color 0.3s ease, width 0.3s ease, margin-left 0.3s ease;
         }
 
         body {
@@ -43,9 +45,11 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             min-height: 100vh;
+            display: flex;
+            overflow-x: hidden;
         }
 
-        /* Plumbob Sim Kristály ikon */
+        /* Plumbob Sim Kristály */
         .plumbob {
             width: 14px; 
             height: 22px;
@@ -54,7 +58,120 @@
             display: inline-block;
         }
 
-        /* Fejléc / Főmenü Navigáció */
+        /* Oldalsáv (Sidebar) */
+        .sidebar {
+            width: 260px;
+            height: 100vh;
+            background-color: var(--sidebar-bg);
+            border-right: 2px solid var(--border-color);
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            padding: 20px 15px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 15px var(--shadow-color);
+        }
+
+        .sidebar.collapsed {
+            width: 70px;
+        }
+
+        .sidebar-toggle-btn {
+            position: absolute;
+            top: 20px;
+            right: -18px;
+            width: 36px;
+            height: 36px;
+            background-color: var(--accent-color);
+            color: #ffffff;
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            z-index: 1001;
+            box-shadow: 0 2px 8px var(--shadow-color);
+        }
+
+        .sidebar-toggle-btn:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 5px;
+            margin-bottom: 25px;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .sidebar-title {
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .sidebar.collapsed .sidebar-title {
+            display: none;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .sidebar-menu li a {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 15px;
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: 16px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .sidebar-menu li a:hover, .sidebar-menu li a.active {
+            background-color: var(--card-bg);
+            color: var(--accent-color);
+        }
+
+        .sidebar-icon {
+            font-size: 20px;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        .sidebar.collapsed .menu-text {
+            display: none;
+        }
+
+        /* Fő tartalom elrendezése */
+        .main-wrapper {
+            margin-left: 260px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .main-wrapper.expanded {
+            margin-left: 70px;
+        }
+
+        /* Felső navigációs sáv */
         .top-nav {
             background-color: var(--nav-bg);
             padding: 15px 30px;
@@ -67,35 +184,63 @@
             box-shadow: 0 4px 15px var(--shadow-color);
         }
 
-        .logo {
+        .nav-left {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: 2px solid transparent;
+            color: var(--text-color);
+            padding: 10px 20px;
+            border-radius: 16px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .nav-btn.active, .nav-btn:hover {
+            background-color: var(--card-bg);
+            color: var(--accent-color);
+            border-color: var(--border-color);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-profile-btn {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            color: var(--text-color);
+            padding: 8px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 700;
             display: flex;
             align-items: center;
             gap: 10px;
-            font-weight: 800;
-            font-size: 22px;
-            color: var(--text-color);
+            box-shadow: 0 2px 8px var(--shadow-color);
         }
 
-        .nav-links {
-            display: flex;
-            gap: 20px;
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-
-        .nav-links a {
-            text-decoration: none;
-            color: var(--text-color);
-            font-weight: 600;
-            padding: 8px 16px;
-            border-radius: 12px;
-            transition: all 0.2s ease;
-        }
-
-        .nav-links a:hover, .nav-links a.active {
-            background-color: var(--card-bg);
+        .user-profile-btn:hover {
+            border-color: var(--accent-color);
             color: var(--accent-color);
+        }
+
+        .user-avatar {
+            width: 28px;
+            height: 28px;
+            background-color: var(--accent-color);
+            color: #ffffff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
         }
 
         .theme-toggle {
@@ -103,7 +248,7 @@
             border: 1px solid var(--border-color);
             color: var(--text-color);
             padding: 8px 14px;
-            border-radius: 12px;
+            border-radius: 14px;
             cursor: pointer;
             font-weight: 600;
         }
@@ -113,13 +258,18 @@
             color: #ffffff;
         }
 
-        /* Fő tartalom kártya */
+        /* Tartalom kártya */
+        .content-container {
+            padding: 0 20px 30px 20px;
+            flex: 1;
+        }
+
         .main-card {
             background-color: var(--card-bg);
             padding: 40px;
             border-radius: 35px;
-            max-width: 900px;
-            margin: 30px auto;
+            max-width: 1000px;
+            margin: 0 auto;
             border: 2px solid var(--border-color);
             box-shadow: 0 10px 30px var(--shadow-color);
         }
@@ -134,31 +284,133 @@
             font-size: 16px;
             line-height: 1.6;
         }
+
+        .page-section {
+            display: none;
+        }
+
+        .page-section.active {
+            display: block;
+        }
     </style>
 </head>
 <body>
 
-    <!-- Főmenü / Fejléc -->
-    <nav class="top-nav">
-        <div class="logo">
-            <span class="plumbob"></span> S4Memo
+    <!-- Nyitható/csukható Oldalsáv (Sidebar) -->
+    <aside class="sidebar" id="sidebar">
+        <button class="sidebar-toggle-btn" onclick="toggleSidebar()" id="sidebarArrow">◄</button>
+        
+        <div class="sidebar-header">
+            <span class="plumbob"></span>
+            <span class="sidebar-title">S4Memo</span>
         </div>
-        <ul class="nav-links">
-            <li><a href="#" class="active">Főoldal</a></li>
-            <li><a href="#">Családfák</a></li>
-            <li><a href="#">Generációk</a></li>
-            <li><a href="#">Beállítások</a></li>
-        </ul>
-        <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙 Sötét mód</button>
-    </nav>
 
-    <!-- Fő tartalom -->
-    <div class="main-card">
-        <h1>Üdvözöllek a Sims 4 Memorable oldalán!</h1>
-        <p>A weboldal közvetlenül elérhető. Innen tudod tovább építeni a funkciókat, mint a családfák kezelése, képek feltöltése és a Sim-ek adatainak rögzítése.</p>
+        <ul class="sidebar-menu">
+            <li>
+                <a href="#" class="active" onclick="switchMainTab('home')">
+                    <span class="sidebar-icon">🌳</span>
+                    <span class="menu-text">Családfáim</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <span class="sidebar-icon">👥</span>
+                    <span class="menu-text">Simek</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <span class="sidebar-icon">📸</span>
+                    <span class="menu-text">Emlékek</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <span class="sidebar-icon">⚙️</span>
+                    <span class="menu-text">Beállítások</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Fő tartalom területe -->
+    <div class="main-wrapper" id="mainWrapper">
+        
+        <!-- Felső navigáció -->
+        <nav class="top-nav">
+            <div class="nav-left">
+                <button class="nav-btn active" id="tabHomeBtn" onclick="switchMainTab('home')">Főoldal</button>
+                <button class="nav-btn" id="tabPublicBtn" onclick="switchMainTab('public')">Publikum</button>
+            </div>
+            
+            <div class="nav-right">
+                <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙 Sötét mód</button>
+                <button class="user-profile-btn">
+                    <div class="user-avatar">👤</div>
+                    <span>Profilom</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Oldalak tartalma -->
+        <div class="content-container">
+            
+            <!-- FŐOLDAL SZEKCIÓ -->
+            <section id="homeSection" class="page-section active">
+                <div class="main-card">
+                    <h1>Üdvözöllek újra az S4Memo-ban!</h1>
+                    <p>Ez a te privát munkaterületed. Az oldalsáv segítségével kezelheted a családfáidat, rögzítheted a Sim-jeid adatait és emlékeit.</p>
+                </div>
+            </section>
+
+            <!-- PUBLIKUM SZEKCIÓ -->
+            <section id="publicSection" class="page-section">
+                <div class="main-card">
+                    <h1>Publikum / Közösségi oldal</h1>
+                    <p>Itt böngészhetsz a többi játékos által nyilvánossá tett családfák és történetek között.</p>
+                </div>
+            </section>
+
+        </div>
     </div>
 
     <script>
+        // Oldalsáv nyitása/csukása
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainWrapper = document.getElementById('mainWrapper');
+            const arrow = document.getElementById('sidebarArrow');
+
+            sidebar.classList.toggle('collapsed');
+            mainWrapper.classList.toggle('expanded');
+
+            if (sidebar.classList.contains('collapsed')) {
+                arrow.innerText = '►';
+            } else {
+                arrow.innerText = '◄';
+            }
+        }
+
+        // Főoldal és Publikum fülek közötti váltás
+        function switchMainTab(tab) {
+            const homeSec = document.getElementById('homeSection');
+            const publicSec = document.getElementById('publicSection');
+            const homeBtn = document.getElementById('tabHomeBtn');
+            const publicBtn = document.getElementById('tabPublicBtn');
+
+            if (tab === 'home') {
+                homeSec.classList.add('active');
+                publicSec.classList.remove('active');
+                homeBtn.classList.add('active');
+                publicBtn.classList.remove('active');
+            } else if (tab === 'public') {
+                publicSec.classList.add('active');
+                homeSec.classList.remove('active');
+                publicBtn.classList.add('active');
+                homeBtn.classList.remove('active');
+            }
+        }
+
         // Téma váltása (Világos / Sötét)
         function toggleTheme() {
             const body = document.body;
