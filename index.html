@@ -3,1066 +3,180 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sims Interaktív Családfa</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Supabase JS Client -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- FontAwesome icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Családfa App - Főoldal</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f172a; color: #f8fafc; user-select: none; overflow: hidden; }
-        
-        .tree-viewport {
-            background-color: #0f172a;
-            background-image: radial-gradient(#334155 1.5px, transparent 1.5px);
-            background-size: 32px 32px;
-            width: 100vw;
-            height: calc(100vh - 73px);
-            position: relative;
-            overflow: hidden;
-            cursor: grab;
+        /* Alapvető beállítások */
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+            overflow-x: hidden;
         }
 
-        .tree-viewport:active { cursor: grabbing; }
-
-        #pan-zoom-world {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100000px; height: 100000px;
-            transform-origin: 0 0;
-            overflow: visible !important;
+        /* Felső navigációs sáv */
+        .top-nav {
+            background-color: #2a2a2a;
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
         }
 
-        .sim-node {
-            display: flex; flex-direction: column; align-items: center;
-            position: absolute; z-index: 10; cursor: move;
-            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), z-index 0.25s;
+        .top-nav a {
+            text-decoration: none;
+            font-size: 18px;
+            color: #888;
+            transition: all 0.3s ease;
+            font-weight: 500;
         }
 
-        .sim-node.locked { cursor: default !important; }
-
-        .sim-node.selected {
-            z-index: 50 !important;
-            transform: scale(1.18) translateY(-10px);
+        .top-nav a:hover {
+            color: #ccc;
         }
 
-        .sim-node.selected .sim-avatar {
-            border-color: #34d399 !important;
-            box-shadow: 0 0 30px rgba(52, 211, 153, 0.9), 0 0 10px rgba(255, 255, 255, 0.8) !important;
+        /* Fehéren világító aktív Főoldal gomb */
+        .top-nav a.active {
+            color: #ffffff;
+            text-shadow: 0 0 12px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.4);
         }
 
-        .sim-node.selected .selected-badge { display: flex !important; }
-        .sim-avatar-wrapper { position: relative; }
-
-        .sim-avatar {
-            width: 88px; height: 88px; border-radius: 50%;
-            border: 4px solid #10b981;
-            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
-            object-fit: cover; background-color: #334155;
-            transition: box-shadow 0.2s, border-color 0.2s;
-            pointer-events: none;
+        /* Fő tartalom (ahová bejelentkezés után bedob) */
+        .main-content {
+            padding: 40px;
+            max-width: 800px;
         }
 
-        .sim-node:hover .sim-avatar { box-shadow: 0 0 25px rgba(16, 185, 129, 0.8); }
-
-        #svg-connectors {
-            position: absolute; top: 0; left: 0;
-            width: 100%; height: 100%;
-            pointer-events: none; z-index: 1;
-            overflow: visible !important;
+        .main-content h1 {
+            color: #fff;
         }
 
-        .line-parent-child-bg { stroke: #059669; stroke-width: 5; fill: none; stroke-linecap: round; opacity: 0.5; filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.6)); }
-        .line-parent-child-fg { stroke: #6ee7b7; stroke-width: 3; fill: none; stroke-linecap: round; stroke-dasharray: 8 12; animation: flowGreen 1.5s linear infinite; }
-
-        @keyframes flowGreen {
-            from { stroke-dashoffset: 40; }
-            to { stroke-dashoffset: 0; }
+        /* Jobb oldali előugró menü (Sidebar) */
+        .right-sidebar {
+            position: fixed;
+            top: 0;
+            right: -250px; /* Kezdetben el van rejtve */
+            width: 250px;
+            height: 100vh;
+            background-color: #2a2a2a;
+            box-shadow: -2px 0 15px rgba(0,0,0,0.5);
+            transition: right 0.4s ease;
+            padding-top: 60px;
+            z-index: 1000;
         }
 
-        .line-romantic-bg { stroke: #db2777; stroke-width: 5; fill: none; stroke-linecap: round; opacity: 0.5; filter: drop-shadow(0 0 8px rgba(244, 114, 182, 0.7)); }
-        .line-romantic-fg { stroke: #f472b6; stroke-width: 3; fill: none; stroke-linecap: round; stroke-dasharray: 6 10; animation: flowPink 1.2s linear infinite; }
-
-        @keyframes flowPink {
-            from { stroke-dashoffset: 32; }
-            to { stroke-dashoffset: 0; }
+        /* Amikor a menü nyitva van */
+        .right-sidebar.open {
+            right: 0;
         }
 
-        .line-ex { stroke: #64748b; stroke-width: 2.5; fill: none; stroke-dasharray: 4 4; }
-        #context-menu { position: fixed; display: none; z-index: 10000; }
+        .right-sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .right-sidebar ul li {
+            border-bottom: 1px solid #3a3a3a;
+        }
+
+        .right-sidebar ul li a {
+            display: block;
+            padding: 20px;
+            color: #e0e0e0;
+            text-decoration: none;
+            font-size: 16px;
+            transition: background 0.2s;
+        }
+
+        .right-sidebar ul li a:hover {
+            background-color: #3a3a3a;
+            color: #fff;
+        }
+
+        /* Nyilacska gomb (Toggle button) */
+        .toggle-btn {
+            position: fixed;
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%);
+            background-color: #444;
+            color: #fff;
+            border: none;
+            padding: 15px 10px;
+            cursor: pointer;
+            font-size: 18px;
+            border-radius: 8px 0 0 8px;
+            transition: right 0.4s ease, background 0.2s;
+            z-index: 1001;
+            box-shadow: -2px 0 5px rgba(0,0,0,0.3);
+        }
+
+        .toggle-btn:hover {
+            background-color: #555;
+        }
+
+        /* A nyíl helyzete, amikor a menü nyitva van */
+        .toggle-btn.open {
+            right: 250px;
+        }
+
+        /* Nyíl ikon forgatása nyitott állapotban */
+        .arrow-icon {
+            display: inline-block;
+            transition: transform 0.4s ease;
+        }
+
+        .toggle-btn.open .arrow-icon {
+            transform: rotate(180deg);
+        }
+
     </style>
 </head>
-<body class="h-screen flex flex-col justify-between">
+<body>
 
-    <!-- AUTENTIKÁCIÓS BEJELENTKEZŐ / REGISZTRÁCIÓS MODAL -->
-    <div id="auth-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center z-50 p-4">
-        <div class="bg-slate-900 border border-slate-700 text-slate-100 rounded-2xl max-w-md w-full p-8 shadow-2xl relative">
-            <div class="text-center mb-6">
-                <i class="fa-solid fa-gem text-5xl text-emerald-400 mb-2 animate-bounce"></i>
-                <h2 class="text-2xl font-bold tracking-wide">Plumtree Legacy Engine</h2>
-                <p class="text-xs text-slate-400 mt-1">Jelentkezz be a családfád megtekintéséhez és szerkesztéséhez!</p>
-            </div>
+    <!-- Felső navigáció -->
+    <nav class="top-nav">
+        <!-- A "Főoldal" aktív, ezért világít -->
+        <a href="#" class="active">Főoldal</a>
+        <!-- A "Publikum" menüpont, ami a megosztott családfákhoz visz -->
+        <a href="#publikum">Publikum</a>
+    </nav>
 
-            <!-- Hiba / Értesítési üzenet -->
-            <div id="auth-error" class="hidden mb-4 p-3 bg-red-900/40 border border-red-700/50 rounded-xl text-xs text-red-300 text-center"></div>
-
-            <!-- Form -->
-            <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">E-mail cím</label>
-                    <input type="email" id="auth-email" required class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Jelszó</label>
-                    <input type="password" id="auth-password" required minlength="6" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none">
-                </div>
-
-                <button type="submit" id="auth-submit-btn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-sm transition shadow-lg shadow-emerald-900/40">
-                    Bejelentkezés
-                </button>
-            </form>
-
-            <div class="mt-6 pt-4 border-t border-slate-800 text-center">
-                <button onclick="toggleAuthMode()" id="auth-toggle-btn" class="text-xs text-emerald-400 hover:underline">
-                    Nincs még fiókod? Regisztrálj itt!
-                </button>
-            </div>
-            
-            <div class="mt-4 text-center">
-                <button onclick="openConfigModal()" class="text-[11px] text-slate-500 hover:text-slate-400">
-                    <i class="fa-solid fa-gear mr-1"></i> Supabase Kulcsok Beállítása
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Jobb Klikk Kontextus Menü -->
-    <div id="context-menu" class="bg-slate-900/95 backdrop-blur border border-slate-700 text-slate-200 rounded-xl shadow-2xl py-2 w-56 text-sm">
-        <div class="px-3 py-1.5 border-b border-slate-800 text-[11px] font-bold text-slate-400 uppercase tracking-wider" id="ctx-sim-name">Sim Neve</div>
-        
-        <button id="ctx-rel-direct-btn" onclick="openRelFromCtxDirect()" class="w-full text-left px-4 py-2 hover:bg-pink-950/40 text-pink-300 flex items-center space-x-2 transition font-medium hidden">
-            <i class="fa-solid fa-heart text-pink-400 w-4"></i>
-            <span id="ctx-rel-direct-text">Kapcsolat összevonása</span>
-        </button>
-
-        <button onclick="toggleLockSim()" class="w-full text-left px-4 py-2 hover:bg-slate-800 flex items-center justify-between transition">
-            <span id="ctx-lock-text">Pozíció Fixálása</span>
-            <i id="ctx-lock-icon" class="fa-solid fa-lock text-amber-400"></i>
-        </button>
-
-        <button onclick="openEditFromCtx()" class="w-full text-left px-4 py-2 hover:bg-slate-800 flex items-center space-x-2 transition">
-            <i class="fa-solid fa-pen text-blue-400 w-4"></i>
-            <span>Szerkesztés</span>
-        </button>
-
-        <div class="border-t border-slate-800 my-1"></div>
-        <button onclick="deleteSimFromCtx()" class="w-full text-left px-4 py-2 hover:bg-red-900/30 text-red-400 flex items-center space-x-2 transition">
-            <i class="fa-solid fa-trash w-4"></i>
-            <span>Sim Törlése</span>
-        </button>
-    </div>
-
-    <!-- Header / Navbar -->
-    <header class="bg-slate-900 border-b border-slate-800 text-white shadow-lg relative z-20">
-        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <i class="fa-solid fa-gem text-3xl text-emerald-400 animate-pulse"></i>
-                <div>
-                    <h1 class="text-xl font-bold tracking-wide">Plumtree Legacy Engine</h1>
-                    <p class="text-xs text-slate-400">Kattintás = Kijelölés • Jobb Klikk = Menü • + Gombok = Kapcsolat hozzáadása</p>
-                </div>
-            </div>
-
-            <!-- Zoom gombok -->
-            <div class="flex items-center space-x-2 bg-slate-800 p-1.5 rounded-xl border border-slate-700">
-                <button onclick="changeZoom(-0.1)" class="w-8 h-8 rounded-lg bg-slate-700 hover:bg-slate-600 flex items-center justify-center text-slate-200 transition">
-                    <i class="fa-solid fa-minus"></i>
-                </button>
-                <span id="zoom-percentage" class="text-xs font-mono font-bold w-12 text-center text-emerald-400">100%</span>
-                <button onclick="changeZoom(0.1)" class="w-8 h-8 rounded-lg bg-slate-700 hover:bg-slate-600 flex items-center justify-center text-slate-200 transition">
-                    <i class="fa-solid fa-plus"></i>
-                </button>
-                <button onclick="resetZoomPan()" class="px-2 h-8 rounded-lg bg-slate-700 hover:bg-slate-600 text-xs font-semibold text-slate-300 transition" title="Alaphelyzet">
-                    <i class="fa-solid fa-rotate-left mr-1"></i> Visszaállít
-                </button>
-            </div>
-
-            <!-- Profil / Új Sim / Kijelentkezés -->
-            <div class="flex items-center space-x-3">
-                <span id="user-email-display" class="text-xs text-slate-400 font-mono bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700">--</span>
-                <button onclick="openAddSimModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-4 py-1.5 rounded-lg text-sm flex items-center space-x-2 transition shadow-lg shadow-emerald-900/40">
-                    <i class="fa-solid fa-user-plus"></i>
-                    <span>Új Sim</span>
-                </button>
-                <button onclick="handleLogout()" title="Kijelentkezés" class="bg-slate-800 hover:bg-red-900/50 text-slate-300 hover:text-red-300 p-2 rounded-lg text-sm transition border border-slate-700">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- Config Modal -->
-    <div id="config-modal" class="fixed inset-0 bg-black/70 hidden flex items-center justify-center z-50 p-4">
-        <div class="bg-slate-800 text-slate-100 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-700">
-            <h2 class="text-xl font-bold mb-4 flex items-center text-emerald-400">
-                <i class="fa-solid fa-database mr-2"></i> Adatbázis Beállítás
-            </h2>
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Supabase URL</label>
-                    <input type="text" id="cfg-url" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Publishable Key</label>
-                    <input type="password" id="cfg-key" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none">
-                </div>
-            </div>
-            <div class="mt-6 flex justify-end space-x-2">
-                <button onclick="saveConfig()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">Mentés</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Canvas Area -->
-    <main class="w-full h-full relative">
-        <div class="tree-viewport" id="viewport">
-            <div id="pan-zoom-world">
-                <svg id="svg-connectors"></svg>
-                <div id="tree-canvas" class="relative z-10"></div>
-            </div>
-        </div>
+    <!-- Főoldal tartalma -->
+    <main class="main-content">
+        <h1>Üdvözlünk a Főoldalon!</h1>
+        <p>Sikeresen bejelentkeztél. Itt kezelheted és szerkesztheted a saját családfádat, nyomon követheted a generációkat és a simjeid leszármazottait.</p>
+        <p>A fenti <strong>Publikum</strong> gombra kattintva átléphetsz a közösségi térbe, ahol te is nyilvánossá teheted a családfádat, és böngészhetsz mások által megosztott történetek között.</p>
     </main>
 
-    <!-- Keresős / Lenyíló Kapcsolatválasztó Modal -->
-    <div id="picker-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4" onclick="closePickerModal()">
-        <div class="bg-slate-900 border border-slate-700 text-slate-100 rounded-2xl max-w-md w-full p-6 shadow-2xl" onclick="event.stopPropagation()">
-            <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-800">
-                <h3 id="picker-title" class="font-bold text-base text-slate-200">Kapcsolat Hozzáadása</h3>
-                <button onclick="closePickerModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-
-            <!-- 1. LÉPÉS -->
-            <div id="picker-step-1" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">1. Keresés névre</label>
-                    <div class="relative">
-                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
-                        <input type="text" id="picker-search-input" oninput="filterPickerDropdown()" placeholder="Írj be egy nevet..." class="w-full bg-slate-800 border border-slate-700 rounded-xl pl-8 pr-3 py-2 text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">2. Válassz Simet a listából</label>
-                    <select id="picker-sim-select" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none cursor-pointer">
-                    </select>
-                </div>
-
-                <div class="pt-2 flex justify-between items-center">
-                    <button onclick="pickerCreateNewSim()" class="text-xs text-emerald-400 hover:underline flex items-center space-x-1">
-                        <i class="fa-solid fa-user-plus"></i>
-                        <span>+ Új Sim Létrehozása</span>
-                    </button>
-                    <button onclick="proceedToStep2()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-4 py-2 rounded-xl text-xs flex items-center space-x-2 transition">
-                        <span>Tovább a kapcsolathoz</span>
-                        <i class="fa-solid fa-arrow-right"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- 2. LÉPÉS -->
-            <div id="picker-step-2" class="space-y-4 hidden">
-                <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 flex items-center justify-between">
-                    <div class="text-xs text-slate-300">
-                        Kiválasztott Sim: <strong id="selected-target-name" class="text-emerald-400"></strong>
-                    </div>
-                    <button onclick="backToStep1()" class="text-[11px] text-slate-400 hover:text-white underline">Módosít</button>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Kapcsolat típusa</label>
-                    <select id="picker-rel-type-select" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:ring-2 focus:ring-pink-500 outline-none cursor-pointer">
-                        <option value="married">💍 Házaspár</option>
-                        <option value="engaged">💎 Eljegyzett / Jegyesek</option>
-                        <option value="partner">❤️ Párkapcsolat / Partner</option>
-                        <option value="parent_child">👶 Szülő - Gyerek kapcsolat</option>
-                        <option value="ex">💔 Ex-partner / Elvált</option>
-                    </select>
-                </div>
-
-                <div class="pt-3 flex justify-end space-x-2">
-                    <button onclick="closePickerModal()" class="px-3 py-2 text-xs text-slate-400 hover:text-white">Mégse</button>
-                    <button onclick="confirmPickerRelationship()" class="bg-pink-600 hover:bg-pink-500 text-white font-semibold px-5 py-2 rounded-xl text-xs transition flex items-center space-x-2 shadow-lg shadow-pink-900/30">
-                        <i class="fa-solid fa-check"></i>
-                        <span>Kapcsolat Mentése</span>
-                    </button>
-                </div>
-            </div>
-        </div>
+    <!-- Jobb oldali előugró menü -->
+    <div class="right-sidebar" id="sidebar">
+        <ul>
+            <li><a href="#">🏠 Főoldal</a></li>
+            <li><a href="#">🌳 Családfa szerkesztése</a></li>
+            <li><a href="#">⚙️ Beállítások</a></li>
+            <li><a href="#">🚪 Kijelentkezés</a></li>
+        </ul>
     </div>
 
-    <!-- Add / Edit Sim Modal -->
-    <div id="sim-modal" class="fixed inset-0 bg-black/70 hidden flex items-center justify-center z-50 p-4">
-        <div class="bg-slate-800 text-slate-100 rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-700 max-h-[90vh] overflow-y-auto">
-            <h2 class="text-xl font-bold mb-4 flex items-center text-emerald-400" id="modal-title">
-                <i class="fa-solid fa-user-plus mr-2"></i> Új Sim Felvétele a Fára
-            </h2>
-            <form id="sim-form" onsubmit="handleSaveSim(event)" class="space-y-4">
-                <input type="hidden" id="sim-edit-id" value="">
+    <!-- Előugró menüt nyitó/záró nyilacska -->
+    <button class="toggle-btn" id="toggleBtn">
+        <span class="arrow-icon">◀</span>
+    </button>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Keresztnév *</label>
-                        <input type="text" id="sim-firstname" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Vezetéknév *</label>
-                        <input type="text" id="sim-lastname" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Szülő kiválasztása</label>
-                        <select id="sim-parent" onchange="autoCalculateGen()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none">
-                            <option value="">-- Nincs szülő (Alapító) --</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Generáció</label>
-                        <input type="number" id="sim-generation" min="1" value="1" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Életszakasz</label>
-                        <select id="sim-lifestage" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none">
-                            <option value="Kisgyerek">Kisgyerek</option>
-                            <option value="Gyerek">Gyerek</option>
-                            <option value="Tini">Tini</option>
-                            <option value="Fiatal Felnőtt" selected>Fiatal Felnőtt</option>
-                            <option value="Felnőtt">Felnőtt</option>
-                            <option value="Idős">Idős</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Lény típus (Occult)</label>
-                        <select id="sim-occult" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none">
-                            <option value="Ember">Ember</option>
-                            <option value="Vámpír">Vámpír</option>
-                            <option value="Vérfarkas">Vérfarkas</option>
-                            <option value="Varázshasználó">Varázshasználó</option>
-                            <option value="Sellő">Sellő</option>
-                            <option value="Földönkívüli">Földönkívüli</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">Fotó módosítása / feltöltése</label>
-                    <input type="file" id="sim-file" accept="image/*" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-slate-300 focus:ring-2 focus:ring-emerald-500 outline-none">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">Jellemvonások (vesszővel elválasztva)</label>
-                    <input type="text" id="sim-traits" placeholder="pl. Könyvmoly, Zseni" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none">
-                </div>
-
-                <div class="flex justify-end space-x-2 pt-4">
-                    <button type="button" onclick="closeSimModal()" class="px-4 py-2 rounded-lg text-sm text-slate-400 hover:bg-slate-700">Mégse</button>
-                    <button type="submit" id="save-btn" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">Mentés Családfára</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
+    <!-- JavaScript a menü működéséhez -->
     <script>
-        let supabaseClient = null;
-        let currentUser = null;
-        let isSignUpMode = false;
+        const sidebar = document.getElementById('sidebar');
+        const toggleBtn = document.getElementById('toggleBtn');
 
-        let localSims = [];
-        let selectedSimId = null;
-
-        // Pan & Zoom állapot
-        let scale = 1, panX = 100, panY = 100;
-        let isPanning = false, startPanX = 0, startPanY = 0;
-
-        // Node Dragging & Context
-        let activeDragNode = null, isDraggingNode = false;
-        let dragOffsetX = 0, dragOffsetY = 0, contextSimId = null;
-
-        let simPositions = {};
-
-        // Picker Modal
-        let pickerSourceSimId = null, pickerMode = null;
-
-        window.addEventListener('DOMContentLoaded', () => {
-            const savedPositions = localStorage.getItem('sim_positions');
-            if (savedPositions) {
-                try { simPositions = JSON.parse(savedPositions); } catch(e){}
-            }
-
-            const savedUrl = localStorage.getItem('supabase_url');
-            const savedKey = localStorage.getItem('supabase_key');
-            if (savedUrl && savedKey) {
-                initSupabase(savedUrl, savedKey);
-            } else {
-                openConfigModal();
-            }
-
-            setupPanZoomListeners();
-
-            window.addEventListener('click', () => {
-                document.getElementById('context-menu').style.display = 'none';
-            });
+        toggleBtn.addEventListener('click', () => {
+            // A "open" osztály hozzáadása/elvevése kattintásra
+            sidebar.classList.toggle('open');
+            toggleBtn.classList.toggle('open');
         });
-
-        function savePositionsToStorage() {
-            localStorage.setItem('sim_positions', JSON.stringify(simPositions));
-        }
-
-        /* --- SUPABASE & AUTHENTICATION --- */
-        function initSupabase(url, key) {
-            try {
-                supabaseClient = supabase.createClient(url, key);
-                checkUserSession();
-            } catch(e) { console.error("Csatlakozási hiba:", e); }
-        }
-
-        async function checkUserSession() {
-            if (!supabaseClient) return;
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            if (session?.user) {
-                currentUser = session.user;
-                onUserLoggedIn();
-            } else {
-                document.getElementById('auth-modal').classList.remove('hidden');
-            }
-        }
-
-        function toggleAuthMode() {
-            isSignUpMode = !isSignUpMode;
-            const btn = document.getElementById('auth-submit-btn');
-            const toggleBtn = document.getElementById('auth-toggle-btn');
-            document.getElementById('auth-error').classList.add('hidden');
-
-            if (isSignUpMode) {
-                btn.textContent = "Regisztráció";
-                toggleBtn.textContent = "Már van fiókod? Jelentkezz be!";
-            } else {
-                btn.textContent = "Bejelentkezés";
-                toggleBtn.textContent = "Nincs még fiókod? Regisztrálj itt!";
-            }
-        }
-
-        async function handleAuth(e) {
-            e.preventDefault();
-            const email = document.getElementById('auth-email').value.trim();
-            const password = document.getElementById('auth-password').value.trim();
-            const errorDiv = document.getElementById('auth-error');
-
-            errorDiv.classList.add('hidden');
-
-            if (isSignUpMode) {
-                const { data, error } = await supabaseClient.auth.signUp({ email, password });
-                if (error) {
-                    errorDiv.textContent = error.message;
-                    errorDiv.classList.remove('hidden');
-                } else {
-                    alert("Sikeres regisztráció! Ha e-mail megerősítést kért a rendszer, kérlek ellenőrizd a fiókodat!");
-                    currentUser = data.user;
-                    if(currentUser) onUserLoggedIn();
-                }
-            } else {
-                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-                if (error) {
-                    errorDiv.textContent = "Helytelen e-mail cím vagy jelszó!";
-                    errorDiv.classList.remove('hidden');
-                } else {
-                    currentUser = data.user;
-                    onUserLoggedIn();
-                }
-            }
-        }
-
-        function onUserLoggedIn() {
-            document.getElementById('auth-modal').classList.add('hidden');
-            document.getElementById('user-email-display').textContent = currentUser.email;
-            fetchSims();
-        }
-
-        async function handleLogout() {
-            if (supabaseClient) {
-                await supabaseClient.auth.signOut();
-                currentUser = null;
-                localSims = [];
-                renderTree();
-                document.getElementById('user-email-display').textContent = "--";
-                document.getElementById('auth-modal').classList.remove('hidden');
-            }
-        }
-
-        /* --- DATA FETCHING & RENDER --- */
-        async function fetchSims() {
-            if (!supabaseClient || !currentUser) return;
-            const { data, error } = await supabaseClient
-                .from('sims')
-                .select('*')
-                .eq('user_id', currentUser.id);
-
-            if (!error && data) {
-                localSims = data;
-                renderTree();
-            }
-        }
-
-        function renderTree() {
-            const canvas = document.getElementById('tree-canvas');
-            canvas.innerHTML = '';
-
-            if (localSims.length === 0) {
-                canvas.innerHTML = `
-                    <div class="text-center py-40 text-slate-400">
-                        <i class="fa-solid fa-sitemap text-5xl text-emerald-500/50 mb-4"></i>
-                        <h3 class="text-xl font-bold text-slate-200">A Családfád még üres!</h3>
-                        <p class="text-sm mt-1">Kattints az "Új Sim" gombra az 1. generáció felvételéhez.</p>
-                    </div>
-                `;
-                document.getElementById('svg-connectors').innerHTML = '';
-                return;
-            }
-
-            localSims.forEach((sim) => {
-                const gen = parseInt(sim.generation) || 1;
-                
-                if (!simPositions[sim.id]) {
-                    const rowSims = localSims.filter(s => (parseInt(s.generation) || 1) === gen);
-                    const simIndexInRow = rowSims.findIndex(s => s.id === sim.id);
-                    simPositions[sim.id] = {
-                        x: 200 + simIndexInRow * 220,
-                        y: 100 + (gen - 1) * 200,
-                        isLocked: false
-                    };
-                }
-
-                const pos = simPositions[sim.id];
-                const isSelected = selectedSimId === sim.id;
-
-                const node = document.createElement('div');
-                node.className = `sim-node ${pos.isLocked ? 'locked' : ''} ${isSelected ? 'selected' : ''}`;
-                node.id = `sim-node-${sim.id}`;
-                node.dataset.simId = sim.id;
-                node.style.left = `${pos.x}px`;
-                node.style.top = `${pos.y}px`;
-
-                const avatarSrc = sim.image_url || `https://via.placeholder.com/88/10b981/ffffff?text=${sim.first_name[0]}`;
-
-                node.innerHTML = `
-                    <div class="sim-avatar-wrapper">
-                        <div class="selected-badge hidden absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-500 text-slate-950 font-black text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full shadow-lg z-20 items-center space-x-1">
-                            <i class="fa-solid fa-check"></i>
-                            <span>Kiválasztva</span>
-                        </div>
-                        <img src="${avatarSrc}" class="sim-avatar" draggable="false">
-
-                        <div class="absolute -top-1 -right-1 flex space-x-1">
-                            <button onclick="openEditSimModal('${sim.id}')" title="Szerkesztés" class="bg-blue-600 hover:bg-blue-500 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center shadow transition hover:scale-110">
-                                <i class="fa-solid fa-pen"></i>
-                            </button>
-                        </div>
-
-                        <button onclick="openPickerModal('${sim.id}', 'partner')" title="Kapcsolat / Partner hozzáadása" class="absolute top-1/2 -right-3 -translate-y-1/2 bg-pink-600 hover:bg-pink-500 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center shadow-lg border-2 border-slate-900 hover:scale-125 transition">
-                            <i class="fa-solid fa-plus"></i>
-                        </button>
-
-                        <button onclick="openPickerModal('${sim.id}', 'child')" title="Gyerek hozzáadása" class="absolute -bottom-1 right-1/2 translate-x-1/2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center shadow-lg border-2 border-slate-900 hover:scale-125 transition">
-                            <i class="fa-solid fa-plus"></i>
-                        </button>
-                    </div>
-                    <div class="mt-2 text-center pointer-events-none">
-                        <p class="text-xs font-bold text-slate-100">${sim.first_name} ${sim.last_name}</p>
-                        <p class="text-[9px] text-emerald-400 font-semibold uppercase tracking-wider">${sim.occult_status || 'Ember'}</p>
-                    </div>
-                `;
-
-                node.addEventListener('mousedown', (e) => {
-                    if (e.button === 0 && !e.target.closest('button')) {
-                        e.stopPropagation();
-                        isDraggingNode = false;
-                        if (!simPositions[sim.id]?.isLocked) {
-                            activeDragNode = node;
-                            const rect = node.getBoundingClientRect();
-                            dragOffsetX = (e.clientX - rect.left) / scale;
-                            dragOffsetY = (e.clientY - rect.top) / scale;
-                        }
-                    }
-                });
-
-                node.addEventListener('click', (e) => {
-                    if (!isDraggingNode && !e.target.closest('button')) {
-                        selectSim(sim.id);
-                    }
-                });
-
-                node.addEventListener('contextmenu', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    openContextMenu(e, sim.id);
-                });
-
-                canvas.appendChild(node);
-            });
-
-            savePositionsToStorage();
-            updateWorldTransform();
-            setTimeout(drawConnectors, 50);
-        }
-
-        async function handleSaveSim(e) {
-            e.preventDefault();
-            const saveBtn = document.getElementById('save-btn');
-            saveBtn.disabled = true;
-
-            const editId = document.getElementById('sim-edit-id').value;
-            const firstName = document.getElementById('sim-firstname').value;
-            const lastName = document.getElementById('sim-lastname').value;
-            const generation = parseInt(document.getElementById('sim-generation').value) || 1;
-            const parentId = document.getElementById('sim-parent').value || null;
-            const lifestage = document.getElementById('sim-lifestage').value;
-            const occult = document.getElementById('sim-occult').value;
-            const fileInput = document.getElementById('sim-file');
-            const traitsRaw = document.getElementById('sim-traits').value;
-
-            let imageUrl = '';
-
-            if (fileInput.files.length > 0 && supabaseClient) {
-                const file = fileInput.files[0];
-                const fileExt = file.name.split('.').pop();
-                const fileName = `${currentUser.id}/${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
-                
-                const { data: uploadData, error: uploadError } = await supabaseClient.storage
-                    .from('sim-portraits')
-                    .upload(fileName, file);
-
-                if (!uploadError) {
-                    const { data: publicUrlData } = supabaseClient.storage
-                        .from('sim-portraits')
-                        .getPublicUrl(fileName);
-                    imageUrl = publicUrlData.publicUrl;
-                }
-            } else if (editId) {
-                const existingSim = localSims.find(s => s.id === editId);
-                if (existingSim) imageUrl = existingSim.image_url;
-            }
-
-            const simPayload = {
-                user_id: currentUser.id,
-                first_name: firstName,
-                last_name: lastName,
-                generation: generation,
-                parent_id: parentId,
-                life_stage: lifestage,
-                occult_status: occult,
-                image_url: imageUrl,
-                traits: traitsRaw ? traitsRaw.split(',').map(t => t.trim()) : []
-            };
-
-            if (supabaseClient) {
-                if (editId) {
-                    await supabaseClient.from('sims').update(simPayload).eq('id', editId);
-                } else {
-                    await supabaseClient.from('sims').insert([simPayload]);
-                }
-            }
-
-            saveBtn.disabled = false;
-            closeSimModal();
-            fetchSims();
-        }
-
-        /* --- KÁRTYÁS / LENYÍLÓ LOGIKA --- */
-        function openPickerModal(sourceSimId, mode) {
-            pickerSourceSimId = sourceSimId;
-            pickerMode = mode;
-
-            const sourceSim = localSims.find(s => s.id === sourceSimId);
-            const titleEl = document.getElementById('picker-title');
-
-            if (mode === 'child') {
-                titleEl.textContent = `Gyermek kiválasztása ide: ${sourceSim ? sourceSim.first_name : ''}`;
-            } else {
-                titleEl.textContent = `Kapcsolat / Partner: ${sourceSim ? sourceSim.first_name : ''}`;
-            }
-
-            document.getElementById('picker-search-input').value = '';
-            backToStep1();
-            filterPickerDropdown();
-
-            document.getElementById('picker-modal').classList.remove('hidden');
-        }
-
-        function filterPickerDropdown() {
-            const query = document.getElementById('picker-search-input').value.toLowerCase().trim();
-            const select = document.getElementById('picker-sim-select');
-            select.innerHTML = '';
-
-            const availableSims = localSims.filter(s => s.id !== pickerSourceSimId && `${s.first_name} ${s.last_name}`.toLowerCase().includes(query));
-
-            if (availableSims.length === 0) {
-                const opt = document.createElement('option');
-                opt.value = "";
-                opt.textContent = "-- Nincs találat --";
-                select.appendChild(opt);
-            } else {
-                availableSims.forEach(sim => {
-                    const opt = document.createElement('option');
-                    opt.value = sim.id;
-                    opt.textContent = `${sim.first_name} ${sim.last_name} (Gen ${sim.generation || 1})`;
-                    select.appendChild(opt);
-                });
-            }
-        }
-
-        function proceedToStep2() {
-            const select = document.getElementById('picker-sim-select');
-            const targetId = select.value;
-            if (!targetId) return;
-
-            const targetSim = localSims.find(s => s.id === targetId);
-            if (!targetSim) return;
-
-            document.getElementById('selected-target-name').textContent = `${targetSim.first_name} ${targetSim.last_name}`;
-            document.getElementById('picker-rel-type-select').value = pickerMode === 'child' ? 'parent_child' : 'married';
-
-            document.getElementById('picker-step-1').classList.add('hidden');
-            document.getElementById('picker-step-2').classList.remove('hidden');
-        }
-
-        function backToStep1() {
-            document.getElementById('picker-step-2').classList.add('hidden');
-            document.getElementById('picker-step-1').classList.remove('hidden');
-        }
-
-        async function confirmPickerRelationship() {
-            const targetId = document.getElementById('picker-sim-select').value;
-            const relType = document.getElementById('picker-rel-type-select').value;
-            const sourceId = pickerSourceSimId;
-
-            if (!sourceId || !targetId) return;
-            closePickerModal();
-
-            if (relType === 'parent_child') {
-                await supabaseClient.from('sims').update({ parent_id: sourceId }).eq('id', targetId);
-            } else {
-                await supabaseClient.from('sims').update({ partner_id: targetId, relationship_type: relType }).eq('id', sourceId);
-                await supabaseClient.from('sims').update({ partner_id: sourceId, relationship_type: relType }).eq('id', targetId);
-            }
-
-            fetchSims();
-        }
-
-        function closePickerModal() {
-            document.getElementById('picker-modal').classList.add('hidden');
-            pickerSourceSimId = null;
-            pickerMode = null;
-        }
-
-        function pickerCreateNewSim() {
-            const srcId = pickerSourceSimId;
-            const mode = pickerMode;
-            closePickerModal();
-
-            if (mode === 'child') {
-                addChildTo(srcId);
-            } else {
-                openAddSimModal();
-            }
-        }
-
-        /* --- SEGÉDFUNKCIÓK & CSATLAKOZÓ VONALAK --- */
-        function setupPanZoomListeners() {
-            const viewport = document.getElementById('viewport');
-
-            viewport.addEventListener('wheel', (e) => {
-                e.preventDefault();
-                const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
-                applyZoom(zoomFactor, e.clientX, e.clientY);
-            }, { passive: false });
-
-            viewport.addEventListener('mousedown', (e) => {
-                if (e.button === 0 && !activeDragNode) {
-                    isPanning = true;
-                    startPanX = e.clientX - panX;
-                    startPanY = e.clientY - panY;
-                }
-            });
-
-            window.addEventListener('mousemove', (e) => {
-                if (activeDragNode) {
-                    isDraggingNode = true;
-                    const world = document.getElementById('pan-zoom-world').getBoundingClientRect();
-                    const newX = (e.clientX - world.left) / scale - dragOffsetX;
-                    const newY = (e.clientY - world.top) / scale - dragOffsetY;
-
-                    activeDragNode.style.left = `${newX}px`;
-                    activeDragNode.style.top = `${newY}px`;
-
-                    const simId = activeDragNode.dataset.simId;
-                    if (!simPositions[simId]) simPositions[simId] = {};
-                    simPositions[simId].x = newX;
-                    simPositions[simId].y = newY;
-
-                    drawConnectors();
-                } else if (isPanning) {
-                    panX = e.clientX - startPanX;
-                    panY = e.clientY - startPanY;
-                    updateWorldTransform();
-                }
-            });
-
-            window.addEventListener('mouseup', (e) => {
-                if (e.button === 0) {
-                    isPanning = false;
-                    if (activeDragNode) {
-                        activeDragNode = null;
-                        savePositionsToStorage();
-                    }
-                }
-            });
-
-            viewport.addEventListener('contextmenu', e => e.preventDefault());
-        }
-
-        function applyZoom(factor, cursorX = window.innerWidth / 2, cursorY = window.innerHeight / 2) {
-            const newScale = Math.min(Math.max(0.3, scale * factor), 2.5);
-            panX = cursorX - (cursorX - panX) * (newScale / scale);
-            panY = cursorY - (cursorY - panY) * (newScale / scale);
-            scale = newScale;
-            updateWorldTransform();
-        }
-
-        function changeZoom(delta) { applyZoom(1 + delta); }
-
-        function resetZoomPan() {
-            scale = 1; panX = 100; panY = 100;
-            updateWorldTransform();
-        }
-
-        function updateWorldTransform() {
-            const world = document.getElementById('pan-zoom-world');
-            world.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
-            document.getElementById('zoom-percentage').textContent = `${Math.round(scale * 100)}%`;
-        }
-
-        function openConfigModal() {
-            document.getElementById('cfg-url').value = localStorage.getItem('supabase_url') || '';
-            document.getElementById('cfg-key').value = localStorage.getItem('supabase_key') || '';
-            document.getElementById('config-modal').classList.remove('hidden');
-        }
-
-        function saveConfig() {
-            const url = document.getElementById('cfg-url').value.trim();
-            const key = document.getElementById('cfg-key').value.trim();
-            if (url && key) {
-                localStorage.setItem('supabase_url', url);
-                localStorage.setItem('supabase_key', key);
-                document.getElementById('config-modal').classList.add('hidden');
-                initSupabase(url, key);
-            }
-        }
-
-        function selectSim(simId) {
-            selectedSimId = selectedSimId === simId ? null : simId;
-            renderTree();
-        }
-
-        function openContextMenu(e, simId) {
-            contextSimId = simId;
-            const sim = localSims.find(s => s.id === simId);
-            const pos = simPositions[simId] || {};
-            const menu = document.getElementById('context-menu');
-
-            document.getElementById('ctx-sim-name').textContent = `${sim.first_name} ${sim.last_name}`;
-            
-            const lockText = document.getElementById('ctx-lock-text');
-            const lockIcon = document.getElementById('ctx-lock-icon');
-            if (pos.isLocked) {
-                lockText.textContent = "Pozíció Feloldása";
-                lockIcon.className = "fa-solid fa-lock-open text-emerald-400";
-            } else {
-                lockText.textContent = "Pozíció Fixálása";
-                lockIcon.className = "fa-solid fa-lock text-amber-400";
-            }
-
-            menu.style.left = `${e.clientX}px`;
-            menu.style.top = `${e.clientY}px`;
-            menu.style.display = 'block';
-        }
-
-        function toggleLockSim() {
-            if (!contextSimId) return;
-            if (!simPositions[contextSimId]) simPositions[contextSimId] = {};
-            simPositions[contextSimId].isLocked = !simPositions[contextSimId].isLocked;
-            savePositionsToStorage();
-            document.getElementById('context-menu').style.display = 'none';
-            renderTree();
-        }
-
-        function openEditFromCtx() {
-            if (contextSimId) openEditSimModal(contextSimId);
-            document.getElementById('context-menu').style.display = 'none';
-        }
-
-        async function deleteSimFromCtx() {
-            if (contextSimId) deleteSim(contextSimId);
-            document.getElementById('context-menu').style.display = 'none';
-        }
-
-        function drawConnectors() {
-            const world = document.getElementById('pan-zoom-world');
-            const svg = document.getElementById('svg-connectors');
-            if (!world || !svg) return;
-
-            svg.innerHTML = '';
-            const drawnPartnerPairs = new Set();
-
-            localSims.forEach(sim => {
-                if (sim.parent_id) {
-                    const parentNode = document.getElementById(`sim-node-${sim.parent_id}`);
-                    const childNode = document.getElementById(`sim-node-${sim.id}`);
-
-                    if (parentNode && childNode) {
-                        const pX = parseFloat(parentNode.style.left) + 44;
-                        const pY = parseFloat(parentNode.style.top) + 88;
-                        const cX = parseFloat(childNode.style.left) + 44;
-                        const cY = parseFloat(childNode.style.top);
-
-                        const controlY = pY + (cY - pY) / 2;
-                        const d = `M ${pX} ${pY} C ${pX} ${controlY}, ${cX} ${controlY}, ${cX} ${cY}`;
-
-                        const bgPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                        bgPath.setAttribute('d', d);
-                        bgPath.setAttribute('class', 'line-parent-child-bg');
-                        svg.appendChild(bgPath);
-
-                        const fgPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                        fgPath.setAttribute('d', d);
-                        fgPath.setAttribute('class', 'line-parent-child-fg');
-                        svg.appendChild(fgPath);
-                    }
-                }
-
-                if (sim.partner_id) {
-                    const pairKey = [sim.id, sim.partner_id].sort().join('-');
-                    if (!drawnPartnerPairs.has(pairKey)) {
-                        drawnPartnerPairs.add(pairKey);
-
-                        const node1 = document.getElementById(`sim-node-${sim.id}`);
-                        const node2 = document.getElementById(`sim-node-${sim.partner_id}`);
-
-                        if (node1 && node2) {
-                            const x1 = parseFloat(node1.style.left) + 44;
-                            const y1 = parseFloat(node1.style.top) + 44;
-                            const x2 = parseFloat(node2.style.left) + 44;
-                            const y2 = parseFloat(node2.style.top) + 44;
-
-                            const d = `M ${x1} ${y1} L ${x2} ${y2}`;
-
-                            if (sim.relationship_type === 'ex') {
-                                const exPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                                exPath.setAttribute('d', d);
-                                exPath.setAttribute('class', 'line-ex');
-                                svg.appendChild(exPath);
-                            } else {
-                                const bgPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                                bgPath.setAttribute('d', d);
-                                bgPath.setAttribute('class', 'line-romantic-bg');
-                                svg.appendChild(bgPath);
-
-                                const fgPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                                fgPath.setAttribute('d', d);
-                                fgPath.setAttribute('class', 'line-romantic-fg');
-                                svg.appendChild(fgPath);
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        function addChildTo(parentId) {
-            openAddSimModal();
-            updateParentDropdown(null, parentId);
-            const parentSim = localSims.find(s => s.id === parentId);
-            if (parentSim) {
-                document.getElementById('sim-generation').value = (parentSim.generation || 1) + 1;
-                document.getElementById('modal-title').innerHTML = `<i class="fa-solid fa-baby mr-2"></i> ${parentSim.first_name} ${parentSim.last_name} Gyermekének Felvétele`;
-            }
-        }
-
-        function openAddSimModal() {
-            document.getElementById('sim-form').reset();
-            document.getElementById('sim-edit-id').value = '';
-            document.getElementById('modal-title').innerHTML = `<i class="fa-solid fa-user-plus mr-2"></i> Új Sim Felvétele`;
-            updateParentDropdown();
-            document.getElementById('sim-modal').classList.remove('hidden');
-        }
-
-        function updateParentDropdown(excludeId = null, selectedParentId = null) {
-            const parentSelect = document.getElementById('sim-parent');
-            parentSelect.innerHTML = '<option value="">-- Nincs szülő (Alapító) --</option>';
-            localSims.forEach(sim => {
-                if (sim.id !== excludeId) {
-                    const opt = document.createElement('option');
-                    opt.value = sim.id;
-                    opt.textContent = `${sim.first_name} ${sim.last_name}`;
-                    if (selectedParentId && sim.id === selectedParentId) opt.selected = true;
-                    parentSelect.appendChild(opt);
-                }
-            });
-        }
-
-        function autoCalculateGen() {
-            const parentId = document.getElementById('sim-parent').value;
-            const genInput = document.getElementById('sim-generation');
-            if (!parentId) { genInput.value = 1; return; }
-            const parentSim = localSims.find(s => s.id === parentId);
-            if (parentSim) genInput.value = (parentSim.generation || 1) + 1;
-        }
-
-        function openEditSimModal(id) {
-            const sim = localSims.find(s => s.id === id);
-            if (!sim) return;
-
-            document.getElementById('sim-edit-id').value = sim.id;
-            document.getElementById('sim-firstname').value = sim.first_name;
-            document.getElementById('sim-lastname').value = sim.last_name;
-            document.getElementById('sim-generation').value = sim.generation || 1;
-            document.getElementById('sim-lifestage').value = sim.life_stage || 'Fiatal Felnőtt';
-            document.getElementById('sim-occult').value = sim.occult_status || 'Ember';
-            document.getElementById('sim-traits').value = sim.traits ? sim.traits.join(', ') : '';
-
-            updateParentDropdown(sim.id, sim.parent_id);
-            document.getElementById('modal-title').innerHTML = `<i class="fa-solid fa-user-pen mr-2"></i> ${sim.first_name} ${sim.last_name} Szerkesztése`;
-            document.getElementById('sim-modal').classList.remove('hidden');
-        }
-
-        function closeSimModal() {
-            document.getElementById('sim-modal').classList.add('hidden');
-        }
-
-        async function deleteSim(id) {
-            if (!confirm("Biztosan törölni akarod ezt a Simet a fáról?")) return;
-            if (supabaseClient) {
-                await supabaseClient.from('sims').delete().eq('id', id);
-            }
-            if (selectedSimId === id) selectedSimId = null;
-            delete simPositions[id];
-            savePositionsToStorage();
-            fetchSims();
-        }
     </script>
+
 </body>
 </html>
