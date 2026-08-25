@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>S4Memo - Sims 4 Memorable</title>
     <!-- Supabase JS SDK Betöltése -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --bg-color: #e8d3c5;
@@ -212,11 +212,21 @@
     </div>
 
     <script>
-        // --- SUPABASE BEÁLLÍTÁS ---
         const SUPABASE_URL = 'https://frduhftoyxpktabgedca.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZyZHVoZnRveXhwa3RhYmdlZGNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2NzkwMjIsImV4cCI6MjEwMzI1NTAyMn0._u0eKyFu5o9pf_6DIPdyESvM-AYSOv2k6JwZdbilnd4';
         
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let supabaseClient = null;
+
+        // Supabase inicializálás hibakezeléssel
+        try {
+            if (window.supabase) {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            } else {
+                console.error("A Supabase SDK nem töltődött be.");
+            }
+        } catch (e) {
+            console.error("Hiba a Supabase inicializálásakor:", e);
+        }
 
         let currentMode = 'login';
 
@@ -290,6 +300,11 @@
             event.preventDefault();
             hideMessage();
 
+            if (!supabaseClient) {
+                showMessage('Nem sikerült csatlakozni a szerverhez. Kérlek kapcsold ki a reklámblokkolót vagy frissítsd az oldalt!');
+                return;
+            }
+
             const email = emailInput.value.trim();
             const password = passwordInput.value;
             const username = usernameInput.value.trim();
@@ -303,7 +318,7 @@
 
                 authSubmitBtn.innerText = 'Regisztráció...';
 
-                const { data, error } = await supabase.auth.signUp({
+                const { data, error } = await supabaseClient.auth.signUp({
                     email: email,
                     password: password,
                     options: {
@@ -333,7 +348,7 @@
 
                 authSubmitBtn.innerText = 'Bejelentkezés...';
 
-                const { data, error } = await supabase.auth.signInWithPassword({
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
                     email: email,
                     password: password
                 });
@@ -356,7 +371,7 @@
 
                 authSubmitBtn.innerText = 'Küldés...';
 
-                const { error } = await supabase.auth.resetPasswordForEmail(email);
+                const { error } = await supabaseClient.auth.resetPasswordForEmail(email);
 
                 authSubmitBtn.innerText = 'E-mail küldése';
 
@@ -369,7 +384,8 @@
         }
 
         async function checkUserSession() {
-            const { data: { session } } = await supabase.auth.getSession();
+            if (!supabaseClient) return;
+            const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) {
                 authOverlay.classList.add('hidden');
             } else {
@@ -378,11 +394,14 @@
         }
 
         async function logout() {
-            await supabase.auth.signOut();
+            if (supabaseClient) {
+                await supabaseClient.auth.signOut();
+            }
             authOverlay.classList.remove('hidden');
             switchMode('login');
         }
 
+        // Indításkor ellenőrizzük a munkamenetet
         checkUserSession();
     </script>
 </body>
