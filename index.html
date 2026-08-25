@@ -52,7 +52,6 @@
             cursor: default !important;
         }
 
-        /* Kijelölt Sim kiemelése */
         .sim-node.selected {
             z-index: 50 !important;
             transform: scale(1.18) translateY(-10px);
@@ -87,7 +86,6 @@
             box-shadow: 0 0 25px rgba(16, 185, 129, 0.8);
         }
 
-        /* SVG réteg korlátlan mérettel */
         #svg-connectors {
             position: absolute;
             top: 0;
@@ -99,7 +97,6 @@
             overflow: visible !important;
         }
 
-        /* --- STÍLUSOS ANIMÁLT FÉNYVONALAK --- */
         .line-parent-child-bg {
             stroke: #059669;
             stroke-width: 5;
@@ -254,28 +251,76 @@
         </div>
     </main>
 
-    <!-- Visual Dropdown Picker Modal for + Buttons -->
+    <!-- ÚJ: 2 Lépcsős Keresős / Lenyíló Kapcsolatválasztó Modal -->
     <div id="picker-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4" onclick="closePickerModal()">
-        <div class="bg-slate-900 border border-slate-700 text-slate-100 rounded-2xl max-w-sm w-full p-5 shadow-2xl" onclick="event.stopPropagation()">
-            <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-800">
-                <h3 id="picker-title" class="font-bold text-sm text-slate-200">Válassz egy Simet</h3>
-                <button onclick="closePickerModal()" class="text-slate-400 hover:text-white text-xs"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            
-            <div id="picker-list" class="space-y-2 max-h-60 overflow-y-auto pr-1 my-3">
-                <!-- Dinamikusan generált képes lista elemek -->
+        <div class="bg-slate-900 border border-slate-700 text-slate-100 rounded-2xl max-w-md w-full p-6 shadow-2xl" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-800">
+                <h3 id="picker-title" class="font-bold text-base text-slate-200">Kapcsolat Hozzáadása</h3>
+                <button onclick="closePickerModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
 
-            <div class="pt-2 border-t border-slate-800 flex justify-between items-center">
-                <button id="picker-new-btn" onclick="pickerCreateNewSim()" class="w-full bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-300 border border-emerald-500/30 rounded-xl py-2 px-3 text-xs font-semibold flex items-center justify-center space-x-2 transition">
-                    <i class="fa-solid fa-user-plus"></i>
-                    <span>+ Új Sim Létrehozása</span>
-                </button>
+            <!-- 1. LÉPÉS: Sim kiválasztása kereséssel és lenyílóval -->
+            <div id="picker-step-1" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">1. Keresés névre</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                        <input type="text" id="picker-search-input" oninput="filterPickerDropdown()" placeholder="Írj be egy nevet..." class="w-full bg-slate-800 border border-slate-700 rounded-xl pl-8 pr-3 py-2 text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">2. Válassz Simet a listából</label>
+                    <select id="picker-sim-select" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none cursor-pointer">
+                        <!-- Dinamikusan töltődik fel -->
+                    </select>
+                </div>
+
+                <div class="pt-2 flex justify-between items-center">
+                    <button onclick="pickerCreateNewSim()" class="text-xs text-emerald-400 hover:underline flex items-center space-x-1">
+                        <i class="fa-solid fa-user-plus"></i>
+                        <span>+ Új Sim Létrehozása</span>
+                    </button>
+                    <button onclick="proceedToStep2()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-4 py-2 rounded-xl text-xs flex items-center space-x-2 transition">
+                        <span>Tovább a kapcsolathoz</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
             </div>
+
+            <!-- 2. LÉPÉS: Kapcsolat típusának kiválasztása lenyílókból -->
+            <div id="picker-step-2" class="space-y-4 hidden">
+                <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 flex items-center justify-between">
+                    <div class="text-xs text-slate-300">
+                        Kiválasztott Sim: <strong id="selected-target-name" class="text-emerald-400"></strong>
+                    </div>
+                    <button onclick="backToStep1()" class="text-[11px] text-slate-400 hover:text-white underline">Módosít</button>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Kapcsolat típusa</label>
+                    <select id="picker-rel-type-select" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:ring-2 focus:ring-pink-500 outline-none cursor-pointer">
+                        <option value="married">💍 Házaspár</option>
+                        <option value="engaged">💎 Eljegyzett / Jegyesek</option>
+                        <option value="partner">❤️ Párkapcsolat / Partner</option>
+                        <option value="parent_child">👶 Szülő - Gyerek kapcsolat</option>
+                        <option value="ex">💔 Ex-partner / Elvált</option>
+                    </select>
+                </div>
+
+                <div class="pt-3 flex justify-end space-x-2">
+                    <button onclick="closePickerModal()" class="px-3 py-2 text-xs text-slate-400 hover:text-white">Mégse</button>
+                    <button onclick="confirmPickerRelationship()" class="bg-pink-600 hover:bg-pink-500 text-white font-semibold px-5 py-2 rounded-xl text-xs transition flex items-center space-x-2 shadow-lg shadow-pink-900/30">
+                        <i class="fa-solid fa-check"></i>
+                        <span>Kapcsolat Mentése</span>
+                    </button>
+                </div>
+            </div>
+
         </div>
     </div>
 
-    <!-- Relationship Selection Modal -->
+    <!-- Relationship Selection Modal (Jobb klikkes menünek megmaradva) -->
     <div id="relationship-modal" class="fixed inset-0 bg-black/75 hidden flex items-center justify-center z-50 p-4">
         <div class="bg-slate-800 text-slate-100 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-pink-500/30 text-center">
             <div class="flex justify-center items-center space-x-4 mb-4">
@@ -673,70 +718,99 @@
             setTimeout(drawConnectors, 50);
         }
 
-        /* --- KÉPES DROP-DOWN PICKER LOGIKA --- */
+        /* --- KÁRTYÁS / KERESŐS / LENYÍLÓ KAPCSOLATVÁLASZTÓ LOGIKA --- */
         function openPickerModal(sourceSimId, mode) {
             pickerSourceSimId = sourceSimId;
             pickerMode = mode;
 
             const sourceSim = localSims.find(s => s.id === sourceSimId);
             const titleEl = document.getElementById('picker-title');
-            const listEl = document.getElementById('picker-list');
 
             if (mode === 'child') {
-                titleEl.textContent = `Gyermek hozzáadása: ${sourceSim ? sourceSim.first_name : ''}`;
+                titleEl.textContent = `Gyermek kiválasztása ide: ${sourceSim ? sourceSim.first_name : ''}`;
             } else {
                 titleEl.textContent = `Kapcsolat / Partner: ${sourceSim ? sourceSim.first_name : ''}`;
             }
 
-            listEl.innerHTML = '';
-
-            // Szűrjük ki a forrás simet
-            const availableSims = localSims.filter(s => s.id !== sourceSimId);
-
-            if (availableSims.length === 0) {
-                listEl.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">Nincs más létező Sim. Hozz létre egyet!</p>`;
-            } else {
-                availableSims.forEach(sim => {
-                    const avatarSrc = sim.image_url || `https://via.placeholder.com/40/10b981/ffffff?text=${sim.first_name[0]}`;
-                    const item = document.createElement('div');
-                    item.className = "flex items-center justify-between p-2 hover:bg-slate-800 rounded-xl cursor-pointer border border-transparent hover:border-slate-700 transition";
-                    item.onclick = () => selectSimFromPicker(sim.id);
-
-                    item.innerHTML = `
-                        <div class="flex items-center space-x-3">
-                            <img src="${avatarSrc}" class="w-10 h-10 rounded-full object-cover border border-emerald-500/50">
-                            <div>
-                                <p class="text-xs font-bold text-slate-200">${sim.first_name} ${sim.last_name}</p>
-                                <p class="text-[10px] text-slate-400">Gen ${sim.generation || 1} • ${sim.occult_status || 'Ember'}</p>
-                            </div>
-                        </div>
-                        <i class="fa-solid fa-link text-emerald-400 text-xs mr-1"></i>
-                    `;
-                    listEl.appendChild(item);
-                });
-            }
+            document.getElementById('picker-search-input').value = '';
+            backToStep1();
+            filterPickerDropdown();
 
             document.getElementById('picker-modal').classList.remove('hidden');
+        }
+
+        function filterPickerDropdown() {
+            const query = document.getElementById('picker-search-input').value.toLowerCase().trim();
+            const select = document.getElementById('picker-sim-select');
+            select.innerHTML = '';
+
+            const availableSims = localSims.filter(s => s.id !== pickerSourceSimId && `${s.first_name} ${s.last_name}`.toLowerCase().includes(query));
+
+            if (availableSims.length === 0) {
+                const opt = document.createElement('option');
+                opt.value = "";
+                opt.textContent = "-- Nincs találat --";
+                select.appendChild(opt);
+            } else {
+                availableSims.forEach(sim => {
+                    const opt = document.createElement('option');
+                    opt.value = sim.id;
+                    opt.textContent = `${sim.first_name} ${sim.last_name} (Gen ${sim.generation || 1})`;
+                    select.appendChild(opt);
+                });
+            }
+        }
+
+        function proceedToStep2() {
+            const select = document.getElementById('picker-sim-select');
+            const targetId = select.value;
+
+            if (!targetId) return;
+
+            const targetSim = localSims.find(s => s.id === targetId);
+            if (!targetSim) return;
+
+            document.getElementById('selected-target-name').textContent = `${targetSim.first_name} ${targetSim.last_name}`;
+            
+            // Ha eleve Gyerek gombra kattintott, állítsuk alapértelmezetten arra
+            if (pickerMode === 'child') {
+                document.getElementById('picker-rel-type-select').value = 'parent_child';
+            } else {
+                document.getElementById('picker-rel-type-select').value = 'married';
+            }
+
+            document.getElementById('picker-step-1').classList.add('hidden');
+            document.getElementById('picker-step-2').classList.remove('hidden');
+        }
+
+        function backToStep1() {
+            document.getElementById('picker-step-2').classList.add('hidden');
+            document.getElementById('picker-step-1').classList.remove('hidden');
+        }
+
+        async function confirmPickerRelationship() {
+            const targetId = document.getElementById('picker-sim-select').value;
+            const relType = document.getElementById('picker-rel-type-select').value;
+            const sourceId = pickerSourceSimId;
+
+            if (!sourceId || !targetId) return;
+
+            closePickerModal();
+
+            if (relType === 'parent_child') {
+                await supabaseClient.from('sims').update({ parent_id: sourceId }).eq('id', targetId);
+            } else {
+                await supabaseClient.from('sims').update({ partner_id: targetId, relationship_type: relType }).eq('id', sourceId);
+                await supabaseClient.from('sims').update({ partner_id: sourceId, relationship_type: relType }).eq('id', targetId);
+            }
+
+            fetchSims();
         }
 
         function closePickerModal() {
             document.getElementById('picker-modal').classList.add('hidden');
             pickerSourceSimId = null;
             pickerMode = null;
-        }
-
-        function selectSimFromPicker(targetSimId) {
-            closePickerModal();
-            draggedSimId = pickerSourceSimId;
-            this.targetSimId = targetSimId;
-
-            if (pickerMode === 'child') {
-                // Közvetlenül beállítjuk a szülő-gyermek kapcsolatot
-                supabaseClient.from('sims').update({ parent_id: pickerSourceSimId }).eq('id', targetSimId).then(() => fetchSims());
-            } else {
-                // Megnyitjuk a kapcsolat típus kiválasztó ablakot
-                openRelationshipModal();
-            }
         }
 
         function pickerCreateNewSim() {
