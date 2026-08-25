@@ -3,9 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Családfa App - Főoldal</title>
+    <title>Családfa App</title>
     <style>
         /* Alapvető beállítások */
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -14,6 +18,107 @@
             overflow-x: hidden;
         }
 
+        /* -------------------------------------------------- */
+        /* 1. REGISZTRÁCIÓS / BEJELENTKEZÉSI TÉR (Auth Screen) */
+        /* -------------------------------------------------- */
+        .auth-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #121212;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000; /* Minden felett lebeg */
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        /* Amikor fel van oldva/be van jelentkezve, elrejtjük */
+        .auth-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .auth-card {
+            background-color: #2a2a2a;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .auth-card h2 {
+            margin-top: 0;
+            color: #fff;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #bbb;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #444;
+            background-color: #1e1e1e;
+            color: #fff;
+            font-size: 15px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #888;
+        }
+
+        .auth-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #4a4a4a;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .auth-btn:hover {
+            background-color: #666;
+        }
+
+        .auth-toggle-link {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #aaa;
+        }
+
+        .auth-toggle-link a {
+            color: #fff;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+
+        /* -------------------------------------------------- */
+        /* 2. ALKALMAZÁS FELÜLET (Főoldal, Navigáció, Sidebar)*/
+        /* -------------------------------------------------- */
+        
         /* Felső navigációs sáv */
         .top-nav {
             background-color: #2a2a2a;
@@ -42,7 +147,7 @@
             text-shadow: 0 0 12px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.4);
         }
 
-        /* Fő tartalom (ahová bejelentkezés után bedob) */
+        /* Fő tartalom */
         .main-content {
             padding: 40px;
             max-width: 800px;
@@ -56,7 +161,7 @@
         .right-sidebar {
             position: fixed;
             top: 0;
-            right: -250px; /* Kezdetben el van rejtve */
+            right: -250px;
             width: 250px;
             height: 100vh;
             background-color: #2a2a2a;
@@ -66,7 +171,6 @@
             z-index: 1000;
         }
 
-        /* Amikor a menü nyitva van */
         .right-sidebar.open {
             right: 0;
         }
@@ -95,7 +199,7 @@
             color: #fff;
         }
 
-        /* Nyilacska gomb (Toggle button) */
+        /* Nyilacska gomb */
         .toggle-btn {
             position: fixed;
             top: 50%;
@@ -117,12 +221,10 @@
             background-color: #555;
         }
 
-        /* A nyíl helyzete, amikor a menü nyitva van */
         .toggle-btn.open {
             right: 250px;
         }
 
-        /* Nyíl ikon forgatása nyitott állapotban */
         .arrow-icon {
             display: inline-block;
             transition: transform 0.4s ease;
@@ -136,19 +238,47 @@
 </head>
 <body>
 
+    <!-- 1. REGISZTRÁCIÓS / BEJELENTKEZÉSI KÉPERNYŐ (Alapértelmezetten ez látszik) -->
+    <div class="auth-overlay" id="authOverlay">
+        <div class="auth-card">
+            <h2 id="authTitle">Regisztráció</h2>
+            <form id="authForm" onsubmit="handleLogin(event)">
+                <div class="form-group" id="emailGroup">
+                    <label for="email">E-mail cím</label>
+                    <input type="email" id="email" placeholder="pelda@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="username">Felhasználónév</label>
+                    <input type="text" id="username" placeholder="Felhasználónév" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Jelszó</label>
+                    <input type="password" id="password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="auth-btn" id="authSubmitBtn">Regisztrálok és Belépek</button>
+            </form>
+            
+            <div class="auth-toggle-link">
+                <span id="toggleText">Már van fiókod?</span> 
+                <a onclick="toggleAuthMode()" id="toggleLink">Bejelentkezés</a>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 2. APPLIKÁCIÓ TARTALMA (Bejelentkezés után ide jut a felhasználó) -->
+
     <!-- Felső navigáció -->
     <nav class="top-nav">
-        <!-- A "Főoldal" aktív, ezért világít -->
         <a href="#" class="active">Főoldal</a>
-        <!-- A "Publikum" menüpont, ami a megosztott családfákhoz visz -->
         <a href="#publikum">Publikum</a>
     </nav>
 
     <!-- Főoldal tartalma -->
     <main class="main-content">
         <h1>Üdvözlünk a Főoldalon!</h1>
-        <p>Sikeresen bejelentkeztél. Itt kezelheted és szerkesztheted a saját családfádat, nyomon követheted a generációkat és a simjeid leszármazottait.</p>
-        <p>A fenti <strong>Publikum</strong> gombra kattintva átléphetsz a közösségi térbe, ahol te is nyilvánossá teheted a családfádat, és böngészhetsz mások által megosztott történetek között.</p>
+        <p>Sikeresen bejelentkeztél. Itt láthatod és kezelheted a családfádat.</p>
+        <p>A <strong>Publikum</strong> gombra kattintva átléphetsz a közösségi oldalra, ahol a saját családfádat is publikussá teheted mások számára.</p>
     </main>
 
     <!-- Jobb oldali előugró menü -->
@@ -157,26 +287,69 @@
             <li><a href="#">🏠 Főoldal</a></li>
             <li><a href="#">🌳 Családfa szerkesztése</a></li>
             <li><a href="#">⚙️ Beállítások</a></li>
-            <li><a href="#">🚪 Kijelentkezés</a></li>
+            <li><a href="#" onclick="logout()">🚪 Kijelentkezés</a></li>
         </ul>
     </div>
 
-    <!-- Előugró menüt nyitó/záró nyilacska -->
+    <!-- Előugró menüt nyitó nyilacska -->
     <button class="toggle-btn" id="toggleBtn">
         <span class="arrow-icon">◀</span>
     </button>
 
-    <!-- JavaScript a menü működéséhez -->
+
+    <!-- JAVASCRIPT LOGIKA -->
     <script>
+        // Működés a jobb oldali sávhoz
         const sidebar = document.getElementById('sidebar');
         const toggleBtn = document.getElementById('toggleBtn');
 
         toggleBtn.addEventListener('click', () => {
-            // A "open" osztály hozzáadása/elvevése kattintásra
             sidebar.classList.toggle('open');
             toggleBtn.classList.toggle('open');
         });
-    </script>
 
+        // Bejelentkezés / Regisztráció kezelése
+        const authOverlay = document.getElementById('authOverlay');
+        let isRegistration = true;
+
+        function handleLogin(event) {
+            event.preventDefault(); // Megakadályozza az oldal újratöltését
+            // Elrejtjük a regisztrációs ablakot -> feltárul a főoldal
+            authOverlay.classList.add('hidden');
+        }
+
+        // Kijelentkezés funkció (visszadob a regisztrációs térbe)
+        function logout() {
+            authOverlay.classList.remove('hidden');
+            // Menü bezárása kijelentkezéskor
+            sidebar.classList.remove('open');
+            toggleBtn.classList.remove('open');
+        }
+
+        // Váltás Regisztráció és Bejelentkezés között
+        function toggleAuthMode() {
+            isRegistration = !isRegistration;
+            
+            const title = document.getElementById('authTitle');
+            const submitBtn = document.getElementById('authSubmitBtn');
+            const toggleText = document.getElementById('toggleText');
+            const toggleLink = document.getElementById('toggleLink');
+            const emailGroup = document.getElementById('emailGroup');
+
+            if (isRegistration) {
+                title.innerText = 'Regisztráció';
+                submitBtn.innerText = 'Regisztrálok és Belépek';
+                toggleText.innerText = 'Már van fiókod?';
+                toggleLink.innerText = 'Bejelentkezés';
+                emailGroup.style.display = 'block';
+            } else {
+                title.innerText = 'Bejelentkezés';
+                submitBtn.innerText = 'Bejelentkezés';
+                toggleText.innerText = 'Még nincs fiókod?';
+                toggleLink.innerText = 'Regisztráció';
+                emailGroup.style.display = 'none';
+            }
+        }
+    </script>
 </body>
 </html>
