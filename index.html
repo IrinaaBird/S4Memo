@@ -3,23 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Családfa App</title>
+    <title>S4Memo - Sims 4 Memorable</title>
     <style>
-        /* Alapvető beállítások */
+        /* Alapbeállítások és puha lekerekítések */
         * {
             box-sizing: border-box;
+            font-family: 'Segoe UI', 'Quicksand', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
         }
 
         body {
             margin: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #1e1e1e;
-            color: #e0e0e0;
+            padding: 0;
+            background-color: #fcebe1; /* Hangulatos meleg barack alapháttér */
+            color: #4a3b32;
             overflow-x: hidden;
+            min-height: 100vh;
         }
 
         /* -------------------------------------------------- */
-        /* 1. REGISZTRÁCIÓS / BEJELENTKEZÉSI TÉR (Auth Screen) */
+        /* 1. KRÉM SZÍNŰ BEJELENTKEZÉSI / REGISZTRÁCIÓS TÉR   */
         /* -------------------------------------------------- */
         .auth-overlay {
             position: fixed;
@@ -27,34 +29,37 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            background-color: #121212;
+            background: linear-gradient(135deg, #fcebe1 0%, #f7d2c4 100%);
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 2000; /* Minden felett lebeg */
+            z-index: 2000;
             transition: opacity 0.5s ease, visibility 0.5s ease;
         }
 
-        /* Amikor fel van oldva/be van jelentkezve, elrejtjük */
         .auth-overlay.hidden {
             opacity: 0;
             visibility: hidden;
         }
 
+        /* Lekerekített krém színű kártya */
         .auth-card {
-            background-color: #2a2a2a;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
-            width: 100%;
-            max-width: 400px;
+            background-color: #fffbf5; /* Elegáns krém szín */
+            padding: 45px 40px;
+            border-radius: 28px;
+            box-shadow: 0 15px 35px rgba(184, 115, 87, 0.15);
+            width: 90%;
+            max-width: 420px;
             text-align: center;
+            border: 2px solid #f2dfd3;
         }
 
         .auth-card h2 {
             margin-top: 0;
-            color: #fff;
+            color: #5c4335;
+            font-size: 28px;
             margin-bottom: 25px;
+            font-weight: 700;
         }
 
         .form-group {
@@ -65,110 +70,197 @@
         .form-group label {
             display: block;
             margin-bottom: 8px;
-            color: #bbb;
+            color: #7a5e4e;
             font-size: 14px;
+            font-weight: 600;
+            padding-left: 5px;
         }
 
+        /* Puha, lekerekített beviteli mezők */
         .form-group input {
             width: 100%;
-            padding: 12px;
-            border-radius: 6px;
-            border: 1px solid #444;
-            background-color: #1e1e1e;
-            color: #fff;
+            padding: 14px 18px;
+            border-radius: 16px;
+            border: 2px solid #eedad0;
+            background-color: #ffffff;
+            color: #4a3b32;
             font-size: 15px;
+            transition: all 0.3s ease;
         }
 
         .form-group input:focus {
             outline: none;
-            border-color: #888;
+            border-color: #e09f80;
+            box-shadow: 0 0 10px rgba(224, 159, 128, 0.2);
         }
 
+        /* Lekerekített meleg gomb */
         .auth-btn {
             width: 100%;
-            padding: 12px;
-            background-color: #4a4a4a;
-            color: #fff;
+            padding: 15px;
+            background: linear-gradient(135deg, #e59875 0%, #d9825b 100%);
+            color: #ffffff;
             border: none;
-            border-radius: 6px;
+            border-radius: 20px;
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            transition: background 0.3s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
             margin-top: 10px;
+            box-shadow: 0 6px 15px rgba(217, 130, 91, 0.3);
         }
 
         .auth-btn:hover {
-            background-color: #666;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(217, 130, 91, 0.4);
         }
 
         .auth-toggle-link {
-            margin-top: 20px;
+            margin-top: 22px;
             font-size: 14px;
-            color: #aaa;
+            color: #8c6d5d;
         }
 
         .auth-toggle-link a {
-            color: #fff;
-            text-decoration: underline;
+            color: #d9825b;
+            font-weight: bold;
+            text-decoration: none;
             cursor: pointer;
+        }
+
+        .auth-toggle-link a:hover {
+            text-decoration: underline;
         }
 
 
         /* -------------------------------------------------- */
-        /* 2. ALKALMAZÁS FELÜLET (Főoldal, Navigáció, Sidebar)*/
+        /* 2. ALKALMAZÁS FELÜLET (Főoldal barackos témával)   */
         /* -------------------------------------------------- */
         
-        /* Felső navigációs sáv */
+        /* Felső navigációs sáv lekerekített krém háttérrel */
+        .top-nav-container {
+            padding: 20px 20px 0 20px;
+        }
+
         .top-nav {
-            background-color: #2a2a2a;
-            padding: 15px 30px;
+            background-color: #fffbf5;
+            padding: 12px 30px;
             display: flex;
             align-items: center;
+            justify-content: space-between;
             gap: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            border-radius: 24px;
+            box-shadow: 0 8px 20px rgba(180, 120, 90, 0.08);
+            border: 1px solid #f2dfd3;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
         }
 
         .top-nav a {
             text-decoration: none;
-            font-size: 18px;
-            color: #888;
+            font-size: 17px;
+            color: #8c6d5d;
+            padding: 8px 18px;
+            border-radius: 14px;
             transition: all 0.3s ease;
-            font-weight: 500;
+            font-weight: 600;
         }
 
         .top-nav a:hover {
-            color: #ccc;
+            color: #5c4335;
+            background-color: #f7e9df;
         }
 
-        /* Fehéren világító aktív Főoldal gomb */
+        /* Fehéren világító, kiemelt Főoldal opció */
         .top-nav a.active {
             color: #ffffff;
-            text-shadow: 0 0 12px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.4);
+            background-color: #e59875;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.9), 0 4px 12px rgba(229, 152, 117, 0.4);
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.6);
         }
 
-        /* Fő tartalom */
-        .main-content {
-            padding: 40px;
-            max-width: 800px;
+        /* S4Memo Logó a Sims híres Plumbob-jával (zöld gyémánt) */
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 22px;
+            font-weight: 800;
+            color: #5c4335;
+            letter-spacing: 0.5px;
         }
 
-        .main-content h1 {
-            color: #fff;
+        .plumbob {
+            width: 14px;
+            height: 22px;
+            background: linear-gradient(135deg, #00ff66 0%, #00b33c 100%);
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+            display: inline-block;
+            filter: drop-shadow(0 0 4px rgba(0, 255, 102, 0.6));
         }
 
-        /* Jobb oldali előugró menü (Sidebar) */
+        /* Fő tartalom - Barackos, rendkívül lekerekített kártya design */
+        .main-container {
+            padding: 30px 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .main-card {
+            background: linear-gradient(145deg, #ffffff 0%, #fff6f0 100%);
+            padding: 45px;
+            border-radius: 35px;
+            box-shadow: 0 12px 30px rgba(184, 115, 87, 0.1);
+            border: 2px solid #fcebe1;
+        }
+
+        .main-card h1 {
+            color: #4a3b32;
+            font-size: 32px;
+            margin-top: 0;
+            margin-bottom: 25px;
+            font-weight: 800;
+        }
+
+        .main-card p {
+            font-size: 17px;
+            line-height: 1.7;
+            color: #634f43;
+            margin-bottom: 20px;
+        }
+
+        .beta-badge {
+            display: inline-block;
+            background-color: #f7d2c4;
+            color: #8c4a2b;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Jobb oldali előugró menü (Sidebar) - Lekerekített krémes stílusban */
         .right-sidebar {
             position: fixed;
-            top: 0;
-            right: -250px;
-            width: 250px;
-            height: 100vh;
-            background-color: #2a2a2a;
-            box-shadow: -2px 0 15px rgba(0,0,0,0.5);
-            transition: right 0.4s ease;
-            padding-top: 60px;
+            top: 20px;
+            right: -280px;
+            width: 260px;
+            height: calc(100vh - 40px);
+            background-color: #fffbf5;
+            box-shadow: -10px 0 25px rgba(184, 115, 87, 0.15);
+            transition: right 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            padding: 40px 15px 20px 15px;
             z-index: 1000;
+            border-radius: 28px 0 0 28px;
+            border: 2px solid #f2dfd3;
+            border-right: none;
         }
 
         .right-sidebar.open {
@@ -182,47 +274,54 @@
         }
 
         .right-sidebar ul li {
-            border-bottom: 1px solid #3a3a3a;
+            margin-bottom: 10px;
         }
 
         .right-sidebar ul li a {
-            display: block;
-            padding: 20px;
-            color: #e0e0e0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            color: #5c4335;
             text-decoration: none;
             font-size: 16px;
-            transition: background 0.2s;
+            font-weight: 600;
+            border-radius: 18px;
+            transition: all 0.2s ease;
         }
 
         .right-sidebar ul li a:hover {
-            background-color: #3a3a3a;
-            color: #fff;
+            background-color: #fcebe1;
+            color: #d9825b;
+            transform: translateX(-3px);
         }
 
-        /* Nyilacska gomb */
+        /* Nyilacska gomb lekerekítve */
         .toggle-btn {
             position: fixed;
             top: 50%;
             right: 0;
             transform: translateY(-50%);
-            background-color: #444;
-            color: #fff;
-            border: none;
-            padding: 15px 10px;
+            background-color: #fffbf5;
+            color: #8c6d5d;
+            border: 2px solid #f2dfd3;
+            border-right: none;
+            padding: 16px 12px;
             cursor: pointer;
-            font-size: 18px;
-            border-radius: 8px 0 0 8px;
-            transition: right 0.4s ease, background 0.2s;
+            font-size: 16px;
+            border-radius: 16px 0 0 16px;
+            transition: right 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.2s;
             z-index: 1001;
-            box-shadow: -2px 0 5px rgba(0,0,0,0.3);
+            box-shadow: -5px 0 15px rgba(184, 115, 87, 0.1);
         }
 
         .toggle-btn:hover {
-            background-color: #555;
+            background-color: #fcebe1;
+            color: #5c4335;
         }
 
         .toggle-btn.open {
-            right: 250px;
+            right: 260px;
         }
 
         .arrow-icon {
@@ -238,9 +337,12 @@
 </head>
 <body>
 
-    <!-- 1. REGISZTRÁCIÓS / BEJELENTKEZÉSI KÉPERNYŐ (Alapértelmezetten ez látszik) -->
+    <!-- 1. REGISZTRÁCIÓS / BEJELENTKEZÉSI KÉPERNYŐ (Krém színű, puha lekerekítésekkel) -->
     <div class="auth-overlay" id="authOverlay">
         <div class="auth-card">
+            <div class="logo" style="justify-content: center; margin-bottom: 15px;">
+                <span class="plumbob"></span> S4Memo
+            </div>
             <h2 id="authTitle">Regisztráció</h2>
             <form id="authForm" onsubmit="handleLogin(event)">
                 <div class="form-group" id="emailGroup">
@@ -266,26 +368,44 @@
     </div>
 
 
-    <!-- 2. APPLIKÁCIÓ TARTALMA (Bejelentkezés után ide jut a felhasználó) -->
+    <!-- 2. APPLIKÁCIÓ TARTALMA (Főoldal barack és krém tónusokkal) -->
 
     <!-- Felső navigáció -->
-    <nav class="top-nav">
-        <a href="#" class="active">Főoldal</a>
-        <a href="#publikum">Publikum</a>
-    </nav>
+    <div class="top-nav-container">
+        <nav class="top-nav">
+            <!-- S4Memo Logó Plumbob gyémánttal -->
+            <div class="logo">
+                <span class="plumbob"></span> S4Memo
+            </div>
+            
+            <div class="nav-links">
+                <!-- Fehéren világító aktív Főoldal opció -->
+                <a href="#" class="active">Főoldal</a>
+                <a href="#publikum">Publikum</a>
+            </div>
+        </nav>
+    </div>
 
-    <!-- Főoldal tartalma -->
-    <main class="main-content">
-        <h1>Üdvözlünk a Főoldalon!</h1>
-        <p>Sikeresen bejelentkeztél. Itt láthatod és kezelheted a családfádat.</p>
-        <p>A <strong>Publikum</strong> gombra kattintva átléphetsz a közösségi oldalra, ahol a saját családfádat is publikussá teheted mások számára.</p>
-    </main>
+    <!-- Főoldal tartalma lekerekített kártyában -->
+    <div class="main-container">
+        <main class="main-card">
+            <span class="beta-badge">Béta Verzió</span>
+            <h1>Üdvözöllek a Sims 4 Memorable oldalán!</h1>
+            
+            <p>Ez egy új ingyenes alkalmazás, ami a családfákat képviseli, kisebb játékokkal, szabadabb és több funkcióval, ahol mindenki kiélheti a vágyait.</p>
+            
+            <p>Az oldal jelenleg béta verzióban fut, így ha hibát tapasztalsz, vagy ötleted van, milyen funkció jönne jól, azt az e-mail címemre szívesen várom.</p>
+            
+            <p><strong>Köszönöm a türelmet.</strong></p>
+        </main>
+    </div>
 
-    <!-- Jobb oldali előugró menü -->
+    <!-- Jobb oldali előugró menü (Sidebar) -->
     <div class="right-sidebar" id="sidebar">
         <ul>
             <li><a href="#">🏠 Főoldal</a></li>
             <li><a href="#">🌳 Családfa szerkesztése</a></li>
+            <li><a href="#">🎮 Kisebb játékok</a></li>
             <li><a href="#">⚙️ Beállítások</a></li>
             <li><a href="#" onclick="logout()">🚪 Kijelentkezés</a></li>
         </ul>
@@ -299,7 +419,7 @@
 
     <!-- JAVASCRIPT LOGIKA -->
     <script>
-        // Működés a jobb oldali sávhoz
+        // Jobb oldali sáv nyitása/zárása
         const sidebar = document.getElementById('sidebar');
         const toggleBtn = document.getElementById('toggleBtn');
 
@@ -308,20 +428,18 @@
             toggleBtn.classList.toggle('open');
         });
 
-        // Bejelentkezés / Regisztráció kezelése
+        // Belépés kezelése (szimuláció)
         const authOverlay = document.getElementById('authOverlay');
         let isRegistration = true;
 
         function handleLogin(event) {
-            event.preventDefault(); // Megakadályozza az oldal újratöltését
-            // Elrejtjük a regisztrációs ablakot -> feltárul a főoldal
+            event.preventDefault();
             authOverlay.classList.add('hidden');
         }
 
-        // Kijelentkezés funkció (visszadob a regisztrációs térbe)
+        // Kijelentkezés funkció
         function logout() {
             authOverlay.classList.remove('hidden');
-            // Menü bezárása kijelentkezéskor
             sidebar.classList.remove('open');
             toggleBtn.classList.remove('open');
         }
