@@ -11,7 +11,7 @@
     <!-- FontAwesome icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f172a; color: #f8fafc; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f172a; color: #f8fafc; user-select: none; }
         
         .tree-viewport {
             background-color: #1e293b;
@@ -43,17 +43,28 @@
 
         .sim-avatar-wrapper {
             position: relative;
+            cursor: grab;
+        }
+
+        .sim-avatar-wrapper:active {
+            cursor: grabbing;
         }
 
         .sim-avatar {
-            width: 84px;
-            height: 84px;
+            width: 88px;
+            height: 88px;
             border-radius: 50%;
             border: 4px solid #10b981;
             box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
             object-fit: cover;
             background-color: #334155;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+        }
+
+        .sim-node.drag-over .sim-avatar {
+            transform: scale(1.18);
+            border-color: #f59e0b !important;
+            box-shadow: 0 0 30px rgba(245, 158, 11, 0.9) !important;
         }
 
         .sim-node:hover .sim-avatar {
@@ -72,7 +83,8 @@
             z-index: 1;
         }
 
-        .tree-line {
+        /* Szülő-Gyerek kötél */
+        .line-parent-child {
             stroke: #10b981;
             stroke-width: 3;
             fill: none;
@@ -81,11 +93,37 @@
             animation: dash 30s linear infinite;
         }
 
-        .partner-line {
-            stroke: #f59e0b;
+        /* Házastárs vonal (Arany) */
+        .line-married {
+            stroke: #fbbf24;
+            stroke-width: 4;
+            fill: none;
+            filter: drop-shadow(0px 0px 6px rgba(251, 191, 36, 0.8));
+        }
+
+        /* Eljegyzett vonal (Rózsaszín/Mályva) */
+        .line-engaged {
+            stroke: #f472b6;
+            stroke-width: 3.5;
+            fill: none;
+            stroke-dasharray: 8 4;
+            filter: drop-shadow(0px 0px 5px rgba(244, 114, 182, 0.7));
+        }
+
+        /* Partner/Párkapcsolat vonal */
+        .line-partner {
+            stroke: #ec4899;
             stroke-width: 3;
             fill: none;
-            stroke-dasharray: 4 2;
+            stroke-dasharray: 5 3;
+        }
+
+        /* Ex-partner / Elvált vonal */
+        .line-ex {
+            stroke: #64748b;
+            stroke-width: 2.5;
+            fill: none;
+            stroke-dasharray: 3 3;
         }
 
         @keyframes dash {
@@ -104,7 +142,7 @@
                 <i class="fa-solid fa-gem text-3xl text-emerald-400 animate-pulse"></i>
                 <div>
                     <h1 class="text-xl font-bold tracking-wide">Plumtree Legacy Engine</h1>
-                    <p class="text-xs text-slate-400">Végtelen Generációs Családfa</p>
+                    <p class="text-xs text-slate-400">Interaktív Drag & Drop Családfa</p>
                 </div>
             </div>
             <div class="flex space-x-3">
@@ -151,6 +189,47 @@
             <div id="tree-canvas" class="relative z-10"></div>
         </div>
     </main>
+
+    <!-- Relationship Selection Modal (Drag & Drop után) -->
+    <div id="relationship-modal" class="fixed inset-0 bg-black/75 hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-slate-800 text-slate-100 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-amber-500/30 text-center animate-fade-in">
+            <div class="flex justify-center items-center space-x-4 mb-4">
+                <img id="rel-sim1-img" class="w-16 h-16 rounded-full border-2 border-emerald-500 object-cover">
+                <i class="fa-solid fa-heart text-2xl text-amber-400 animate-bounce"></i>
+                <img id="rel-sim2-img" class="w-16 h-16 rounded-full border-2 border-emerald-500 object-cover">
+            </div>
+            <h3 class="text-lg font-bold text-slate-100 mb-1" id="rel-title">Milyen kapcsolatban állnak?</h3>
+            <p class="text-xs text-slate-400 mb-6" id="rel-subtitle"></p>
+
+            <div class="space-y-2">
+                <button onclick="setRelationship('married')" class="w-full bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/40 p-3 rounded-xl font-semibold flex items-center justify-between transition">
+                    <span>💍 Házaspár</span>
+                    <i class="fa-solid fa-rings-wedding text-amber-400"></i>
+                </button>
+                <button onclick="setRelationship('engaged')" class="w-full bg-pink-500/10 hover:bg-pink-500/20 text-pink-300 border border-pink-500/40 p-3 rounded-xl font-semibold flex items-center justify-between transition">
+                    <span>💎 Eljegyzett / Jegyesek</span>
+                    <i class="fa-solid fa-gem text-pink-400"></i>
+                </button>
+                <button onclick="setRelationship('partner')" class="w-full bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/40 p-3 rounded-xl font-semibold flex items-center justify-between transition">
+                    <span>❤️ Párkapcsolat / Partner</span>
+                    <i class="fa-solid fa-heart text-rose-400"></i>
+                </button>
+                <button onclick="setRelationship('parent_child')" class="w-full bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 p-3 rounded-xl font-semibold flex items-center justify-between transition">
+                    <span>👶 Szülő - Gyerek kapcsolat</span>
+                    <i class="fa-solid fa-child text-emerald-400"></i>
+                </button>
+                <button onclick="setRelationship('ex')" class="w-full bg-slate-700/40 hover:bg-slate-700/60 text-slate-300 border border-slate-600 p-3 rounded-xl font-semibold flex items-center justify-between transition">
+                    <span>💔 Ex-partner / Elvált</span>
+                    <i class="fa-solid fa-heart-crack text-slate-400"></i>
+                </button>
+                <button onclick="clearRelationship()" class="w-full bg-red-900/20 hover:bg-red-900/40 text-red-400 border border-red-800/40 p-2.5 rounded-xl text-xs font-semibold transition mt-2">
+                     Kapcsolat megszüntetése
+                </button>
+            </div>
+
+            <button onclick="closeRelModal()" class="mt-4 text-xs text-slate-400 hover:text-slate-200">Mégse</button>
+        </div>
+    </div>
 
     <!-- Add / Edit Sim Modal -->
     <div id="sim-modal" class="fixed inset-0 bg-black/70 hidden flex items-center justify-center z-50 p-4">
@@ -231,6 +310,8 @@
     <script>
         let supabaseClient = null;
         let localSims = [];
+        let draggedSimId = null;
+        let targetSimId = null;
 
         window.addEventListener('DOMContentLoaded', () => {
             const savedUrl = localStorage.getItem('supabase_url');
@@ -347,12 +428,18 @@
                         node.className = 'sim-node group';
                         node.id = `sim-node-${sim.id}`;
 
-                        const avatarSrc = sim.image_url || `https://via.placeholder.com/84/10b981/ffffff?text=${sim.first_name[0]}`;
+                        // Drag and Drop események
+                        node.setAttribute('draggable', 'true');
+                        node.ondragstart = (e) => handleDragStart(e, sim.id);
+                        node.ondragover = (e) => handleDragOver(e, node);
+                        node.ondragleave = (e) => handleDragLeave(e, node);
+                        node.ondrop = (e) => handleDrop(e, sim.id, node);
+
+                        const avatarSrc = sim.image_url || `https://via.placeholder.com/88/10b981/ffffff?text=${sim.first_name[0]}`;
 
                         node.innerHTML = `
                             <div class="sim-avatar-wrapper">
-                                <img src="${avatarSrc}" class="sim-avatar">
-                                <!-- Lebegő műveleti gombok -->
+                                <img src="${avatarSrc}" class="sim-avatar" pointer-events="none">
                                 <div class="absolute -top-2 -right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition">
                                     <button onclick="openEditSimModal('${sim.id}')" title="Szerkesztés" class="bg-blue-600 hover:bg-blue-500 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center shadow">
                                         <i class="fa-solid fa-pen"></i>
@@ -361,7 +448,6 @@
                                         <i class="fa-solid fa-times"></i>
                                     </button>
                                 </div>
-                                <!-- Gyors Leszármazott hozzáadása (+) gomb -->
                                 <button onclick="addChildTo('${sim.id}')" title="Gyerek hozzáadása" class="absolute -bottom-1 right-1/2 translate-x-1/2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center shadow-lg border-2 border-slate-900 group-hover:scale-110 transition">
                                     <i class="fa-solid fa-plus"></i>
                                 </button>
@@ -377,10 +463,78 @@
                 }
             }
 
-            // Kötélvonalak kirajzolása kis csúsztatással a dom betöltése után
             setTimeout(drawConnectors, 100);
         }
 
+        /* --- DRAG AND DROP HANDLERS --- */
+        function handleDragStart(e, id) {
+            draggedSimId = id;
+            e.dataTransfer.setData('text/plain', id);
+        }
+
+        function handleDragOver(e, node) {
+            e.preventDefault();
+            node.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e, node) {
+            node.classList.remove('drag-over');
+        }
+
+        function handleDrop(e, targetId, node) {
+            e.preventDefault();
+            node.classList.remove('drag-over');
+            if(!draggedSimId || draggedSimId === targetId) return;
+
+            targetSimId = targetId;
+            openRelationshipModal();
+        }
+
+        function openRelationshipModal() {
+            const sim1 = localSims.find(s => s.id === draggedSimId);
+            const sim2 = localSims.find(s => s.id === targetSimId);
+            if(!sim1 || !sim2) return;
+
+            document.getElementById('rel-sim1-img').src = sim1.image_url || `https://via.placeholder.com/64/10b981/ffffff?text=${sim1.first_name[0]}`;
+            document.getElementById('rel-sim2-img').src = sim2.image_url || `https://via.placeholder.com/64/10b981/ffffff?text=${sim2.first_name[0]}`;
+
+            document.getElementById('rel-title').textContent = `${sim1.first_name} és ${sim2.first_name}`;
+            document.getElementById('rel-subtitle').textContent = `Válaszd ki, milyen kötelék köti össze őket:`;
+
+            document.getElementById('relationship-modal').classList.remove('hidden');
+        }
+
+        function closeRelModal() {
+            document.getElementById('relationship-modal').classList.add('hidden');
+            draggedSimId = null;
+            targetSimId = null;
+        }
+
+        async function setRelationship(type) {
+            if(!draggedSimId || !targetSimId) return;
+
+            if(type === 'parent_child') {
+                // Gyerek-Szülő kapcsolat beállítása
+                await supabaseClient.from('sims').update({ parent_id: targetSimId }).eq('id', draggedSimId);
+            } else {
+                // Partner/Házasság kapcsolat mindkét félnek
+                await supabaseClient.from('sims').update({ partner_id: targetSimId, relationship_type: type }).eq('id', draggedSimId);
+                await supabaseClient.from('sims').update({ partner_id: draggedSimId, relationship_type: type }).eq('id', targetSimId);
+            }
+
+            closeRelModal();
+            fetchSims();
+        }
+
+        async function clearRelationship() {
+            if(!draggedSimId || !targetSimId) return;
+            await supabaseClient.from('sims').update({ partner_id: null, relationship_type: null }).eq('id', draggedSimId);
+            await supabaseClient.from('sims').update({ partner_id: null, relationship_type: null }).eq('id', targetSimId);
+            closeRelModal();
+            fetchSims();
+        }
+
+        /* --- CONNECTOR LINES --- */
         function drawConnectors() {
             const container = document.getElementById('tree-viewport-container');
             const svg = document.getElementById('svg-connectors');
@@ -391,8 +545,10 @@
             svg.innerHTML = '';
 
             const containerRect = container.getBoundingClientRect();
+            const drawnPartnerPairs = new Set();
 
             localSims.forEach(sim => {
+                // 1. SZÜLŐ - GYEREK KÖTÉL
                 if (sim.parent_id) {
                     const parentNode = document.getElementById(`sim-node-${sim.parent_id}`);
                     const childNode = document.getElementById(`sim-node-${sim.id}`);
@@ -405,28 +561,64 @@
                             const pRect = pImg.getBoundingClientRect();
                             const cRect = cImg.getBoundingClientRect();
 
-                            // Szülő aljának közepe
                             const startX = (pRect.left + pRect.width / 2) - containerRect.left + container.scrollLeft;
                             const startY = pRect.bottom - containerRect.top + container.scrollTop;
 
-                            // Gyerek tetejének közepe
                             const endX = (cRect.left + cRect.width / 2) - containerRect.left + container.scrollLeft;
                             const endY = cRect.top - containerRect.top + container.scrollTop;
 
-                            // Lágy S-kanyar kanyarítás
                             const controlY = startY + (endY - startY) / 2;
                             const d = `M ${startX} ${startY} C ${startX} ${controlY}, ${endX} ${controlY}, ${endX} ${endY}`;
 
                             const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                             path.setAttribute('d', d);
-                            path.setAttribute('class', 'tree-line');
+                            path.setAttribute('class', 'line-parent-child');
                             svg.appendChild(path);
+                        }
+                    }
+                }
+
+                // 2. PARTNER / HÁZASSÁG KÖTÉL
+                if (sim.partner_id) {
+                    const pairKey = [sim.id, sim.partner_id].sort().join('-');
+                    if (!drawnPartnerPairs.has(pairKey)) {
+                        drawnPartnerPairs.add(pairKey);
+
+                        const node1 = document.getElementById(`sim-node-${sim.id}`);
+                        const node2 = document.getElementById(`sim-node-${sim.partner_id}`);
+
+                        if (node1 && node2) {
+                            const img1 = node1.querySelector('.sim-avatar');
+                            const img2 = node2.querySelector('.sim-avatar');
+
+                            if (img1 && img2) {
+                                const r1 = img1.getBoundingClientRect();
+                                const r2 = img2.getBoundingClientRect();
+
+                                const x1 = (r1.left + r1.width / 2) - containerRect.left + container.scrollLeft;
+                                const y1 = (r1.top + r1.height / 2) - containerRect.top + container.scrollTop;
+
+                                const x2 = (r2.left + r2.width / 2) - containerRect.left + container.scrollLeft;
+                                const y2 = (r2.top + r2.height / 2) - containerRect.top + container.scrollTop;
+
+                                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                                path.setAttribute('d', `M ${x1} ${y1} L ${x2} ${y2}`);
+
+                                let cssClass = 'line-partner';
+                                if (sim.relationship_type === 'married') cssClass = 'line-married';
+                                else if (sim.relationship_type === 'engaged') cssClass = 'line-engaged';
+                                else if (sim.relationship_type === 'ex') cssClass = 'line-ex';
+
+                                path.setAttribute('class', cssClass);
+                                svg.appendChild(path);
+                            }
                         }
                     }
                 }
             });
         }
 
+        /* --- MODAL UTILS --- */
         function openAddSimModal() {
             document.getElementById('sim-form').reset();
             document.getElementById('sim-edit-id').value = '';
