@@ -11,11 +11,17 @@
     <!-- FontAwesome icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f172a; color: #f8fafc; user-select: none; overflow: hidden; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: #fdfbf7; 
+            color: #4a3e3d; 
+            user-select: none; 
+            overflow: hidden; 
+        }
         
         .tree-viewport {
-            background-color: #0f172a;
-            background-image: radial-gradient(#334155 1.5px, transparent 1.5px);
+            background-color: #fdfbf7;
+            background-image: radial-gradient(#e5decf 2px, transparent 2px);
             background-size: 32px 32px;
             width: 100vw;
             height: calc(100vh - 73px);
@@ -54,12 +60,12 @@
 
         .sim-node.selected {
             z-index: 50 !important;
-            transform: scale(1.18) translateY(-10px);
+            transform: scale(1.15) translateY(-8px);
         }
 
         .sim-node.selected .sim-avatar {
-            border-color: #34d399 !important;
-            box-shadow: 0 0 30px rgba(52, 211, 153, 0.9), 0 0 10px rgba(255, 255, 255, 0.8) !important;
+            border-color: #10b981 !important;
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.6), 0 0 10px rgba(255, 255, 255, 0.9) !important;
         }
 
         .sim-node.selected .selected-badge {
@@ -74,16 +80,17 @@
             width: 88px;
             height: 88px;
             border-radius: 50%;
-            border: 4px solid #10b981;
-            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+            border: 4px solid #a89f91;
+            box-shadow: 0 4px 12px rgba(74, 62, 61, 0.15);
             object-fit: cover;
-            background-color: #334155;
+            background-color: #f3efe6;
             transition: box-shadow 0.2s, border-color 0.2s;
             pointer-events: none;
         }
 
         .sim-node:hover .sim-avatar {
-            box-shadow: 0 0 25px rgba(16, 185, 129, 0.8);
+            border-color: #8c8275;
+            box-shadow: 0 6px 16px rgba(74, 62, 61, 0.25);
         }
 
         #svg-connectors {
@@ -102,12 +109,11 @@
             stroke-width: 5;
             fill: none;
             stroke-linecap: round;
-            opacity: 0.5;
-            filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.6));
+            opacity: 0.4;
         }
 
         .line-parent-child-fg {
-            stroke: #6ee7b7;
+            stroke: #10b981;
             stroke-width: 3;
             fill: none;
             stroke-linecap: round;
@@ -125,8 +131,7 @@
             stroke-width: 5;
             fill: none;
             stroke-linecap: round;
-            opacity: 0.5;
-            filter: drop-shadow(0 0 8px rgba(244, 114, 182, 0.7));
+            opacity: 0.4;
         }
 
         .line-romantic-fg {
@@ -144,7 +149,7 @@
         }
 
         .line-ex {
-            stroke: #64748b;
+            stroke: #94a3b8;
             stroke-width: 2.5;
             fill: none;
             stroke-dasharray: 4 4;
@@ -159,89 +164,95 @@
 </head>
 <body class="h-screen flex flex-col justify-between">
 
-    <!-- Bejelentkezési Képernyő -->
-    <div id="auth-screen" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 p-8 rounded-2xl max-w-md w-full shadow-2xl">
+    <!-- Bejelentkezési Képernyő (Krém stílus) -->
+    <div id="auth-screen" class="fixed inset-0 bg-amber-50/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-white border border-stone-200 p-8 rounded-3xl max-w-md w-full shadow-2xl">
             <div class="text-center mb-6">
-                <i class="fa-solid fa-gem text-4xl text-emerald-400 mb-2 animate-pulse"></i>
-                <h2 class="text-2xl font-bold text-white">Plumtree Legacy Engine</h2>
-                <p class="text-xs text-slate-400 mt-1">Lépj be a családfa szerkesztéséhez</p>
+                <div class="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                    <i class="fa-solid fa-gem text-3xl text-emerald-600"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-stone-800">Plumtree Legacy Engine</h2>
+                <p class="text-xs text-stone-500 mt-1">Lépj be a családfád szerkesztéséhez</p>
             </div>
             <form onsubmit="handleAuth(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">E-mail cím</label>
-                    <input type="email" id="auth-email" required class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-stone-500 mb-1">E-mail cím</label>
+                    <input type="email" id="auth-email" required class="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 text-sm text-stone-800 focus:ring-2 focus:ring-emerald-500 focus:bg-white outline-none transition">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Jelszó</label>
-                    <input type="password" id="auth-password" required class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-stone-500 mb-1">Jelszó</label>
+                    <input type="password" id="auth-password" required class="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 text-sm text-stone-800 focus:ring-2 focus:ring-emerald-500 focus:bg-white outline-none transition">
                 </div>
                 <div class="flex space-x-2 pt-2">
-                    <button type="submit" onclick="authMode='login'" class="w-1/2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-lg text-sm transition">Bejelentkezés</button>
-                    <button type="submit" onclick="authMode='register'" class="w-1/2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold py-2.5 rounded-lg text-sm transition">Regisztráció</button>
+                    <button type="submit" onclick="authMode='login'" class="w-1/2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-xl text-sm transition shadow-lg shadow-emerald-600/20">Bejelentkezés</button>
+                    <button type="submit" onclick="authMode='register'" class="w-1/2 bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-200 font-semibold py-3 rounded-xl text-sm transition">Regisztráció</button>
                 </div>
             </form>
-            <div id="auth-error" class="mt-4 text-xs text-red-400 text-center hidden"></div>
+            <div id="auth-error" class="mt-4 text-xs text-red-500 text-center font-medium hidden"></div>
         </div>
     </div>
 
     <!-- Jobb Klikk Kontextus Menü -->
-    <div id="context-menu" class="bg-slate-900/95 backdrop-blur border border-slate-700 text-slate-200 rounded-xl shadow-2xl py-2 w-56 text-sm">
-        <div class="px-3 py-1.5 border-b border-slate-800 text-[11px] font-bold text-slate-400 uppercase tracking-wider" id="ctx-sim-name">Sim Neve</div>
+    <div id="context-menu" class="bg-white/95 backdrop-blur border border-stone-200 text-stone-700 rounded-2xl shadow-xl py-2 w-56 text-sm">
+        <div class="px-3 py-1.5 border-b border-stone-100 text-[11px] font-bold text-stone-400 uppercase tracking-wider" id="ctx-sim-name">Sim Neve</div>
         
-        <button id="ctx-rel-direct-btn" onclick="openRelFromCtxDirect()" class="w-full text-left px-4 py-2 hover:bg-pink-950/40 text-pink-300 flex items-center space-x-2 transition font-medium hidden">
-            <i class="fa-solid fa-heart text-pink-400 w-4"></i>
+        <button id="ctx-rel-direct-btn" onclick="openRelFromCtxDirect()" class="w-full text-left px-4 py-2 hover:bg-pink-50 text-pink-600 flex items-center space-x-2 transition font-medium hidden">
+            <i class="fa-solid fa-heart text-pink-500 w-4"></i>
             <span id="ctx-rel-direct-text">Kapcsolat összevonása</span>
         </button>
 
-        <button onclick="toggleLockSim()" class="w-full text-left px-4 py-2 hover:bg-slate-800 flex items-center justify-between transition">
+        <button onclick="toggleLockSim()" class="w-full text-left px-4 py-2 hover:bg-stone-100 flex items-center justify-between transition">
             <span id="ctx-lock-text">Pozíció Fixálása</span>
-            <i id="ctx-lock-icon" class="fa-solid fa-lock text-amber-400"></i>
+            <i id="ctx-lock-icon" class="fa-solid fa-lock text-amber-500"></i>
         </button>
 
-        <button onclick="openEditFromCtx()" class="w-full text-left px-4 py-2 hover:bg-slate-800 flex items-center space-x-2 transition">
-            <i class="fa-solid fa-pen text-blue-400 w-4"></i>
+        <button onclick="openEditFromCtx()" class="w-full text-left px-4 py-2 hover:bg-stone-100 flex items-center space-x-2 transition">
+            <i class="fa-solid fa-pen text-blue-500 w-4"></i>
             <span>Szerkesztés</span>
         </button>
 
-        <div class="border-t border-slate-800 my-1"></div>
-        <button onclick="deleteSimFromCtx()" class="w-full text-left px-4 py-2 hover:bg-red-900/30 text-red-400 flex items-center space-x-2 transition">
+        <div class="border-t border-stone-100 my-1"></div>
+        <button onclick="deleteSimFromCtx()" class="w-full text-left px-4 py-2 hover:bg-red-50 text-red-600 flex items-center space-x-2 transition">
             <i class="fa-solid fa-trash w-4"></i>
             <span>Sim Törlése</span>
         </button>
     </div>
 
-    <!-- Header / Navbar -->
-    <header class="bg-slate-900 border-b border-slate-800 text-white shadow-lg relative z-20">
-        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+    <!-- Header / Navbar (Krém / Bézs UI) -->
+    <header class="bg-white/90 backdrop-blur border-b border-stone-200 text-stone-800 shadow-sm relative z-20">
+        <div class="max-w-7xl mx-auto px-6 py-3.5 flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <i class="fa-solid fa-gem text-3xl text-emerald-400 animate-pulse"></i>
+                <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
+                    <i class="fa-solid fa-gem text-xl text-emerald-600"></i>
+                </div>
                 <div>
-                    <h1 class="text-xl font-bold tracking-wide">Plumtree Legacy Engine</h1>
-                    <p class="text-xs text-slate-400">Kattintás = Kijelölés • Jobb Klikk = Menü • + Gombok = Kapcsolat hozzáadása</p>
+                    <h1 class="text-lg font-bold tracking-tight text-stone-800">Plumtree Legacy Engine</h1>
+                    <p class="text-xs text-stone-400">Kattintás = Kijelölés • Jobb Klikk = Menü • + Gombok = Kapcsolat hozzáadása</p>
                 </div>
             </div>
-            <div class="flex items-center space-x-2 bg-slate-800 p-1.5 rounded-xl border border-slate-700">
-                <button onclick="changeZoom(-0.1)" class="w-8 h-8 rounded-lg bg-slate-700 hover:bg-slate-600 flex items-center justify-center text-slate-200 transition">
-                    <i class="fa-solid fa-minus"></i>
+            
+            <div class="flex items-center space-x-2 bg-stone-100/80 p-1 rounded-2xl border border-stone-200">
+                <button onclick="changeZoom(-0.1)" class="w-8 h-8 rounded-xl bg-white hover:bg-stone-50 flex items-center justify-center text-stone-600 transition shadow-sm border border-stone-200/50">
+                    <i class="fa-solid fa-minus text-xs"></i>
                 </button>
-                <span id="zoom-percentage" class="text-xs font-mono font-bold w-12 text-center text-emerald-400">100%</span>
-                <button onclick="changeZoom(0.1)" class="w-8 h-8 rounded-lg bg-slate-700 hover:bg-slate-600 flex items-center justify-center text-slate-200 transition">
-                    <i class="fa-solid fa-plus"></i>
+                <span id="zoom-percentage" class="text-xs font-mono font-bold w-12 text-center text-emerald-700">100%</span>
+                <button onclick="changeZoom(0.1)" class="w-8 h-8 rounded-xl bg-white hover:bg-stone-50 flex items-center justify-center text-stone-600 transition shadow-sm border border-stone-200/50">
+                    <i class="fa-solid fa-plus text-xs"></i>
                 </button>
-                <button onclick="resetZoomPan()" class="px-2 h-8 rounded-lg bg-slate-700 hover:bg-slate-600 text-xs font-semibold text-slate-300 transition" title="Alaphelyzet">
+                <button onclick="resetZoomPan()" class="px-3 h-8 rounded-xl bg-white hover:bg-stone-50 text-xs font-semibold text-stone-600 transition shadow-sm border border-stone-200/50" title="Alaphelyzet">
                     <i class="fa-solid fa-rotate-left mr-1"></i> Visszaállít
                 </button>
             </div>
-            <div class="flex space-x-3">
-                <button onclick="openConfigModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg text-xs transition border border-slate-700">
+
+            <div class="flex space-x-2">
+                <button onclick="openConfigModal()" class="bg-stone-100 hover:bg-stone-200 text-stone-600 px-3 py-2 rounded-xl text-xs font-medium transition border border-stone-200">
                     <i class="fa-solid fa-key mr-1"></i> Supabase
                 </button>
-                <button onclick="openAddSimModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-4 py-1.5 rounded-lg text-sm flex items-center space-x-2 transition shadow-lg shadow-emerald-900/40">
-                    <i class="fa-solid fa-user-plus"></i>
+                <button onclick="openAddSimModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2 rounded-xl text-sm flex items-center space-x-2 transition shadow-md shadow-emerald-600/20">
+                    <i class="fa-solid fa-user-plus text-xs"></i>
                     <span>Új Sim</span>
                 </button>
-                <button onclick="handleLogout()" class="bg-red-900/40 hover:bg-red-900/60 text-red-300 px-3 py-1.5 rounded-lg text-xs transition border border-red-800/50">
+                <button onclick="handleLogout()" class="bg-stone-100 hover:bg-red-50 text-stone-500 hover:text-red-600 px-3 py-2 rounded-xl text-xs transition border border-stone-200" title="Kijelentkezés">
                     <i class="fa-solid fa-right-from-bracket"></i>
                 </button>
             </div>
@@ -249,23 +260,23 @@
     </header>
 
     <!-- Config Modal -->
-    <div id="config-modal" class="fixed inset-0 bg-black/70 hidden flex items-center justify-center z-50 p-4">
-        <div class="bg-slate-800 text-slate-100 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-700">
-            <h2 class="text-xl font-bold mb-4 flex items-center text-emerald-400">
+    <div id="config-modal" class="fixed inset-0 bg-stone-900/40 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white text-stone-800 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-stone-200">
+            <h2 class="text-xl font-bold mb-4 flex items-center text-emerald-700">
                 <i class="fa-solid fa-database mr-2"></i> Adatbázis Beállítás
             </h2>
             <div class="space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Supabase URL</label>
-                    <input type="text" id="cfg-url" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <label class="block text-xs font-semibold uppercase text-stone-500 mb-1">Supabase URL</label>
+                    <input type="text" id="cfg-url" class="w-full bg-stone-50 border border-stone-200 rounded-xl p-2.5 text-sm text-stone-800 focus:ring-2 focus:ring-emerald-500 outline-none">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Publishable Key</label>
-                    <input type="password" id="cfg-key" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <label class="block text-xs font-semibold uppercase text-stone-500 mb-1">Publishable Key</label>
+                    <input type="password" id="cfg-key" class="w-full bg-stone-50 border border-stone-200 rounded-xl p-2.5 text-sm text-stone-800 focus:ring-2 focus:ring-emerald-500 outline-none">
                 </div>
             </div>
             <div class="mt-6 flex justify-end space-x-2">
-                <button onclick="saveConfig()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">Mentés</button>
+                <button onclick="saveConfig()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition">Mentés</button>
             </div>
         </div>
     </div>
@@ -280,36 +291,36 @@
         </div>
     </main>
 
-    <!-- 2 Lépcsős Keresős / Lenyíló Kapcsolatválasztó Modal -->
-    <div id="picker-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4" onclick="closePickerModal()">
-        <div class="bg-slate-900 border border-slate-700 text-slate-100 rounded-2xl max-w-md w-full p-6 shadow-2xl" onclick="event.stopPropagation()">
-            <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-800">
-                <h3 id="picker-title" class="font-bold text-base text-slate-200">Kapcsolat Hozzáadása</h3>
-                <button onclick="closePickerModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+    <!-- 2 Lépcsős Keresős / Lenyíló Kapcsolatválasztó Modal (Krém stílus) -->
+    <div id="picker-modal" class="fixed inset-0 bg-stone-900/40 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4" onclick="closePickerModal()">
+        <div class="bg-white border border-stone-200 text-stone-800 rounded-3xl max-w-md w-full p-6 shadow-2xl" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-4 pb-2 border-b border-stone-100">
+                <h3 id="picker-title" class="font-bold text-base text-stone-800">Kapcsolat Hozzáadása</h3>
+                <button onclick="closePickerModal()" class="text-stone-400 hover:text-stone-600"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
 
             <!-- 1. LÉPÉS: Sim kiválasztása kereséssel és lenyílóval -->
             <div id="picker-step-1" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">1. Keresés névre</label>
+                    <label class="block text-xs font-semibold text-stone-500 uppercase tracking-wider mb-1">1. Keresés névre</label>
                     <div class="relative">
-                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
-                        <input type="text" id="picker-search-input" oninput="filterPickerDropdown()" placeholder="Írj be egy nevet..." class="w-full bg-slate-800 border border-slate-700 rounded-xl pl-8 pr-3 py-2 text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 text-xs"></i>
+                        <input type="text" id="picker-search-input" oninput="filterPickerDropdown()" placeholder="Írj be egy nevet..." class="w-full bg-stone-50 border border-stone-200 rounded-xl pl-9 pr-3 py-2.5 text-sm text-stone-800 focus:ring-2 focus:ring-emerald-500 outline-none">
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">2. Válassz Simet a listából</label>
-                    <select id="picker-sim-select" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none cursor-pointer">
+                    <label class="block text-xs font-semibold text-stone-500 uppercase tracking-wider mb-1">2. Válassz Simet a listából</label>
+                    <select id="picker-sim-select" class="w-full bg-stone-50 border border-stone-200 rounded-xl p-2.5 text-sm text-stone-800 focus:ring-2 focus:ring-emerald-500 outline-none cursor-pointer">
                     </select>
                 </div>
 
                 <div class="pt-2 flex justify-between items-center">
-                    <button onclick="pickerCreateNewSim()" class="text-xs text-emerald-400 hover:underline flex items-center space-x-1">
+                    <button onclick="pickerCreateNewSim()" class="text-xs font-semibold text-emerald-600 hover:underline flex items-center space-x-1">
                         <i class="fa-solid fa-user-plus"></i>
                         <span>+ Új Sim Létrehozása</span>
                     </button>
-                    <button onclick="proceedToStep2()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-4 py-2 rounded-xl text-xs flex items-center space-x-2 transition">
+                    <button onclick="proceedToStep2()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2.5 rounded-xl text-xs flex items-center space-x-2 transition shadow-md shadow-emerald-600/20">
                         <span>Tovább a kapcsolathoz</span>
                         <i class="fa-solid fa-arrow-right"></i>
                     </button>
@@ -318,16 +329,16 @@
 
             <!-- 2. LÉPÉS: Kapcsolat típusának kiválasztása lenyílókból -->
             <div id="picker-step-2" class="space-y-4 hidden">
-                <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 flex items-center justify-between">
-                    <div class="text-xs text-slate-300">
-                        Kiválasztott Sim: <strong id="selected-target-name" class="text-emerald-400"></strong>
+                <div class="bg-stone-50 p-3 rounded-2xl border border-stone-200 flex items-center justify-between">
+                    <div class="text-xs text-stone-600">
+                        Kiválasztott Sim: <strong id="selected-target-name" class="text-emerald-700"></strong>
                     </div>
-                    <button onclick="backToStep1()" class="text-[11px] text-slate-400 hover:text-white underline">Módosít</button>
+                    <button onclick="backToStep1()" class="text-[11px] text-stone-400 hover:text-stone-700 underline">Módosít</button>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Kapcsolat típusa</label>
-                    <select id="picker-rel-type-select" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:ring-2 focus:ring-pink-500 outline-none cursor-pointer">
+                    <label class="block text-xs font-semibold text-stone-500 uppercase tracking-wider mb-1">Kapcsolat típusa</label>
+                    <select id="picker-rel-type-select" class="w-full bg-stone-50 border border-stone-200 rounded-xl p-2.5 text-sm text-stone-800 focus:ring-2 focus:ring-pink-500 outline-none cursor-pointer">
                         <option value="married">💍 Házaspár</option>
                         <option value="engaged">💎 Eljegyzett / Jegyesek</option>
                         <option value="partner">❤️ Párkapcsolat / Partner</option>
@@ -337,8 +348,8 @@
                 </div>
 
                 <div class="pt-3 flex justify-end space-x-2">
-                    <button onclick="closePickerModal()" class="px-3 py-2 text-xs text-slate-400 hover:text-white">Mégse</button>
-                    <button onclick="confirmPickerRelationship()" class="bg-pink-600 hover:bg-pink-500 text-white font-semibold px-5 py-2 rounded-xl text-xs transition flex items-center space-x-2 shadow-lg shadow-pink-900/30">
+                    <button onclick="closePickerModal()" class="px-4 py-2 text-xs font-medium text-stone-500 hover:text-stone-800">Mégse</button>
+                    <button onclick="confirmPickerRelationship()" class="bg-pink-600 hover:bg-pink-700 text-white font-semibold px-5 py-2.5 rounded-xl text-xs transition flex items-center space-x-2 shadow-md shadow-pink-600/20">
                         <i class="fa-solid fa-check"></i>
                         <span>Kapcsolat Mentése</span>
                     </button>
@@ -348,50 +359,50 @@
     </div>
 
     <!-- Relationship Selection Modal (Jobb klikkes menünek) -->
-    <div id="relationship-modal" class="fixed inset-0 bg-black/75 hidden flex items-center justify-center z-50 p-4">
-        <div class="bg-slate-800 text-slate-100 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-pink-500/30 text-center">
+    <div id="relationship-modal" class="fixed inset-0 bg-stone-900/40 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white text-stone-800 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-pink-200 text-center">
             <div class="flex justify-center items-center space-x-4 mb-4">
-                <img id="rel-sim1-img" class="w-16 h-16 rounded-full border-2 border-emerald-500 object-cover">
-                <i class="fa-solid fa-heart text-2xl text-pink-400 animate-bounce"></i>
-                <img id="rel-sim2-img" class="w-16 h-16 rounded-full border-2 border-emerald-500 object-cover">
+                <img id="rel-sim1-img" class="w-16 h-16 rounded-full border-2 border-emerald-500 object-cover shadow-sm">
+                <i class="fa-solid fa-heart text-2xl text-pink-500 animate-bounce"></i>
+                <img id="rel-sim2-img" class="w-16 h-16 rounded-full border-2 border-emerald-500 object-cover shadow-sm">
             </div>
-            <h3 class="text-lg font-bold text-slate-100 mb-1" id="rel-title">Milyen kapcsolatban állnak?</h3>
-            <p class="text-xs text-slate-400 mb-6" id="rel-subtitle"></p>
+            <h3 class="text-lg font-bold text-stone-800 mb-1" id="rel-title">Milyen kapcsolatban állnak?</h3>
+            <p class="text-xs text-stone-400 mb-6" id="rel-subtitle"></p>
 
             <div class="space-y-2">
-                <button onclick="setRelationship('married')" class="w-full bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/40 p-3 rounded-xl font-semibold flex items-center justify-between transition">
+                <button onclick="setRelationship('married')" class="w-full bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200/80 p-3 rounded-2xl font-semibold flex items-center justify-between transition">
                     <span>💍 Házaspár</span>
-                    <i class="fa-solid fa-rings-wedding text-amber-400"></i>
+                    <i class="fa-solid fa-rings-wedding text-amber-600"></i>
                 </button>
-                <button onclick="setRelationship('engaged')" class="w-full bg-pink-500/10 hover:bg-pink-500/20 text-pink-300 border border-pink-500/40 p-3 rounded-xl font-semibold flex items-center justify-between transition">
+                <button onclick="setRelationship('engaged')" class="w-full bg-pink-50 hover:bg-pink-100 text-pink-800 border border-pink-200/80 p-3 rounded-2xl font-semibold flex items-center justify-between transition">
                     <span>💎 Eljegyzett / Jegyesek</span>
-                    <i class="fa-solid fa-gem text-pink-400"></i>
+                    <i class="fa-solid fa-gem text-pink-600"></i>
                 </button>
-                <button onclick="setRelationship('partner')" class="w-full bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/40 p-3 rounded-xl font-semibold flex items-center justify-between transition">
+                <button onclick="setRelationship('partner')" class="w-full bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200/80 p-3 rounded-2xl font-semibold flex items-center justify-between transition">
                     <span>❤️ Párkapcsolat / Partner</span>
-                    <i class="fa-solid fa-heart text-rose-400"></i>
+                    <i class="fa-solid fa-heart text-rose-600"></i>
                 </button>
-                <button onclick="setRelationship('parent_child')" class="w-full bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 p-3 rounded-xl font-semibold flex items-center justify-between transition">
+                <button onclick="setRelationship('parent_child')" class="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200/80 p-3 rounded-2xl font-semibold flex items-center justify-between transition">
                     <span>👶 Szülő - Gyerek kapcsolat</span>
-                    <i class="fa-solid fa-child text-emerald-400"></i>
+                    <i class="fa-solid fa-child text-emerald-600"></i>
                 </button>
-                <button onclick="setRelationship('ex')" class="w-full bg-slate-700/40 hover:bg-slate-700/60 text-slate-300 border border-slate-600 p-3 rounded-xl font-semibold flex items-center justify-between transition">
+                <button onclick="setRelationship('ex')" class="w-full bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-200 p-3 rounded-2xl font-semibold flex items-center justify-between transition">
                     <span>💔 Ex-partner / Elvált</span>
-                    <i class="fa-solid fa-heart-crack text-slate-400"></i>
+                    <i class="fa-solid fa-heart-crack text-stone-400"></i>
                 </button>
-                <button onclick="clearRelationship()" class="w-full bg-red-900/20 hover:bg-red-900/40 text-red-400 border border-red-800/40 p-2.5 rounded-xl text-xs font-semibold transition mt-2">
+                <button onclick="clearRelationship()" class="w-full bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 p-2.5 rounded-2xl text-xs font-semibold transition mt-2">
                      Kapcsolat megszüntetése
                 </button>
             </div>
 
-            <button onclick="closeRelModal()" class="mt-4 text-xs text-slate-400 hover:text-slate-200">Mégse</button>
+            <button onclick="closeRelModal()" class="mt-4 text-xs font-medium text-stone-400 hover:text-stone-700">Mégse</button>
         </div>
     </div>
 
-    <!-- Add / Edit Sim Modal -->
-    <div id="sim-modal" class="fixed inset-0 bg-black/70 hidden flex items-center justify-center z-50 p-4">
-        <div class="bg-slate-800 text-slate-100 rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-700 max-h-[90vh] overflow-y-auto">
-            <h2 class="text-xl font-bold mb-4 flex items-center text-emerald-400" id="modal-title">
+    <!-- Add / Edit Sim Modal (Krém stílus) -->
+    <div id="sim-modal" class="fixed inset-0 bg-stone-900/40 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white text-stone-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-stone-200 max-h-[90vh] overflow-y-auto">
+            <h2 class="text-xl font-bold mb-4 flex items-center text-emerald-700" id="modal-title">
                 <i class="fa-solid fa-user-plus mr-2"></i> Új Sim Felvétele a Fára
             </h2>
             <form id="sim-form" onsubmit="handleSaveSim(event)" class="space-y-4">
@@ -399,32 +410,32 @@
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Keresztnév *</label>
-                        <input type="text" id="sim-firstname" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <label class="block text-xs font-semibold text-stone-500 uppercase tracking-wider mb-1">Keresztnév *</label>
+                        <input type="text" id="sim-firstname" required class="w-full bg-stone-50 border border-stone-200 rounded-xl p-2.5 text-sm text-stone-800 focus:ring-2 focus:ring-emerald-500 outline-none">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Vezetéknév *</label>
-                        <input type="text" id="sim-lastname" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <label class="block text-xs font-semibold text-stone-500 uppercase tracking-wider mb-1">Vezetéknév *</label>
+                        <input type="text" id="sim-lastname" required class="w-full bg-stone-50 border border-stone-200 rounded-xl p-2.5 text-sm text-stone-800 focus:ring-2 focus:ring-emerald-500 outline-none">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Szülő kiválasztása</label>
-                        <select id="sim-parent" onchange="autoCalculateGen()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <label class="block text-xs font-semibold text-stone-500 uppercase tracking-wider mb-1">Szülő kiválasztása</label>
+                        <select id="sim-parent" onchange="autoCalculateGen()" class="w-full bg-stone-50 border border-stone-200 rounded-xl p-2.5 text-sm text-stone-800 focus:ring-2 focus:ring-emerald-500 outline-none">
                             <option value="">-- Nincs szülő (Alapító) --</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Generáció</label>
-                        <input type="number" id="sim-generation" min="1" value="1" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <label class="block text-xs font-semibold text-stone-500 uppercase tracking-wider mb-1">Generáció</label>
+                        <input type="number" id="sim-generation" min="1" value="1" class="w-full bg-stone-50 border border-stone-200 rounded-xl p-2.5 text-sm text-stone-800 focus:ring-2 focus:ring-emerald-500 outline-none">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Életszakasz</label>
-                        <select id="sim-lifestage" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <label class="block text-xs font-semibold text-stone-500 uppercase tracking-wider mb-1">Életszakasz</label>
+                        <select id="sim-lifestage" class="w-full bg-stone-50 border border-stone-200 rounded-xl p-2.5 text-sm text-stone-800 focus:ring-2 focus:ring-emerald-500 outline-none">
                             <option value="Kisgyerek">Kisgyerek</option>
                             <option value="Gyerek">Gyerek</option>
                             <option value="Tini">Tini</option>
@@ -434,8 +445,8 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Lény típus (Occult)</label>
-                        <select id="sim-occult" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <label class="block text-xs font-semibold text-stone-500 uppercase tracking-wider mb-1">Lény típus (Occult)</label>
+                        <select id="sim-occult" class="w-full bg-stone-50 border border-stone-200 rounded-xl p-2.5 text-sm text-stone-800 focus:ring-2 focus:ring-emerald-500 outline-none">
                             <option value="Ember">Ember</option>
                             <option value="Vámpír">Vámpír</option>
                             <option value="Vérfarkas">Vérfarkas</option>
@@ -447,19 +458,19 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">Fotó URL vagy Kép feltöltés</label>
-                    <input type="text" id="sim-photo-url" placeholder="https://..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-white mb-2 focus:ring-2 focus:ring-emerald-500 outline-none">
-                    <input type="file" id="sim-file" accept="image/*" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-slate-300 focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <label class="block text-xs font-semibold text-stone-500 uppercase tracking-wider mb-1">Fotó URL vagy Kép feltöltés</label>
+                    <input type="text" id="sim-photo-url" placeholder="https://..." class="w-full bg-stone-50 border border-stone-200 rounded-xl p-2.5 text-sm text-stone-800 mb-2 focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <input type="file" id="sim-file" accept="image/*" class="w-full bg-stone-50 border border-stone-200 rounded-xl p-2 text-xs text-stone-600 focus:ring-2 focus:ring-emerald-500 outline-none">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">Jellemvonások (vesszővel elválasztva)</label>
-                    <input type="text" id="sim-traits" placeholder="pl. Könyvmoly, Zseni" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <label class="block text-xs font-semibold text-stone-500 uppercase tracking-wider mb-1">Jellemvonások (vesszővel elválasztva)</label>
+                    <input type="text" id="sim-traits" placeholder="pl. Könyvmoly, Zseni" class="w-full bg-stone-50 border border-stone-200 rounded-xl p-2.5 text-sm text-stone-800 focus:ring-2 focus:ring-emerald-500 outline-none">
                 </div>
 
                 <div class="flex justify-end space-x-2 pt-4">
-                    <button type="button" onclick="closeSimModal()" class="px-4 py-2 rounded-lg text-sm text-slate-400 hover:bg-slate-700">Mégse</button>
-                    <button type="submit" id="save-btn" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">Mentés Családfára</button>
+                    <button type="button" onclick="closeSimModal()" class="px-4 py-2.5 rounded-xl text-sm font-medium text-stone-500 hover:bg-stone-100">Mégse</button>
+                    <button type="submit" id="save-btn" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition shadow-md shadow-emerald-600/20">Mentés Családfára</button>
                 </div>
             </form>
         </div>
@@ -564,7 +575,7 @@
             }
         }
 
-        /* --- MOZGATÁS ÉS ZOOMA LOGIKA --- */
+        /* --- MOZGATÁS ÉS ZOOM LOGIKA --- */
         function setupPanZoomListeners() {
             const viewport = document.getElementById('viewport');
 
@@ -680,9 +691,9 @@
 
             if(localSims.length === 0) {
                 canvas.innerHTML = `
-                    <div class="text-center py-40 text-slate-400">
-                        <i class="fa-solid fa-sitemap text-5xl text-emerald-500/50 mb-4"></i>
-                        <h3 class="text-xl font-bold text-slate-200">A Családfád még üres!</h3>
+                    <div class="text-center py-40 text-stone-400">
+                        <i class="fa-solid fa-sitemap text-5xl text-emerald-600/30 mb-4"></i>
+                        <h3 class="text-xl font-bold text-stone-700">A Családfád még üres!</h3>
                         <p class="text-sm mt-1">Kattints az "Új Sim" gombra az 1. generáció felvételéhez.</p>
                     </div>
                 `;
@@ -713,24 +724,24 @@
                 node.style.left = `${pos.x}px`;
                 node.style.top = `${pos.y}px`;
 
-                const avatarUrl = sim.photo_url || 'https://via.placeholder.com/150/334155/10b981?text=Sim';
+                const avatarUrl = sim.photo_url || 'https://via.placeholder.com/150/e5decf/7f7465?text=Sim';
 
                 node.innerHTML = `
                     <div class="sim-avatar-wrapper">
                         <img src="${avatarUrl}" class="sim-avatar" alt="${sim.first_name}">
-                        <div class="selected-badge hidden absolute -top-2 -right-2 bg-emerald-500 text-slate-950 w-6 h-6 rounded-full items-center justify-center font-bold text-xs shadow-lg">
+                        <div class="selected-badge hidden absolute -top-1 -right-1 bg-emerald-500 text-white w-6 h-6 rounded-full items-center justify-center font-bold text-xs shadow-md border-2 border-white">
                             <i class="fa-solid fa-check"></i>
                         </div>
                     </div>
-                    <div class="mt-2 text-center bg-slate-900/90 border border-slate-700/80 px-3 py-1.5 rounded-xl backdrop-blur shadow-lg min-w-[120px]">
-                        <div class="font-bold text-xs text-slate-100">${sim.first_name} ${sim.last_name}</div>
-                        <div class="text-[10px] text-emerald-400 font-medium">${sim.lifestage || ''} • ${sim.occult || 'Ember'}</div>
+                    <div class="mt-2 text-center bg-white border border-stone-200/80 px-3.5 py-1.5 rounded-2xl shadow-md min-w-[120px]">
+                        <div class="font-bold text-xs text-stone-800">${sim.first_name} ${sim.last_name}</div>
+                        <div class="text-[10px] text-emerald-700 font-semibold">${sim.lifestage || ''} • ${sim.occult || 'Ember'}</div>
                     </div>
-                    <div class="flex space-x-1 mt-1">
-                        <button onclick="event.stopPropagation(); openPickerModal('${sim.id}', 'partner')" class="w-6 h-6 rounded-full bg-pink-600/80 hover:bg-pink-500 text-white text-[10px] flex items-center justify-center shadow transition" title="Partner hozzáadása">
+                    <div class="flex space-x-1.5 mt-1.5">
+                        <button onclick="event.stopPropagation(); openPickerModal('${sim.id}', 'partner')" class="w-6 h-6 rounded-full bg-pink-500 hover:bg-pink-600 text-white text-[10px] flex items-center justify-center shadow transition" title="Partner hozzáadása">
                             <i class="fa-solid fa-heart"></i>
                         </button>
-                        <button onclick="event.stopPropagation(); openPickerModal('${sim.id}', 'child')" class="w-6 h-6 rounded-full bg-emerald-600/80 hover:bg-emerald-500 text-white text-[10px] flex items-center justify-center shadow transition" title="Gyerek hozzáadása">
+                        <button onclick="event.stopPropagation(); openPickerModal('${sim.id}', 'child')" class="w-6 h-6 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] flex items-center justify-center shadow transition" title="Gyerek hozzáadása">
                             <i class="fa-solid fa-child"></i>
                         </button>
                     </div>
@@ -837,7 +848,7 @@
 
             const pos = simPositions[sim.id] || {};
             document.getElementById('ctx-lock-text').textContent = pos.isLocked ? 'Pozíció Feloldása' : 'Pozíció Fixálása';
-            document.getElementById('ctx-lock-icon').className = pos.isLocked ? 'fa-solid fa-unlock text-emerald-400' : 'fa-solid fa-lock text-amber-400';
+            document.getElementById('ctx-lock-icon').className = pos.isLocked ? 'fa-solid fa-unlock text-emerald-600' : 'fa-solid fa-lock text-amber-500';
 
             const directBtn = document.getElementById('ctx-rel-direct-btn');
             if (selectedSimId && selectedSimId !== sim.id) {
