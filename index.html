@@ -91,23 +91,24 @@
         }
 
         .auth-msg {
-            padding: 10px 14px;
+            padding: 12px 14px;
             border-radius: 12px;
             font-size: 14px;
             font-weight: 600;
             margin-bottom: 18px;
             display: none;
+            text-align: center;
         }
 
         .auth-msg.error {
-            display: block;
+            display: block !important;
             background-color: rgba(217, 56, 56, 0.15);
             color: var(--error-color);
             border: 1px solid var(--error-color);
         }
 
         .auth-msg.success {
-            display: block;
+            display: block !important;
             background-color: rgba(46, 125, 50, 0.15);
             color: var(--success-color);
             border: 1px solid var(--success-color);
@@ -350,7 +351,7 @@
             
             <div id="authMsg" class="auth-msg"></div>
 
-            <form id="authForm" onsubmit="handleAuthSubmit(event)">
+            <form id="authForm" novalidate onsubmit="handleAuthSubmit(event)">
                 <div class="form-group" id="emailGroup" style="display: none;">
                     <label for="email">E-mail cím</label>
                     <input type="email" id="email" placeholder="pelda@email.com">
@@ -438,7 +439,6 @@
         const authTitle = document.getElementById('authTitle');
         const authSubmitBtn = document.getElementById('authSubmitBtn');
         const authMsg = document.getElementById('authMsg');
-        const authForm = document.getElementById('authForm');
         
         const emailGroup = document.getElementById('emailGroup');
         const usernameGroup = document.getElementById('usernameGroup');
@@ -475,6 +475,7 @@
         function hideMessage() {
             authMsg.style.display = 'none';
             authMsg.innerText = '';
+            authMsg.className = 'auth-msg';
         }
 
         function switchMode(mode) {
@@ -530,9 +531,9 @@
             hideMessage();
 
             const db = getUsersDB();
-            const email = (emailInput.value || '').trim().toLowerCase();
-            const username = (usernameInput.value || '').trim();
-            const password = passwordInput.value || '';
+            const email = emailInput.value ? emailInput.value.trim().toLowerCase() : '';
+            const username = usernameInput.value ? usernameInput.value.trim() : '';
+            const password = passwordInput.value ? passwordInput.value : '';
 
             // --- REGISZTRÁCIÓ ---
             if (currentMode === 'register') {
@@ -541,19 +542,24 @@
                     return;
                 }
 
+                if (!email.includes('@') || !email.includes('.')) {
+                    showMessage('Kérjük, érvényes e-mail címet adj meg!');
+                    return;
+                }
+
                 if (password.length < 4) {
                     showMessage('A jelszónak legalább 4 karakterből kell állnia!');
                     return;
                 }
 
-                // E-mail ellenőrzés
+                // E-mail duplikáció ellenőrzése
                 const emailExists = db.some(u => u.email && u.email.toLowerCase() === email);
                 if (emailExists) {
                     showMessage('Ez az e-mail cím már használatban van!');
                     return;
                 }
 
-                // Felhasználónév ellenőrzés
+                // Felhasználónév duplikáció ellenőrzése
                 const usernameExists = db.some(u => u.username && u.username.toLowerCase() === username.toLowerCase());
                 if (usernameExists) {
                     showMessage('Ez a felhasználónév már használatban van!');
