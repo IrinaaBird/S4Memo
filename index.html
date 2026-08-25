@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sims Családfa Követő (Sims Family Tree)</title>
+    <!-- Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; }
+        .sim-card { transition: transform 0.2s, box-shadow 0.2s; }
+        .sim-card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .tree-line { border-left: 2px solid #3b82f6; height: 20px; margin: 0 auto; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+    <!-- Header / Navbar -->
+    <header class="bg-emerald-600 text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <i class="fa-solid fa-tree text-2xl text-emerald-200"></i>
+                <h1 class="text-2xl font-bold tracking-wide">Plumtree Sims Legacy</h1>
+            </div>
+            <div id="auth-status" class="flex items-center space-x-4">
+                <button onclick="openConfigModal()" class="bg-emerald-700 hover:bg-emerald-800 px-3 py-1.5 rounded-lg text-sm transition">
+                    <i class="fa-solid fa-key mr-1"></i> Supabase Beállítások
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Config Modal -->
+    <div id="config-modal" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                <i class="fa-solid fa-database text-emerald-600 mr-2"></i> Supabase Adatbázis Beállítás
+            </h2>
+            <p class="text-sm text-gray-600 mb-4">Itt add meg a Supabase projektből kimásolt URL-t és a Publishable Key-t!</p>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Supabase URL</label>
+                    <input type="text" id="cfg-url" placeholder="https://xxxx.supabase.co" class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Publishable / Anon Key</label>
+                    <input type="password" id="cfg-key" placeholder="sb_publishable_..." class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end space-x-2">
+                <button onclick="saveConfig()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
+                    Mentés és Csatlakozás
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-8 flex-grow w-full">
+        <!-- Control Bar -->
+        <div class="bg-white rounded-xl shadow-sm p-4 mb-6 flex flex-wrap gap-4 justify-between items-center border border-gray-100">
+            <div>
+                <h2 class="text-lg font-semibold text-gray-800">Családfa Nyilvántartás</h2>
+                <p class="text-xs text-gray-500">Készítsd el a saját Sims dinasztiádat!</p>
+            </div>
+            <button onclick="openAddSimModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-4 py-2 rounded-lg text-sm flex items-center space-x-2 transition shadow-sm">
+                <i class="fa-solid fa-user-plus"></i>
+                <span>Új Sim Hozzáadása</span>
+            </button>
+        </div>
+
+        <!-- Sims Display Grid -->
+        <div id="sims-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Simulated cards will be injected here -->
+        </div>
+    </main>
+
+    <!-- Add Sim Modal -->
+    <div id="add-sim-modal" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                <i class="fa-solid fa-address-card text-emerald-600 mr-2"></i> Új Sim Felvétele
+            </h2>
+            <form id="sim-form" onsubmit="handleAddSim(event)" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Keresztnév *</label>
+                        <input type="text" id="sim-firstname" required class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Vezetéknév *</label>
+                        <input type="text" id="sim-lastname" required class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Életkor / Életszakasz</label>
+                        <select id="sim-lifestage" class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                            <option value="Kisgyerek">Kisgyerek (Toddler)</option>
+                            <option value="Gyerek">Gyerek (Child)</option>
+                            <option value="Tini">Tini (Teen)</option>
+                            <option value="Fiatal Felnőtt" selected>Fiatal Felnőtt (Young Adult)</option>
+                            <option value="Felnőtt">Felnőtt (Adult)</option>
+                            <option value="Idős">Idős (Elder)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Faj / Lény (Occult)</label>
+                        <select id="sim-occult" class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                            <option value="Ember">Ember (Human)</option>
+                            <option value="Vámpír">Vámpír (Vampire)</option>
+                            <option value="Vérfarkas">Vérfarkas (Werewolf)</option>
+                            <option value="Varázshasználó">Varázshasználó (Spellcaster)</option>
+                            <option value="Sellő">Sellő (Mermaid)</option>
+                            <option value="Földönkívüli">Földönkívüli (Alien)</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Kép URL (Opcionális)</label>
+                    <input type="url" id="sim-image" placeholder="https://... (kép hivatkozás)" class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Jellemvonások / Traits (vesszővel elválasztva)</label>
+                    <input type="text" id="sim-traits" placeholder="pl. Könyvmoly, Romantikus, Kreatív" class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Rövid leírás / Történet</label>
+                    <textarea id="sim-bio" rows="3" class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"></textarea>
+                </div>
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button type="button" onclick="closeAddSimModal()" class="px-4 py-2 rounded-lg text-sm text-gray-600 hover:bg-gray-100">Mégse</button>
+                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">Sim Mentése</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-gray-400 py-6 mt-12 border-t border-gray-700">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs space-y-2">
+            <p>A Sims az Electronic Arts (EA) bejegyzett védjegye. Ez a felület egy rajongói projekt.</p>
+            <p>© 2026 Sims Családfa Követő Weboldal</p>
+        </div>
+    </footer>
+
+    <script>
+        let supabaseClient = null;
+        let localSims = [];
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedUrl = localStorage.getItem('supabase_url');
+            const savedKey = localStorage.getItem('supabase_key');
+            if (savedUrl && savedKey) {
+                initSupabase(savedUrl, savedKey);
+            } else {
+                openConfigModal();
+            }
+        });
+
+        function openConfigModal() {
+            document.getElementById('cfg-url').value = localStorage.getItem('supabase_url') || '';
+            document.getElementById('cfg-key').value = localStorage.getItem('supabase_key') || '';
+            document.getElementById('config-modal').classList.remove('hidden');
+        }
+
+        function saveConfig() {
+            const url = document.getElementById('cfg-url').value.trim();
+            const key = document.getElementById('cfg-key').value.trim();
+            if(url && key) {
+                localStorage.setItem('supabase_url', url);
+                localStorage.setItem('supabase_key', key);
+                document.getElementById('config-modal').classList.add('hidden');
+                initSupabase(url, key);
+            } else {
+                alert('Kérlek töltsd ki mindkét mezőt!');
+            }
+        }
+
+        function initSupabase(url, key) {
+            try {
+                supabaseClient = supabase.createClient(url, key);
+                fetchSims();
+            } catch(e) {
+                console.error("Supabase csatlakozási hiba:", e);
+            }
+        }
+
+        async function fetchSims() {
+            if(!supabaseClient) return;
+            const { data, error } = await supabaseClient.from('sims').select('*').order('created_at', { ascending: true });
+            if(error) {
+                console.warn("Hiba az adatok lekérésekor:", error.message);
+                renderSims(localSims);
+            } else {
+                localSims = data || [];
+                renderSims(localSims);
+            }
+        }
+
+        function renderSims(sims) {
+            const container = document.getElementById('sims-container');
+            container.innerHTML = '';
+
+            if(sims.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full bg-white rounded-2xl p-12 text-center shadow-sm border border-gray-100">
+                        <i class="fa-solid fa-users text-4xl text-emerald-400 mb-3"></i>
+                        <h3 class="text-lg font-semibold text-gray-700">Még nincsenek Simek a családfában</h3>
+                        <p class="text-sm text-gray-500 mb-4">Kattints az "Új Sim Hozzáadása" gombra a kezdetekhez!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            sims.forEach(sim => {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden sim-card flex flex-col justify-between';
+                
+                const img = sim.image_url || 'https://via.placeholder.com/150/10b981/ffffff?text=' + encodeURIComponent(sim.first_name[0] || 'S');
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="h-48 bg-gray-100 relative overflow-hidden">
+                            <img src="${img}" alt="${sim.first_name}" class="w-full h-full object-cover">
+                            <span class="absolute top-2 right-2 bg-emerald-600/90 text-white text-xs px-2.5 py-1 rounded-full font-medium shadow">
+                                ${sim.occult_status || 'Ember'}
+                            </span>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="text-lg font-bold text-gray-800">${sim.first_name} ${sim.last_name}</h3>
+                            <p class="text-xs font-semibold text-emerald-600 uppercase tracking-wider mb-2">${sim.life_stage || 'Fiatal Felnőtt'}</p>
+                            ${sim.traits && sim.traits.length ? `
+                                <div class="flex flex-wrap gap-1 mb-3">
+                                    ${sim.traits.map(t => `<span class="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded">${t.trim()}</span>`).join('')}
+                                </div>
+                            ` : ''}
+                            <p class="text-xs text-gray-600 line-clamp-3">${sim.bio || 'Nincs leírás megadva.'}</p>
+                        </div>
+                    </div>
+                    <div class="p-4 bg-gray-50 border-t border-gray-100 flex justify-end">
+                        <button onclick="deleteSim('${sim.id}')" class="text-red-500 hover:text-red-700 text-xs font-medium flex items-center space-x-1">
+                            <i class="fa-solid fa-trash"></i>
+                            <span>Törlés</span>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function openAddSimModal() {
+            document.getElementById('add-sim-modal').classList.remove('hidden');
+        }
+
+        function closeAddSimModal() {
+            document.getElementById('add-sim-modal').classList.add('hidden');
+        }
+
+        async function handleAddSim(e) {
+            e.preventDefault();
+            const firstName = document.getElementById('sim-firstname').value;
+            const lastName = document.getElementById('sim-lastname').value;
+            const lifestage = document.getElementById('sim-lifestage').value;
+            const occult = document.getElementById('sim-occult').value;
+            const image = document.getElementById('sim-image').value;
+            const traitsRaw = document.getElementById('sim-traits').value;
+            const bio = document.getElementById('sim-bio').value;
+
+            const traits = traitsRaw ? traitsRaw.split(',') : [];
+
+            // Mock tree id placeholder
+            const dummyTreeId = "00000000-0000-0000-0000-000000000000";
+
+            const newSim = {
+                first_name: firstName,
+                last_name: lastName,
+                life_stage: lifestage,
+                occult_status: occult,
+                image_url: image,
+                traits: traits,
+                bio: bio
+            };
+
+            if(supabaseClient) {
+                // Try inserting into Supabase
+                const { data, error } = await supabaseClient.from('sims').insert([
+                    { ...newSim, tree_id: dummyTreeId }
+                ]);
+                if(error) {
+                    console.warn("Hiba beszúráskor, helyi mentés:", error.message);
+                    newSim.id = Date.now().toString();
+                    localSims.push(newSim);
+                }
+            } else {
+                newSim.id = Date.now().toString();
+                localSims.push(newSim);
+            }
+
+            closeAddSimModal();
+            document.getElementById('sim-form').reset();
+            fetchSims();
+        }
+
+        async function deleteSim(id) {
+            if(!confirm("Biztosan törölni szeretnéd ezt a Simet?")) return;
+            if(supabaseClient) {
+                await supabaseClient.from('sims').delete().eq('id', id);
+            }
+            localSims = localSims.filter(s => s.id !== id);
+            fetchSims();
+        }
+    </script>
+</body>
+</html>
