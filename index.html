@@ -82,27 +82,27 @@
             z-index: 1;
         }
 
-        /* --- ARANYOS ANIMÁLT KÖTÉL FORMÁZÁS --- */
+        /* --- ÉLETHŰ ANIMÁLT SODROTT KÖTÉL FORMÁZÁS --- */
         .line-rope-base {
-            stroke: #8b5a2b;
-            stroke-width: 8;
+            stroke: #5c3a21;
+            stroke-width: 12;
             fill: none;
             stroke-linecap: round;
-            filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.5));
+            filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.6));
         }
 
-        .line-rope-pattern {
-            stroke: #fcd34d;
-            stroke-width: 4;
+        .line-rope-twists {
+            stroke: url(#rope-pattern);
+            stroke-width: 10;
             fill: none;
             stroke-linecap: round;
-            stroke-dasharray: 8 8;
-            animation: moveRope 1.2s linear infinite;
+            stroke-dasharray: 8 4;
+            animation: moveRope 0.8s linear infinite;
         }
 
         @keyframes moveRope {
             from { stroke-dashoffset: 0; }
-            to { stroke-dashoffset: -16; }
+            to { stroke-dashoffset: -24; }
         }
 
         /* Házastárs vonal */
@@ -147,6 +147,18 @@
     </style>
 </head>
 <body class="h-screen flex flex-col justify-between">
+
+    <!-- SVG Kötél Mintázat Deteffiníciók -->
+    <svg style="display:none;">
+        <defs>
+            <linearGradient id="rope-pattern" x1="0%" y1="0%" x2="100%" y2="0%" spreadMethod="repeat">
+                <stop offset="0%" stop-color="#bf8a58" />
+                <stop offset="30%" stop-color="#dfb381" />
+                <stop offset="70%" stop-color="#8c5831" />
+                <stop offset="100%" stop-color="#5c3a21" />
+            </linearGradient>
+        </defs>
+    </svg>
 
     <!-- Jobb Klikk Kontextus Menü -->
     <div id="context-menu" class="bg-slate-900/95 backdrop-blur border border-slate-700 text-slate-200 rounded-xl shadow-2xl py-2 w-52 text-sm">
@@ -654,7 +666,7 @@
             document.getElementById('context-menu').style.display = 'none';
         }
 
-        /* --- CONNECTOR LINES (KÖTÉL RAJZOLÁSA) --- */
+        /* --- CONNECTOR LINES (ÉLETHŰ KÖTÉL RAJZOLÁSA) --- */
         function drawConnectors() {
             const world = document.getElementById('pan-zoom-world');
             const svg = document.getElementById('svg-connectors');
@@ -682,17 +694,17 @@
                         const controlY = pY + (cY - pY) / 2;
                         const d = `M ${pX} ${pY} C ${pX} ${controlY}, ${cX} ${controlY}, ${cX} ${cY}`;
 
-                        // 1. Kötél alapja (Sötétebb barna vastag vonal)
+                        // 1. Kötél sötét háttere/árnyéka
                         const baseRope = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                         baseRope.setAttribute('d', d);
                         baseRope.setAttribute('class', 'line-rope-base');
                         svg.appendChild(baseRope);
 
-                        // 2. Kötél fonat mintázata (Világosbarna/Sárgás animált csíkozás)
-                        const patternRope = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                        patternRope.setAttribute('d', d);
-                        patternRope.setAttribute('class', 'line-rope-pattern');
-                        svg.appendChild(patternRope);
+                        // 2. Kötél élethű, csavart animációja
+                        const twistRope = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                        twistRope.setAttribute('d', d);
+                        twistRope.setAttribute('class', 'line-rope-twists');
+                        svg.appendChild(twistRope);
                     }
                 }
 
