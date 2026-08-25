@@ -5,11 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>S4Memo - Sims 4 Memorable</title>
     <style>
-        /* -------------------------------------------------- */
-        /* TÉMA VÁLTOZÓK (Lágyabb világos és sötét mód)        */
-        /* -------------------------------------------------- */
         :root {
-            /* Alapértelmezett: Lágy, szemkímélő meleg világos mód */
             --bg-color: #e8d3c5;
             --card-bg: #f5ebe1;
             --text-color: #3b2d25;
@@ -21,10 +17,10 @@
             --shadow-color: rgba(90, 60, 45, 0.12);
             --nav-bg: #efe2d7;
             --input-bg: #ffffff;
+            --line-color: #a88b79;
         }
 
         [data-theme="dark"] {
-            /* Sötét mód (Dark Mode) */
             --bg-color: #1a1614;
             --card-bg: #28221f;
             --text-color: #eedcd0;
@@ -36,6 +32,7 @@
             --shadow-color: rgba(0, 0, 0, 0.4);
             --nav-bg: #221c19;
             --input-bg: #1e1917;
+            --line-color: #6e5a4f;
         }
 
         * {
@@ -54,112 +51,7 @@
         }
 
         /* -------------------------------------------------- */
-        /* 1. BEJELENTKEZÉSI / REGISZTRÁCIÓS TÉR               */
-        /* -------------------------------------------------- */
-        .auth-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-color: var(--bg-color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-            transition: opacity 0.4s ease, visibility 0.4s ease;
-        }
-
-        .auth-overlay.hidden {
-            opacity: 0;
-            visibility: hidden;
-        }
-
-        .auth-card {
-            background-color: var(--card-bg);
-            padding: 40px;
-            border-radius: 28px;
-            box-shadow: 0 15px 35px var(--shadow-color);
-            width: 90%;
-            max-width: 420px;
-            text-align: center;
-            border: 2px solid var(--border-color);
-        }
-
-        .auth-card h2 {
-            margin-top: 0;
-            color: var(--text-color);
-            font-size: 26px;
-            margin-bottom: 25px;
-            font-weight: 700;
-        }
-
-        .form-group {
-            margin-bottom: 18px;
-            text-align: left;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--subtext-color);
-            font-size: 14px;
-            font-weight: 600;
-            padding-left: 5px;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 13px 18px;
-            border-radius: 16px;
-            border: 2px solid var(--border-color);
-            background-color: var(--input-bg);
-            color: var(--text-color);
-            font-size: 15px;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: var(--accent-color);
-        }
-
-        .auth-btn {
-            width: 100%;
-            padding: 14px;
-            background-color: var(--accent-color);
-            color: #ffffff;
-            border: none;
-            border-radius: 20px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-            box-shadow: 0 6px 15px var(--shadow-color);
-        }
-
-        .auth-btn:hover {
-            background-color: var(--accent-hover);
-        }
-
-        .auth-toggle-link {
-            margin-top: 22px;
-            font-size: 14px;
-            color: var(--subtext-color);
-        }
-
-        .auth-toggle-link a {
-            color: var(--accent-color);
-            font-weight: bold;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        .auth-toggle-link a:hover {
-            text-decoration: underline;
-        }
-
-        /* -------------------------------------------------- */
-        /* 2. ALKALMAZÁS FELÜLET & NAVIGÁCIÓ                  */
+        /* ALKALMAZÁS FELÜLET & NAVIGÁCIÓ                    */
         /* -------------------------------------------------- */
         .top-nav-container {
             padding: 20px 20px 0 20px;
@@ -195,6 +87,7 @@
             padding: 8px 18px;
             border-radius: 14px;
             font-weight: 600;
+            cursor: pointer;
         }
 
         .top-nav a.nav-item:hover {
@@ -214,7 +107,6 @@
             gap: 15px;
         }
 
-        /* Felhasználói profil gomb a jobb felső sarokban */
         .user-profile-btn {
             background-color: var(--card-bg);
             color: var(--text-color);
@@ -235,7 +127,6 @@
             color: var(--accent-color);
         }
 
-        /* Light/Dark Mode váltó gomb */
         .theme-toggle-btn {
             background-color: var(--card-bg);
             color: var(--text-color);
@@ -250,11 +141,6 @@
             gap: 6px;
         }
 
-        .theme-toggle-btn:hover {
-            background-color: var(--bg-color);
-        }
-
-        /* Logó és Plumbob */
         .logo {
             display: flex;
             align-items: center;
@@ -273,11 +159,16 @@
             filter: drop-shadow(0 0 4px rgba(0, 255, 102, 0.6));
         }
 
-        /* Fő kártya tartalom */
-        .main-container {
+        /* Nézetek kezelése */
+        .page-view {
+            display: none;
             padding: 30px 20px;
-            max-width: 900px;
+            max-width: 1100px;
             margin: 0 auto;
+        }
+
+        .page-view.active {
+            display: block;
         }
 
         .main-card {
@@ -316,7 +207,146 @@
             letter-spacing: 1px;
         }
 
-        /* Jobb oldali előugró menü (Sidebar) */
+        /* -------------------------------------------------- */
+        /* CSALÁDFA VÁSZON ÉS SIM KÁRTYÁK                      */
+        /* -------------------------------------------------- */
+        .tree-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .tree-btn {
+            background-color: var(--accent-color);
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 12px var(--shadow-color);
+        }
+
+        .tree-btn:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .tree-canvas {
+            width: 100%;
+            height: 600px;
+            background-color: var(--card-bg);
+            border: 2px dashed var(--border-color);
+            border-radius: 28px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 20px var(--shadow-color);
+        }
+
+        .tree-svg-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Sim kártya felépítése */
+        .sim-card {
+            position: absolute;
+            width: 150px;
+            background-color: var(--nav-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 20px;
+            padding: 12px;
+            text-align: center;
+            box-shadow: 0 8px 18px var(--shadow-color);
+            cursor: grab;
+            z-index: 2;
+            user-select: none;
+        }
+
+        .sim-card:active {
+            cursor: grabbing;
+        }
+
+        .sim-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: var(--border-color);
+            margin: 0 auto 8px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            border: 2px solid var(--accent-color);
+        }
+
+        .sim-name {
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--text-color);
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sim-details {
+            font-size: 11px;
+            color: var(--subtext-color);
+        }
+
+        /* Interaktív gombok (+ jelek a kártyákon) */
+        .add-btn-node {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background-color: var(--accent-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 2px 6px var(--shadow-color);
+            border: 2px solid white;
+            transition: transform 0.2s ease;
+        }
+
+        .add-btn-node:hover {
+            transform: scale(1.2);
+            background-color: var(--accent-hover);
+        }
+
+        .add-child-btn {
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .add-child-btn:hover {
+            transform: translateX(-50%) scale(1.2);
+        }
+
+        .add-partner-btn {
+            right: -12px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .add-partner-btn:hover {
+            transform: translateY(-50%) scale(1.2);
+        }
+
+        /* -------------------------------------------------- */
+        /* RIGHT SIDEBAR                                      */
+        /* -------------------------------------------------- */
         .right-sidebar {
             position: fixed;
             top: 20px;
@@ -357,14 +387,14 @@
             font-size: 16px;
             font-weight: 600;
             border-radius: 18px;
+            cursor: pointer;
         }
 
-        .right-sidebar ul li a:hover {
+        .right-sidebar ul li a:hover, .right-sidebar ul li a.active {
             background-color: var(--card-bg);
             color: var(--accent-color);
         }
 
-        /* Nyilacska gomb */
         .toggle-btn {
             position: fixed;
             top: 50%;
@@ -399,38 +429,7 @@
 </head>
 <body>
 
-    <!-- 1. REGISZTRÁCIÓS / BEJELENTKEZÉSI KÉPERNYŐ -->
-    <div class="auth-overlay" id="authOverlay">
-        <div class="auth-card">
-            <div class="logo" style="justify-content: center; margin-bottom: 15px;">
-                <span class="plumbob"></span> S4Memo
-            </div>
-            <h2 id="authTitle">Regisztráció</h2>
-            <form id="authForm" onsubmit="handleAuthSubmit(event)">
-                <div class="form-group" id="emailGroup">
-                    <label for="email">E-mail cím</label>
-                    <input type="email" id="email" placeholder="pelda@email.com">
-                </div>
-                <div class="form-group">
-                    <label for="username">Felhasználónév</label>
-                    <input type="text" id="username" placeholder="Felhasználónév" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Jelszó</label>
-                    <input type="password" id="password" placeholder="••••••••" required>
-                </div>
-                <button type="submit" class="auth-btn" id="authSubmitBtn">Regisztrálok és Belépek</button>
-            </form>
-            
-            <div class="auth-toggle-link">
-                <span id="toggleText">Már van fiókod?</span> 
-                <a onclick="toggleAuthMode()" id="toggleLink">Bejelentkezés</a>
-            </div>
-        </div>
-    </div>
-
-
-    <!-- 2. ALKALMAZÁS FELÜLET -->
+    <!-- ALKALMAZÁS FELÜLET -->
     <div class="top-nav-container">
         <nav class="top-nav">
             <div class="nav-left">
@@ -438,47 +437,59 @@
                     <span class="plumbob"></span> S4Memo
                 </div>
                 <div class="nav-links">
-                    <a href="#" class="nav-item active">Főoldal</a>
-                    <a href="#publikum" class="nav-item">Publikum</a>
+                    <a class="nav-item active" id="navHome" onclick="switchView('home')">Főoldal</a>
+                    <a class="nav-item" id="navPublic" onclick="switchView('public')">Publikum</a>
                 </div>
             </div>
             
             <div class="nav-right">
-                <!-- Light / Dark Mode gomb -->
-                <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeBtn">
-                    🌙 Dark
-                </button>
-
-                <!-- Saját neved mint kattintható gomb -->
+                <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeBtn">🌙 Dark</button>
                 <button class="user-profile-btn" id="userProfileBtn" onclick="openProfile()">
-                    👤 <span id="displayUsername">Vendég</span>
+                    👤 <span id="displayUsername">Profilom</span>
                 </button>
             </div>
         </nav>
     </div>
 
-    <!-- Főoldal tartalma -->
-    <div class="main-container">
+    <!-- 1. FŐOLDAL NÉZET -->
+    <div class="page-view active" id="homeView">
         <main class="main-card">
             <span class="beta-badge">Béta Verzió</span>
             <h1>Üdvözöllek a Sims 4 Memorable oldalán!</h1>
-            
             <p>Ez egy új ingyenes alkalmazás, ami a családfákat képviseli, kisebb játékokkal, szabadabb és több funkcióval, ahol mindenki kiélheti a vágyait.</p>
-            
             <p>Az oldal jelenleg béta verzióban fut, így ha hibát tapasztalsz, vagy ötleted van, milyen funkció jönne jól, azt az e-mail címemre szívesen várom.</p>
-            
             <p><strong>Köszönöm a türelmet.</strong></p>
+        </main>
+    </div>
+
+    <!-- 2. CSALÁDFA SZERKESZTŐ NÉZET -->
+    <div class="page-view" id="treeView">
+        <div class="tree-toolbar">
+            <h2 style="margin: 0;">🌳 Családfa Szerkesztő</h2>
+            <button class="tree-btn" onclick="addNewSim('Alapító Sim', 380, 80)">+ Új Sim Hozzáadása</button>
+        </div>
+        
+        <div class="tree-canvas" id="treeCanvas">
+            <svg class="tree-svg-layer" id="svgLayer"></svg>
+            <!-- A Sim kártyák ide generálódnak dinakmikusan -->
+        </div>
+    </div>
+
+    <!-- 3. PUBLIKUM NÉZET -->
+    <div class="page-view" id="publicView">
+        <main class="main-card">
+            <h1>Publikum / Közösségi Családfák</h1>
+            <p>Itt hamarosan megtekintheted a többi játékos által nyilvánosan megosztott családfákat.</p>
         </main>
     </div>
 
     <!-- Jobb oldali előugró menü -->
     <div class="right-sidebar" id="sidebar">
         <ul>
-            <li><a href="#">🏠 Főoldal</a></li>
-            <li><a href="#">🌳 Családfa szerkesztése</a></li>
+            <li><a onclick="switchView('home')" id="menuHome" class="active">🏠 Főoldal</a></li>
+            <li><a onclick="switchView('tree')" id="menuTree">🌳 Családfa szerkesztése</a></li>
             <li><a href="#">🎮 Kisebb játékok</a></li>
             <li><a href="#">⚙️ Beállítások</a></li>
-            <li><a href="#" onclick="logout()">🚪 Kijelentkezés</a></li>
         </ul>
     </div>
 
@@ -487,21 +498,45 @@
         <span class="arrow-icon">◀</span>
     </button>
 
-
     <!-- JAVASCRIPT LOGIKA -->
     <script>
         // DOM elemek
         const sidebar = document.getElementById('sidebar');
         const toggleBtn = document.getElementById('toggleBtn');
-        const authOverlay = document.getElementById('authOverlay');
-        const displayUsername = document.getElementById('displayUsername');
         const themeBtn = document.getElementById('themeBtn');
+        const canvas = document.getElementById('treeCanvas');
+        const svgLayer = document.getElementById('svgLayer');
 
-        let isRegistration = true;
+        // Családfa Adatmodell
+        let sims = [];
+        let activeDrag = null;
+        let dragOffset = { x: 0, y: 0 };
 
         // --------------------------------------------------
-        // 1. TÉMA VÁLTÓ (LIGHT / DARK MODE)
+        // NÉZET ÉS TÉMA VÁLTÁS
         // --------------------------------------------------
+        function switchView(viewName) {
+            document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.right-sidebar a').forEach(el => el.classList.remove('active'));
+
+            if (viewName === 'home') {
+                document.getElementById('homeView').classList.add('active');
+                document.getElementById('navHome').classList.add('active');
+                document.getElementById('menuHome').classList.add('active');
+            } else if (viewName === 'tree') {
+                document.getElementById('treeView').classList.add('active');
+                document.getElementById('menuTree').classList.add('active');
+                updateConnections();
+            } else if (viewName === 'public') {
+                document.getElementById('publicView').classList.add('active');
+                document.getElementById('navPublic').classList.add('active');
+            }
+
+            sidebar.classList.remove('open');
+            toggleBtn.classList.remove('open');
+        }
+
         function initTheme() {
             const savedTheme = localStorage.getItem('s4memo_theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
@@ -511,92 +546,170 @@
         function toggleTheme() {
             const currentTheme = document.documentElement.getAttribute('data-theme');
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            
             document.documentElement.setAttribute('data-theme', newTheme);
             localStorage.setItem('s4memo_theme', newTheme);
             updateThemeButton(newTheme);
+            updateConnections();
         }
 
         function updateThemeButton(theme) {
             themeBtn.innerHTML = theme === 'dark' ? '☀️ Light' : '🌙 Dark';
         }
 
-        // --------------------------------------------------
-        // 2. BEJELENTKEZÉS & REGISZTRÁCIÓ (localStorage)
-        // --------------------------------------------------
-        function checkAutoLogin() {
-            const loggedInUser = localStorage.getItem('s4memo_active_user');
-            if (loggedInUser) {
-                // Ha már be van jelentkezve, elrejtjük a regisztrációs ablakot
-                displayUsername.innerText = loggedInUser;
-                authOverlay.classList.add('hidden');
-            }
-        }
-
-        function handleAuthSubmit(event) {
-            event.preventDefault();
-            const usernameInput = document.getElementById('username').value.trim();
-
-            if (!usernameInput) return;
-
-            if (isRegistration) {
-                // Regisztráció elmentése
-                localStorage.setItem('s4memo_user_' + usernameInput, true);
-            }
-
-            // Aktív munkamenet elmentése
-            localStorage.setItem('s4memo_active_user', usernameInput);
-            displayUsername.innerText = usernameInput;
-            
-            // Ablak elrejtése
-            authOverlay.classList.add('hidden');
-        }
-
-        function logout() {
-            localStorage.removeItem('s4memo_active_user');
-            authOverlay.classList.remove('hidden');
-            sidebar.classList.remove('open');
-            toggleBtn.classList.remove('open');
-        }
-
-        function toggleAuthMode() {
-            isRegistration = !isRegistration;
-            
-            const title = document.getElementById('authTitle');
-            const submitBtn = document.getElementById('authSubmitBtn');
-            const toggleText = document.getElementById('toggleText');
-            const toggleLink = document.getElementById('toggleLink');
-            const emailGroup = document.getElementById('emailGroup');
-
-            if (isRegistration) {
-                title.innerText = 'Regisztráció';
-                submitBtn.innerText = 'Regisztrálok és Belépek';
-                toggleText.innerText = 'Már van fiókod?';
-                toggleLink.innerText = 'Bejelentkezés';
-                emailGroup.style.display = 'block';
-            } else {
-                title.innerText = 'Bejelentkezés';
-                submitBtn.innerText = 'Bejelentkezés';
-                toggleText.innerText = 'Még nincs fiókod?';
-                toggleLink.innerText = 'Regisztráció';
-                emailGroup.style.display = 'none';
-            }
-        }
-
-        // Saját profil kattintása funkció
         function openProfile() {
-            alert('Később itt tudod majd szerkeszteni a saját profilodat (' + displayUsername.innerText + ')!');
+            alert('Később itt tudod majd szerkeszteni a saját profilodat!');
         }
 
-        // Jobb oldali sáv gombja
         toggleBtn.addEventListener('click', () => {
             sidebar.classList.toggle('open');
             toggleBtn.classList.toggle('open');
         });
 
-        // Betöltéskor lefutó ellenőrzések
+        // --------------------------------------------------
+        // CSALÁDFA MOTOR (Simek, Vonalak, + Gombok)
+        // --------------------------------------------------
+        function addNewSim(name = "Új Sim", x = 100, y = 100, parentId = null, partnerId = null) {
+            const newSim = {
+                id: 'sim_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+                name: name,
+                gender: '👤',
+                x: x,
+                y: y,
+                parentId: parentId,
+                partnerId: partnerId
+            };
+
+            sims.push(newSim);
+            renderSimCard(newSim);
+            updateConnections();
+            return newSim;
+        }
+
+        function renderSimCard(sim) {
+            const card = document.createElement('div');
+            card.className = 'sim-card';
+            card.id = sim.id;
+            card.style.left = sim.x + 'px';
+            card.style.top = sim.y + 'px';
+
+            card.innerHTML = `
+                <div class="sim-avatar">${sim.gender}</div>
+                <div class="sim-name">${sim.name}</div>
+                <div class="sim-details">Fiatal felnőtt</div>
+                <div class="add-btn-node add-child-btn" onclick="addChild('${sim.id}')" title="Gyermek hozzáadása">+</div>
+                <div class="add-btn-node add-partner-btn" onclick="addPartner('${sim.id}')" title="Partner hozzáadása">+</div>
+            `;
+
+            // Drag and Drop események
+            card.addEventListener('mousedown', (e) => {
+                if (e.target.classList.contains('add-btn-node')) return;
+                activeDrag = sim;
+                const rect = card.getBoundingClientRect();
+                dragOffset.x = e.clientX - rect.left;
+                dragOffset.y = e.clientY - rect.top;
+            });
+
+            canvas.appendChild(card);
+        }
+
+        document.addEventListener('mousemove', (e) => {
+            if (!activeDrag) return;
+            const canvasRect = canvas.getBoundingClientRect();
+
+            let newX = e.clientX - canvasRect.left - dragOffset.x;
+            let newY = e.clientY - canvasRect.top - dragOffset.y;
+
+            // Korlátok a vásznon belül
+            newX = Math.max(10, Math.min(canvasRect.width - 160, newX));
+            newY = Math.max(10, Math.min(canvasRect.height - 130, newY));
+
+            activeDrag.x = newX;
+            activeDrag.y = newY;
+
+            const card = document.getElementById(activeDrag.id);
+            if (card) {
+                card.style.left = newX + 'px';
+                card.style.top = newY + 'px';
+            }
+
+            updateConnections();
+        });
+
+        document.addEventListener('mouseup', () => {
+            activeDrag = null;
+        });
+
+        // Új Gyermek gomb funkció (+)
+        window.addChild = function(parentId) {
+            const parent = sims.find(s => s.id === parentId);
+            if (!parent) return;
+            
+            addNewSim("Gyermek Sim", parent.x, parent.y + 160, parentId, null);
+        };
+
+        // Új Partner gomb funkció (+)
+        window.addPartner = function(simId) {
+            const currentSim = sims.find(s => s.id === simId);
+            if (!currentSim) return;
+
+            const newPartner = addNewSim("Partner Sim", currentSim.x + 190, currentSim.y, null, simId);
+            currentSim.partnerId = newPartner.id;
+            updateConnections();
+        };
+
+        // Dynamikus SVG Vonalak Újrarajzolása
+        function updateConnections() {
+            svgLayer.innerHTML = '';
+            const strokeColor = getComputedStyle(document.documentElement).getPropertyValue('--line-color').trim() || '#a88b79';
+
+            sims.forEach(sim => {
+                // Szülő-Gyermek vonal (Zöldes/Barnás ág)
+                if (sim.parentId) {
+                    const parent = sims.find(s => s.id === sim.parentId);
+                    if (parent) {
+                        const startX = parent.x + 75;
+                        const startY = parent.y + 110;
+                        const endX = sim.x + 75;
+                        const endY = sim.y;
+
+                        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                        const midY = startY + (endY - startY) / 2;
+                        const d = `M ${startX} ${startY} C ${startX} ${midY}, ${endX} ${midY}, ${endX} ${endY}`;
+
+                        path.setAttribute('d', d);
+                        path.setAttribute('stroke', strokeColor);
+                        path.setAttribute('stroke-width', '3');
+                        path.setAttribute('fill', 'none');
+                        svgLayer.appendChild(path);
+                    }
+                }
+
+                // Partner vonal (Rózsaszínes/Szaggatott)
+                if (sim.partnerId) {
+                    const partner = sims.find(s => s.id === sim.partnerId);
+                    if (partner) {
+                        const startX = sim.x + 150;
+                        const startY = sim.y + 55;
+                        const endX = partner.x;
+                        const endY = partner.y + 55;
+
+                        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                        line.setAttribute('x1', startX);
+                        line.setAttribute('y1', startY);
+                        line.setAttribute('x2', endX);
+                        line.setAttribute('y2', endY);
+                        line.setAttribute('stroke', '#cd7f5d');
+                        line.setAttribute('stroke-width', '3');
+                        line.setAttribute('stroke-dasharray', '5,5');
+                        svgLayer.appendChild(line);
+                    }
+                }
+            });
+        }
+
+        // Kezdő minta adatok (Alapító Sim)
         initTheme();
-        checkAutoLogin();
+        addNewSim("Bella Goth", 350, 60);
     </script>
 </body>
 </html>
