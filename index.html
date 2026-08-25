@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sims Családfa Követő (Sims Family Tree)</title>
-    <!-- Tailwind CSS CDN for styling -->
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -14,7 +14,6 @@
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; }
         .sim-card { transition: transform 0.2s, box-shadow 0.2s; }
         .sim-card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
-        .tree-line { border-left: 2px solid #3b82f6; height: 20px; margin: 0 auto; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between">
@@ -23,7 +22,7 @@
     <header class="bg-emerald-600 text-white shadow-md">
         <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <i class="fa-solid fa-tree text-2xl text-emerald-200"></i>
+                <i class="fa-solid fa-gem text-2xl text-emerald-200"></i>
                 <h1 class="text-2xl font-bold tracking-wide">Plumtree Sims Legacy</h1>
             </div>
             <div id="auth-status" class="flex items-center space-x-4">
@@ -75,7 +74,6 @@
 
         <!-- Sims Display Grid -->
         <div id="sims-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            <!-- Simulated cards will be injected here -->
         </div>
     </main>
 
@@ -121,8 +119,8 @@
                     </div>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">Kép URL (Opcionális)</label>
-                    <input type="url" id="sim-image" placeholder="https://... (kép hivatkozás)" class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Kép feltöltése a gépedről (PNG, JPG)</label>
+                    <input type="file" id="sim-file" accept="image/*" class="w-full border rounded-lg p-2 text-sm bg-gray-50 focus:ring-2 focus:ring-emerald-500 outline-none">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 mb-1">Jellemvonások / Traits (vesszővel elválasztva)</label>
@@ -134,7 +132,7 @@
                 </div>
                 <div class="flex justify-end space-x-2 pt-2">
                     <button type="button" onclick="closeAddSimModal()" class="px-4 py-2 rounded-lg text-sm text-gray-600 hover:bg-gray-100">Mégse</button>
-                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">Sim Mentése</button>
+                    <button type="submit" id="save-btn" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">Sim Mentése</button>
                 </div>
             </form>
         </div>
@@ -263,17 +261,41 @@
 
         async function handleAddSim(e) {
             e.preventDefault();
+            const saveBtn = document.getElementById('save-btn');
+            saveBtn.disabled = true;
+            saveBtn.innerText = "Feltöltés...";
+
             const firstName = document.getElementById('sim-firstname').value;
             const lastName = document.getElementById('sim-lastname').value;
             const lifestage = document.getElementById('sim-lifestage').value;
             const occult = document.getElementById('sim-occult').value;
-            const image = document.getElementById('sim-image').value;
+            const fileInput = document.getElementById('sim-file');
             const traitsRaw = document.getElementById('sim-traits').value;
             const bio = document.getElementById('sim-bio').value;
 
-            const traits = traitsRaw ? traitsRaw.split(',') : [];
+            let imageUrl = '';
 
-            // Mock tree id placeholder
+            // Fájl feltöltése Supabase Storage-ba
+            if (fileInput.files.length > 0 && supabaseClient) {
+                const file = fileInput.files[0];
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+                
+                const { data: uploadData, error: uploadError } = await supabaseClient.storage
+                    .from('sim-portraits')
+                    .upload(fileName, file);
+
+                if (!uploadError) {
+                    const { data: publicUrlData } = supabaseClient.storage
+                        .from('sim-portraits')
+                        .getPublicUrl(fileName);
+                    imageUrl = publicUrlData.publicUrl;
+                } else {
+                    console.error("Fájlfeltöltési hiba:", uploadError.message);
+                }
+            }
+
+            const traits = traitsRaw ? traitsRaw.split(',') : [];
             const dummyTreeId = "00000000-0000-0000-0000-000000000000";
 
             const newSim = {
@@ -281,26 +303,22 @@
                 last_name: lastName,
                 life_stage: lifestage,
                 occult_status: occult,
-                image_url: image,
+                image_url: imageUrl,
                 traits: traits,
                 bio: bio
             };
 
             if(supabaseClient) {
-                // Try inserting into Supabase
                 const { data, error } = await supabaseClient.from('sims').insert([
                     { ...newSim, tree_id: dummyTreeId }
                 ]);
                 if(error) {
-                    console.warn("Hiba beszúráskor, helyi mentés:", error.message);
-                    newSim.id = Date.now().toString();
-                    localSims.push(newSim);
+                    console.warn("Hiba beszúráskor:", error.message);
                 }
-            } else {
-                newSim.id = Date.now().toString();
-                localSims.push(newSim);
             }
 
+            saveBtn.disabled = false;
+            saveBtn.innerText = "Sim Mentése";
             closeAddSimModal();
             document.getElementById('sim-form').reset();
             fetchSims();
@@ -311,7 +329,6 @@
             if(supabaseClient) {
                 await supabaseClient.from('sims').delete().eq('id', id);
             }
-            localSims = localSims.filter(s => s.id !== id);
             fetchSims();
         }
     </script>
