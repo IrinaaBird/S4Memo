@@ -6,10 +6,9 @@
     <title>S4Memo - Sims 4 Memorable</title>
     <style>
         /* -------------------------------------------------- */
-        /* TÉMA VÁLTOZÓK (Lágyabb világos és sötét mód)        */
+        /* TÉMA VÁLTOZÓK                                       */
         /* -------------------------------------------------- */
         :root {
-            /* Alapértelmezett: Lágy, szemkímélő meleg világos mód */
             --bg-color: #e8d3c5;
             --card-bg: #f5ebe1;
             --text-color: #3b2d25;
@@ -21,10 +20,11 @@
             --shadow-color: rgba(90, 60, 45, 0.12);
             --nav-bg: #efe2d7;
             --input-bg: #ffffff;
+            --error-color: #d93838;
+            --success-color: #2e7d32;
         }
 
         [data-theme="dark"] {
-            /* Sötét mód (Dark Mode) */
             --bg-color: #1a1614;
             --card-bg: #28221f;
             --text-color: #eedcd0;
@@ -36,6 +36,8 @@
             --shadow-color: rgba(0, 0, 0, 0.4);
             --nav-bg: #221c19;
             --input-bg: #1e1917;
+            --error-color: #ff6b6b;
+            --success-color: #66bb6a;
         }
 
         * {
@@ -54,7 +56,7 @@
         }
 
         /* -------------------------------------------------- */
-        /* 1. BEJELENTKEZÉSI / REGISZTRÁCIÓS TÉR               */
+        /* AUTH OVERLAY / BEJELENTKEZÉS ÉS REGISZTRÁCIÓ        */
         /* -------------------------------------------------- */
         .auth-overlay {
             position: fixed;
@@ -84,24 +86,49 @@
             max-width: 420px;
             text-align: center;
             border: 2px solid var(--border-color);
+            position: relative;
         }
 
         .auth-card h2 {
             margin-top: 0;
             color: var(--text-color);
             font-size: 26px;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             font-weight: 700;
         }
 
-        .form-group {
+        /* Hibaüzenet & Sikeres üzenet stílusok */
+        .auth-msg {
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
             margin-bottom: 18px;
+            display: none;
+        }
+
+        .auth-msg.error {
+            display: block;
+            background-color: rgba(217, 56, 56, 0.15);
+            color: var(--error-color);
+            border: 1px solid var(--error-color);
+        }
+
+        .auth-msg.success {
+            display: block;
+            background-color: rgba(46, 125, 50, 0.15);
+            color: var(--success-color);
+            border: 1px solid var(--success-color);
+        }
+
+        .form-group {
+            margin-bottom: 16px;
             text-align: left;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             color: var(--subtext-color);
             font-size: 14px;
             font-weight: 600;
@@ -110,8 +137,8 @@
 
         .form-group input {
             width: 100%;
-            padding: 13px 18px;
-            border-radius: 16px;
+            padding: 12px 16px;
+            border-radius: 14px;
             border: 2px solid var(--border-color);
             background-color: var(--input-bg);
             color: var(--text-color);
@@ -123,17 +150,35 @@
             border-color: var(--accent-color);
         }
 
+        .form-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: var(--subtext-color);
+            margin-bottom: 15px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .form-checkbox input {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--accent-color);
+            cursor: pointer;
+        }
+
         .auth-btn {
             width: 100%;
             padding: 14px;
             background-color: var(--accent-color);
             color: #ffffff;
             border: none;
-            border-radius: 20px;
+            border-radius: 18px;
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            margin-top: 10px;
+            margin-top: 5px;
             box-shadow: 0 6px 15px var(--shadow-color);
         }
 
@@ -141,30 +186,29 @@
             background-color: var(--accent-hover);
         }
 
-        .auth-toggle-link {
-            margin-top: 22px;
+        .auth-actions {
+            margin-top: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
             font-size: 14px;
-            color: var(--subtext-color);
         }
 
-        .auth-toggle-link a {
+        .auth-link {
             color: var(--accent-color);
             font-weight: bold;
             text-decoration: none;
             cursor: pointer;
         }
 
-        .auth-toggle-link a:hover {
+        .auth-link:hover {
             text-decoration: underline;
         }
 
         /* -------------------------------------------------- */
-        /* 2. ALKALMAZÁS FELÜLET & NAVIGÁCIÓ                  */
+        /* ALKALMAZÁS FELÜLET                                */
         /* -------------------------------------------------- */
-        .top-nav-container {
-            padding: 20px 20px 0 20px;
-        }
-
+        .top-nav-container { padding: 20px 20px 0 20px; }
         .top-nav {
             background-color: var(--nav-bg);
             padding: 12px 25px;
@@ -175,19 +219,8 @@
             box-shadow: 0 8px 20px var(--shadow-color);
             border: 1px solid var(--border-color);
         }
-
-        .nav-left {
-            display: flex;
-            align-items: center;
-            gap: 25px;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-
+        .nav-left { display: flex; align-items: center; gap: 25px; }
+        .nav-links { display: flex; gap: 15px; align-items: center; }
         .top-nav a.nav-item {
             text-decoration: none;
             font-size: 16px;
@@ -196,25 +229,14 @@
             border-radius: 14px;
             font-weight: 600;
         }
-
-        .top-nav a.nav-item:hover {
-            color: var(--text-color);
-            background-color: var(--card-bg);
-        }
-
+        .top-nav a.nav-item:hover { color: var(--text-color); background-color: var(--card-bg); }
         .top-nav a.nav-item.active {
             color: #ffffff;
             background-color: var(--accent-color);
             box-shadow: 0 0 15px var(--active-glow);
         }
+        .nav-right { display: flex; align-items: center; gap: 15px; }
 
-        .nav-right {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        /* Felhasználói profil gomb a jobb felső sarokban */
         .user-profile-btn {
             background-color: var(--card-bg);
             color: var(--text-color);
@@ -229,13 +251,8 @@
             gap: 8px;
             box-shadow: 0 4px 10px var(--shadow-color);
         }
+        .user-profile-btn:hover { border-color: var(--accent-color); color: var(--accent-color); }
 
-        .user-profile-btn:hover {
-            border-color: var(--accent-color);
-            color: var(--accent-color);
-        }
-
-        /* Light/Dark Mode váltó gomb */
         .theme-toggle-btn {
             background-color: var(--card-bg);
             color: var(--text-color);
@@ -245,25 +262,9 @@
             cursor: pointer;
             font-size: 14px;
             font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 6px;
         }
 
-        .theme-toggle-btn:hover {
-            background-color: var(--bg-color);
-        }
-
-        /* Logó és Plumbob */
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 22px;
-            font-weight: 800;
-            color: var(--text-color);
-        }
-
+        .logo { display: flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 800; color: var(--text-color); }
         .plumbob {
             width: 14px;
             height: 22px;
@@ -273,13 +274,7 @@
             filter: drop-shadow(0 0 4px rgba(0, 255, 102, 0.6));
         }
 
-        /* Fő kártya tartalom */
-        .main-container {
-            padding: 30px 20px;
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
+        .main-container { padding: 30px 20px; max-width: 900px; margin: 0 auto; }
         .main-card {
             background-color: var(--card-bg);
             padding: 45px;
@@ -287,21 +282,8 @@
             box-shadow: 0 12px 30px var(--shadow-color);
             border: 2px solid var(--border-color);
         }
-
-        .main-card h1 {
-            color: var(--text-color);
-            font-size: 30px;
-            margin-top: 0;
-            margin-bottom: 25px;
-            font-weight: 800;
-        }
-
-        .main-card p {
-            font-size: 17px;
-            line-height: 1.7;
-            color: var(--subtext-color);
-            margin-bottom: 20px;
-        }
+        .main-card h1 { color: var(--text-color); font-size: 30px; margin-top: 0; margin-bottom: 25px; font-weight: 800; }
+        .main-card p { font-size: 17px; line-height: 1.7; color: var(--subtext-color); margin-bottom: 20px; }
 
         .beta-badge {
             display: inline-block;
@@ -313,10 +295,9 @@
             font-weight: bold;
             margin-bottom: 15px;
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
-        /* Jobb oldali előugró menü (Sidebar) */
+        /* Oldalsáv és nyíl */
         .right-sidebar {
             position: fixed;
             top: 20px;
@@ -325,28 +306,16 @@
             height: calc(100vh - 40px);
             background-color: var(--nav-bg);
             box-shadow: -10px 0 25px var(--shadow-color);
-            transition: right 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: right 0.4s ease;
             padding: 40px 15px 20px 15px;
             z-index: 1000;
             border-radius: 28px 0 0 28px;
             border: 2px solid var(--border-color);
             border-right: none;
         }
-
-        .right-sidebar.open {
-            right: 0;
-        }
-
-        .right-sidebar ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .right-sidebar ul li {
-            margin-bottom: 10px;
-        }
-
+        .right-sidebar.open { right: 0; }
+        .right-sidebar ul { list-style: none; padding: 0; margin: 0; }
+        .right-sidebar ul li { margin-bottom: 10px; }
         .right-sidebar ul li a {
             display: flex;
             align-items: center;
@@ -358,13 +327,8 @@
             font-weight: 600;
             border-radius: 18px;
         }
+        .right-sidebar ul li a:hover { background-color: var(--card-bg); color: var(--accent-color); }
 
-        .right-sidebar ul li a:hover {
-            background-color: var(--card-bg);
-            color: var(--accent-color);
-        }
-
-        /* Nyilacska gomb */
         .toggle-btn {
             position: fixed;
             top: 50%;
@@ -378,59 +342,71 @@
             cursor: pointer;
             font-size: 16px;
             border-radius: 16px 0 0 16px;
-            transition: right 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: right 0.4s ease;
             z-index: 1001;
-            box-shadow: -5px 0 15px var(--shadow-color);
         }
-
-        .toggle-btn.open {
-            right: 260px;
-        }
-
-        .arrow-icon {
-            display: inline-block;
-            transition: transform 0.4s ease;
-        }
-
-        .toggle-btn.open .arrow-icon {
-            transform: rotate(180deg);
-        }
+        .toggle-btn.open { right: 260px; }
+        .arrow-icon { display: inline-block; transition: transform 0.4s ease; }
+        .toggle-btn.open .arrow-icon { transform: rotate(180deg); }
     </style>
 </head>
 <body>
 
-    <!-- 1. REGISZTRÁCIÓS / BEJELENTKEZÉSI KÉPERNYŐ -->
+    <!-- BEJELENTKEZÉSI / REGISZTRÁCIÓS / ELFELEJTETT JELSZÓ ABOLAK -->
     <div class="auth-overlay" id="authOverlay">
         <div class="auth-card">
             <div class="logo" style="justify-content: center; margin-bottom: 15px;">
                 <span class="plumbob"></span> S4Memo
             </div>
-            <h2 id="authTitle">Regisztráció</h2>
+            
+            <h2 id="authTitle">Bejelentkezés</h2>
+            
+            <!-- Üzenetjelző (Hiba/Siker) -->
+            <div id="authMsg" class="auth-msg"></div>
+
             <form id="authForm" onsubmit="handleAuthSubmit(event)">
-                <div class="form-group" id="emailGroup">
+                <!-- Email mező (Regisztrációnál és Elfelejtett jelszónál kell) -->
+                <div class="form-group" id="emailGroup" style="display: none;">
                     <label for="email">E-mail cím</label>
                     <input type="email" id="email" placeholder="pelda@email.com">
                 </div>
-                <div class="form-group">
+
+                <!-- Felhasználónév mező (Regisztrációnál és Bejelentkezésnél kell) -->
+                <div class="form-group" id="usernameGroup">
                     <label for="username">Felhasználónév</label>
-                    <input type="text" id="username" placeholder="Felhasználónév" required>
+                    <input type="text" id="username" placeholder="Felhasználónév">
                 </div>
-                <div class="form-group">
-                    <label for="password">Jelszó</label>
-                    <input type="password" id="password" placeholder="••••••••" required>
+
+                <!-- Jelszó mező (Regisztrációnál, Bejelentkezésnél és Új jelszónál kell) -->
+                <div class="form-group" id="passwordGroup">
+                    <label for="password" id="passwordLabel">Jelszó</label>
+                    <input type="password" id="password" placeholder="••••••••">
                 </div>
-                <button type="submit" class="auth-btn" id="authSubmitBtn">Regisztrálok és Belépek</button>
+
+                <!-- Bejelentkezve maradok opció -->
+                <label class="form-checkbox" id="rememberMeGroup">
+                    <input type="checkbox" id="rememberMe" checked>
+                    <span>Bejelentkezve maradok</span>
+                </label>
+
+                <button type="submit" class="auth-btn" id="authSubmitBtn">Bejelentkezés</button>
             </form>
             
-            <div class="auth-toggle-link">
-                <span id="toggleText">Már van fiókod?</span> 
-                <a onclick="toggleAuthMode()" id="toggleLink">Bejelentkezés</a>
+            <!-- Váltó hivatkozások -->
+            <div class="auth-actions">
+                <div id="forgotPasswordLinkContainer">
+                    <a class="auth-link" onclick="switchMode('forgot')">Elfelejtetted a jelszavad?</a>
+                </div>
+                <div>
+                    <span id="toggleText">Még nincs fiókod?</span> 
+                    <a class="auth-link" onclick="toggleAuthMode()" id="toggleLink">Regisztráció</a>
+                </div>
             </div>
         </div>
     </div>
 
 
-    <!-- 2. ALKALMAZÁS FELÜLET -->
+    <!-- ALKALMAZÁS FELÜLET -->
     <div class="top-nav-container">
         <nav class="top-nav">
             <div class="nav-left">
@@ -444,12 +420,7 @@
             </div>
             
             <div class="nav-right">
-                <!-- Light / Dark Mode gomb -->
-                <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeBtn">
-                    🌙 Dark
-                </button>
-
-                <!-- Saját neved mint kattintható gomb -->
+                <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeBtn">🌙 Dark</button>
                 <button class="user-profile-btn" id="userProfileBtn" onclick="openProfile()">
                     👤 <span id="displayUsername">Vendég</span>
                 </button>
@@ -462,11 +433,8 @@
         <main class="main-card">
             <span class="beta-badge">Béta Verzió</span>
             <h1>Üdvözöllek a Sims 4 Memorable oldalán!</h1>
-            
             <p>Ez egy új ingyenes alkalmazás, ami a családfákat képviseli, kisebb játékokkal, szabadabb és több funkcióval, ahol mindenki kiélheti a vágyait.</p>
-            
             <p>Az oldal jelenleg béta verzióban fut, így ha hibát tapasztalsz, vagy ötleted van, milyen funkció jönne jól, azt az e-mail címemre szívesen várom.</p>
-            
             <p><strong>Köszönöm a türelmet.</strong></p>
         </main>
     </div>
@@ -490,111 +458,246 @@
 
     <!-- JAVASCRIPT LOGIKA -->
     <script>
-        // DOM elemek
-        const sidebar = document.getElementById('sidebar');
-        const toggleBtn = document.getElementById('toggleBtn');
+        // Módok: 'login', 'register', 'forgot'
+        let currentMode = 'login';
+
+        // DOM Elemek
         const authOverlay = document.getElementById('authOverlay');
+        const authTitle = document.getElementById('authTitle');
+        const authSubmitBtn = document.getElementById('authSubmitBtn');
+        const authMsg = document.getElementById('authMsg');
+        
+        const emailGroup = document.getElementById('emailGroup');
+        const usernameGroup = document.getElementById('usernameGroup');
+        const passwordGroup = document.getElementById('passwordGroup');
+        const passwordLabel = document.getElementById('passwordLabel');
+        const rememberMeGroup = document.getElementById('rememberMeGroup');
+        const forgotPasswordLinkContainer = document.getElementById('forgotPasswordLinkContainer');
+        const toggleText = document.getElementById('toggleText');
+        const toggleLink = document.getElementById('toggleLink');
+        
+        const emailInput = document.getElementById('email');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const rememberMeInput = document.getElementById('rememberMe');
         const displayUsername = document.getElementById('displayUsername');
-        const themeBtn = document.getElementById('themeBtn');
 
-        let isRegistration = true;
+        // Adatbázis elérése (localStorage)
+        function getUsersDB() {
+            return JSON.parse(localStorage.getItem('s4memo_users_db')) || [];
+        }
 
-        // --------------------------------------------------
-        // 1. TÉMA VÁLTÓ (LIGHT / DARK MODE)
-        // --------------------------------------------------
+        function saveUsersDB(db) {
+            localStorage.setItem('s4memo_users_db', JSON.stringify(db));
+        }
+
+        // Üzenet megjelenítő
+        function showMessage(text, isError = true) {
+            authMsg.innerText = text;
+            authMsg.className = 'auth-msg ' + (isError ? 'error' : 'success');
+        }
+
+        function hideMessage() {
+            authMsg.style.display = 'none';
+        }
+
+        // Nézetek váltása (Login / Register / Forgot)
+        function switchMode(mode) {
+            currentMode = mode;
+            hideMessage();
+            authForm.reset();
+
+            if (mode === 'login') {
+                authTitle.innerText = 'Bejelentkezés';
+                emailGroup.style.display = 'none';
+                usernameGroup.style.display = 'block';
+                passwordGroup.style.display = 'block';
+                passwordLabel.innerText = 'Jelszó';
+                rememberMeGroup.style.display = 'flex';
+                forgotPasswordLinkContainer.style.display = 'block';
+                authSubmitBtn.innerText = 'Bejelentkezés';
+                toggleText.innerText = 'Még nincs fiókod?';
+                toggleLink.innerText = 'Regisztráció';
+            } else if (mode === 'register') {
+                authTitle.innerText = 'Regisztráció';
+                emailGroup.style.display = 'block';
+                usernameGroup.style.display = 'block';
+                passwordGroup.style.display = 'block';
+                passwordLabel.innerText = 'Jelszó (min. 4 karakter)';
+                rememberMeGroup.style.display = 'none';
+                forgotPasswordLinkContainer.style.display = 'none';
+                authSubmitBtn.innerText = 'Regisztráció';
+                toggleText.innerText = 'Már van fiókod?';
+                toggleLink.innerText = 'Bejelentkezés';
+            } else if (mode === 'forgot') {
+                authTitle.innerText = 'Jelszó visszaállítása';
+                emailGroup.style.display = 'block';
+                usernameGroup.style.display = 'none';
+                passwordGroup.style.display = 'block';
+                passwordLabel.innerText = 'Új jelszó (min. 4 karakter)';
+                rememberMeGroup.style.display = 'none';
+                forgotPasswordLinkContainer.style.display = 'none';
+                authSubmitBtn.innerText = 'Jelszó frissítése';
+                toggleText.innerText = 'Emlékszel a jelszavadra?';
+                toggleLink.innerText = 'Bejelentkezés';
+            }
+        }
+
+        function toggleAuthMode() {
+            if (currentMode === 'login') {
+                switchMode('register');
+            } else {
+                switchMode('login');
+            }
+        }
+
+        // Űrlap feldolgozása
+        function handleAuthSubmit(event) {
+            event.preventDefault();
+            hideMessage();
+
+            const db = getUsersDB();
+            const email = emailInput.value.trim().toLowerCase();
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value;
+
+            // --- 1. REGISZTRÁCIÓ LOGIKA ---
+            if (currentMode === 'register') {
+                if (!email || !username || !password) {
+                    showMessage('Kérjük, tölts ki minden mezőt!');
+                    return;
+                }
+
+                // Jelszó hossz ellenőrzése
+                if (password.length < 4) {
+                    showMessage('A jelszónak legalább 4 karakterből kell állnia!');
+                    return;
+                }
+
+                // Email duplikáció ellenőrzés
+                const emailExists = db.some(u => u.email === email);
+                if (emailExists) {
+                    showMessage('Ez az e-mail cím már használatban van!');
+                    return;
+                }
+
+                // Felhasználónév duplikáció ellenőrzés
+                const usernameExists = db.some(u => u.username.toLowerCase() === username.toLowerCase());
+                if (usernameExists) {
+                    showMessage('Ez a felhasználónév már használatban van!');
+                    return;
+                }
+
+                // Sikeres regisztráció -> Mentés
+                db.push({ email, username, password });
+                saveUsersDB(db);
+
+                // Automatikus beléptetés regisztráció után
+                loginUser(username, true);
+            }
+
+            // --- 2. BEJELENTKEZÉS LOGIKA ---
+            else if (currentMode === 'login') {
+                if (!username || !password) {
+                    showMessage('Kérjük, add meg a felhasználóneved és a jelszavad!');
+                    return;
+                }
+
+                const user = db.find(u => u.username.toLowerCase() === username.toLowerCase() && u.password === password);
+
+                if (!user) {
+                    showMessage('Hibás felhasználónév vagy jelszó!');
+                    return;
+                }
+
+                // Sikeres bejelentkezés
+                loginUser(user.username, rememberMeInput.checked);
+            }
+
+            // --- 3. ELFELEJTETT JELSZÓ LOGIKA ---
+            else if (currentMode === 'forgot') {
+                if (!email || !password) {
+                    showMessage('Add meg az e-mail címed és az új jelszót!');
+                    return;
+                }
+
+                if (password.length < 4) {
+                    showMessage('Az új jelszónak legalább 4 karakterből kell állnia!');
+                    return;
+                }
+
+                const userIndex = db.findIndex(u => u.email === email);
+                if (userIndex === -1) {
+                    showMessage('Nem található fiók ezzel az e-mail címmel!');
+                    return;
+                }
+
+                // Jelszó frissítése
+                db[userIndex].password = password;
+                saveUsersDB(db);
+
+                showMessage('Jelszó sikeresen megváltoztatva! Most már bejelentkezhetsz.', false);
+                setTimeout(() => switchMode('login'), 2000);
+            }
+        }
+
+        // Beléptető segédfunkció
+        function loginUser(username, remember) {
+            if (remember) {
+                localStorage.setItem('s4memo_active_user', username);
+            } else {
+                sessionStorage.setItem('s4memo_active_user', username);
+            }
+            displayUsername.innerText = username;
+            authOverlay.classList.add('hidden');
+        }
+
+        // Ellenőrizzük, hogy be van-e lépve
+        function checkAutoLogin() {
+            const loggedUser = localStorage.getItem('s4memo_active_user') || sessionStorage.getItem('s4memo_active_user');
+            if (loggedUser) {
+                displayUsername.innerText = loggedUser;
+                authOverlay.classList.add('hidden');
+            } else {
+                switchMode('login');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('s4memo_active_user');
+            sessionStorage.removeItem('s4memo_active_user');
+            authOverlay.classList.remove('hidden');
+            switchMode('login');
+            sidebar.classList.remove('open');
+            toggleBtn.classList.remove('open');
+        }
+
+        function openProfile() {
+            alert('Saját profil kezelése: ' + displayUsername.innerText);
+        }
+
+        // Témakezelés (Light / Dark)
         function initTheme() {
             const savedTheme = localStorage.getItem('s4memo_theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
-            updateThemeButton(savedTheme);
+            document.getElementById('themeBtn').innerText = savedTheme === 'dark' ? '☀️ Light' : '🌙 Dark';
         }
 
         function toggleTheme() {
             const currentTheme = document.documentElement.getAttribute('data-theme');
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            
             document.documentElement.setAttribute('data-theme', newTheme);
             localStorage.setItem('s4memo_theme', newTheme);
-            updateThemeButton(newTheme);
+            document.getElementById('themeBtn').innerText = newTheme === 'dark' ? '☀️ Light' : '🌙 Dark';
         }
 
-        function updateThemeButton(theme) {
-            themeBtn.innerHTML = theme === 'dark' ? '☀️ Light' : '🌙 Dark';
-        }
-
-        // --------------------------------------------------
-        // 2. BEJELENTKEZÉS & REGISZTRÁCIÓ (localStorage)
-        // --------------------------------------------------
-        function checkAutoLogin() {
-            const loggedInUser = localStorage.getItem('s4memo_active_user');
-            if (loggedInUser) {
-                // Ha már be van jelentkezve, elrejtjük a regisztrációs ablakot
-                displayUsername.innerText = loggedInUser;
-                authOverlay.classList.add('hidden');
-            }
-        }
-
-        function handleAuthSubmit(event) {
-            event.preventDefault();
-            const usernameInput = document.getElementById('username').value.trim();
-
-            if (!usernameInput) return;
-
-            if (isRegistration) {
-                // Regisztráció elmentése
-                localStorage.setItem('s4memo_user_' + usernameInput, true);
-            }
-
-            // Aktív munkamenet elmentése
-            localStorage.setItem('s4memo_active_user', usernameInput);
-            displayUsername.innerText = usernameInput;
-            
-            // Ablak elrejtése
-            authOverlay.classList.add('hidden');
-        }
-
-        function logout() {
-            localStorage.removeItem('s4memo_active_user');
-            authOverlay.classList.remove('hidden');
-            sidebar.classList.remove('open');
-            toggleBtn.classList.remove('open');
-        }
-
-        function toggleAuthMode() {
-            isRegistration = !isRegistration;
-            
-            const title = document.getElementById('authTitle');
-            const submitBtn = document.getElementById('authSubmitBtn');
-            const toggleText = document.getElementById('toggleText');
-            const toggleLink = document.getElementById('toggleLink');
-            const emailGroup = document.getElementById('emailGroup');
-
-            if (isRegistration) {
-                title.innerText = 'Regisztráció';
-                submitBtn.innerText = 'Regisztrálok és Belépek';
-                toggleText.innerText = 'Már van fiókod?';
-                toggleLink.innerText = 'Bejelentkezés';
-                emailGroup.style.display = 'block';
-            } else {
-                title.innerText = 'Bejelentkezés';
-                submitBtn.innerText = 'Bejelentkezés';
-                toggleText.innerText = 'Még nincs fiókod?';
-                toggleLink.innerText = 'Regisztráció';
-                emailGroup.style.display = 'none';
-            }
-        }
-
-        // Saját profil kattintása funkció
-        function openProfile() {
-            alert('Később itt tudod majd szerkeszteni a saját profilodat (' + displayUsername.innerText + ')!');
-        }
-
-        // Jobb oldali sáv gombja
+        // Nyilacska gomb
         toggleBtn.addEventListener('click', () => {
             sidebar.classList.toggle('open');
             toggleBtn.classList.toggle('open');
         });
 
-        // Betöltéskor lefutó ellenőrzések
+        // Inicializálás
         initTheme();
         checkAutoLogin();
     </script>
