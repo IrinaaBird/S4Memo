@@ -5,23 +5,56 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>S4Memo - Sims 4 Memorable</title>
     <style>
-        /* Alapbeállítások és puha lekerekítések */
+        /* -------------------------------------------------- */
+        /* TÉMA VÁLTOZÓK (Lágyabb világos és sötét mód)        */
+        /* -------------------------------------------------- */
+        :root {
+            /* Alapértelmezett: Lágy, szemkímélő meleg világos mód */
+            --bg-color: #e8d3c5;
+            --card-bg: #f5ebe1;
+            --text-color: #3b2d25;
+            --subtext-color: #614f45;
+            --border-color: #d9c0b1;
+            --accent-color: #cd7f5d;
+            --accent-hover: #b86b49;
+            --active-glow: rgba(255, 255, 255, 0.9);
+            --shadow-color: rgba(90, 60, 45, 0.12);
+            --nav-bg: #efe2d7;
+            --input-bg: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            /* Sötét mód (Dark Mode) */
+            --bg-color: #1a1614;
+            --card-bg: #28221f;
+            --text-color: #eedcd0;
+            --subtext-color: #b39f93;
+            --border-color: #3d332e;
+            --accent-color: #d9825b;
+            --accent-hover: #e59875;
+            --active-glow: rgba(217, 130, 91, 0.6);
+            --shadow-color: rgba(0, 0, 0, 0.4);
+            --nav-bg: #221c19;
+            --input-bg: #1e1917;
+        }
+
         * {
             box-sizing: border-box;
             font-family: 'Segoe UI', 'Quicksand', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
         }
 
         body {
             margin: 0;
             padding: 0;
-            background-color: #fcebe1; /* Hangulatos meleg barack alapháttér */
-            color: #4a3b32;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             overflow-x: hidden;
             min-height: 100vh;
         }
 
         /* -------------------------------------------------- */
-        /* 1. KRÉM SZÍNŰ BEJELENTKEZÉSI / REGISZTRÁCIÓS TÉR   */
+        /* 1. BEJELENTKEZÉSI / REGISZTRÁCIÓS TÉR               */
         /* -------------------------------------------------- */
         .auth-overlay {
             position: fixed;
@@ -29,12 +62,12 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: linear-gradient(135deg, #fcebe1 0%, #f7d2c4 100%);
+            background-color: var(--bg-color);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 2000;
-            transition: opacity 0.5s ease, visibility 0.5s ease;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
         }
 
         .auth-overlay.hidden {
@@ -42,87 +75,80 @@
             visibility: hidden;
         }
 
-        /* Lekerekített krém színű kártya */
         .auth-card {
-            background-color: #fffbf5; /* Elegáns krém szín */
-            padding: 45px 40px;
+            background-color: var(--card-bg);
+            padding: 40px;
             border-radius: 28px;
-            box-shadow: 0 15px 35px rgba(184, 115, 87, 0.15);
+            box-shadow: 0 15px 35px var(--shadow-color);
             width: 90%;
             max-width: 420px;
             text-align: center;
-            border: 2px solid #f2dfd3;
+            border: 2px solid var(--border-color);
         }
 
         .auth-card h2 {
             margin-top: 0;
-            color: #5c4335;
-            font-size: 28px;
+            color: var(--text-color);
+            font-size: 26px;
             margin-bottom: 25px;
             font-weight: 700;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 18px;
             text-align: left;
         }
 
         .form-group label {
             display: block;
             margin-bottom: 8px;
-            color: #7a5e4e;
+            color: var(--subtext-color);
             font-size: 14px;
             font-weight: 600;
             padding-left: 5px;
         }
 
-        /* Puha, lekerekített beviteli mezők */
         .form-group input {
             width: 100%;
-            padding: 14px 18px;
+            padding: 13px 18px;
             border-radius: 16px;
-            border: 2px solid #eedad0;
-            background-color: #ffffff;
-            color: #4a3b32;
+            border: 2px solid var(--border-color);
+            background-color: var(--input-bg);
+            color: var(--text-color);
             font-size: 15px;
-            transition: all 0.3s ease;
         }
 
         .form-group input:focus {
             outline: none;
-            border-color: #e09f80;
-            box-shadow: 0 0 10px rgba(224, 159, 128, 0.2);
+            border-color: var(--accent-color);
         }
 
-        /* Lekerekített meleg gomb */
         .auth-btn {
             width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #e59875 0%, #d9825b 100%);
+            padding: 14px;
+            background-color: var(--accent-color);
             color: #ffffff;
             border: none;
             border-radius: 20px;
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
             margin-top: 10px;
-            box-shadow: 0 6px 15px rgba(217, 130, 91, 0.3);
+            box-shadow: 0 6px 15px var(--shadow-color);
         }
 
         .auth-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(217, 130, 91, 0.4);
+            background-color: var(--accent-hover);
         }
 
         .auth-toggle-link {
             margin-top: 22px;
             font-size: 14px;
-            color: #8c6d5d;
+            color: var(--subtext-color);
         }
 
         .auth-toggle-link a {
-            color: #d9825b;
+            color: var(--accent-color);
             font-weight: bold;
             text-decoration: none;
             cursor: pointer;
@@ -132,66 +158,110 @@
             text-decoration: underline;
         }
 
-
         /* -------------------------------------------------- */
-        /* 2. ALKALMAZÁS FELÜLET (Főoldal barackos témával)   */
+        /* 2. ALKALMAZÁS FELÜLET & NAVIGÁCIÓ                  */
         /* -------------------------------------------------- */
-        
-        /* Felső navigációs sáv lekerekített krém háttérrel */
         .top-nav-container {
             padding: 20px 20px 0 20px;
         }
 
         .top-nav {
-            background-color: #fffbf5;
-            padding: 12px 30px;
+            background-color: var(--nav-bg);
+            padding: 12px 25px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 30px;
             border-radius: 24px;
-            box-shadow: 0 8px 20px rgba(180, 120, 90, 0.08);
-            border: 1px solid #f2dfd3;
+            box-shadow: 0 8px 20px var(--shadow-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 25px;
         }
 
         .nav-links {
             display: flex;
-            gap: 20px;
+            gap: 15px;
             align-items: center;
         }
 
-        .top-nav a {
+        .top-nav a.nav-item {
             text-decoration: none;
-            font-size: 17px;
-            color: #8c6d5d;
+            font-size: 16px;
+            color: var(--subtext-color);
             padding: 8px 18px;
             border-radius: 14px;
-            transition: all 0.3s ease;
             font-weight: 600;
         }
 
-        .top-nav a:hover {
-            color: #5c4335;
-            background-color: #f7e9df;
+        .top-nav a.nav-item:hover {
+            color: var(--text-color);
+            background-color: var(--card-bg);
         }
 
-        /* Fehéren világító, kiemelt Főoldal opció */
-        .top-nav a.active {
+        .top-nav a.nav-item.active {
             color: #ffffff;
-            background-color: #e59875;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.9), 0 4px 12px rgba(229, 152, 117, 0.4);
-            text-shadow: 0 0 5px rgba(255, 255, 255, 0.6);
+            background-color: var(--accent-color);
+            box-shadow: 0 0 15px var(--active-glow);
         }
 
-        /* S4Memo Logó a Sims híres Plumbob-jával (zöld gyémánt) */
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* Felhasználói profil gomb a jobb felső sarokban */
+        .user-profile-btn {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 2px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 18px;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 10px var(--shadow-color);
+        }
+
+        .user-profile-btn:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        /* Light/Dark Mode váltó gomb */
+        .theme-toggle-btn {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 2px solid var(--border-color);
+            padding: 8px 14px;
+            border-radius: 18px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .theme-toggle-btn:hover {
+            background-color: var(--bg-color);
+        }
+
+        /* Logó és Plumbob */
         .logo {
             display: flex;
             align-items: center;
             gap: 10px;
             font-size: 22px;
             font-weight: 800;
-            color: #5c4335;
-            letter-spacing: 0.5px;
+            color: var(--text-color);
         }
 
         .plumbob {
@@ -203,7 +273,7 @@
             filter: drop-shadow(0 0 4px rgba(0, 255, 102, 0.6));
         }
 
-        /* Fő tartalom - Barackos, rendkívül lekerekített kártya design */
+        /* Fő kártya tartalom */
         .main-container {
             padding: 30px 20px;
             max-width: 900px;
@@ -211,16 +281,16 @@
         }
 
         .main-card {
-            background: linear-gradient(145deg, #ffffff 0%, #fff6f0 100%);
+            background-color: var(--card-bg);
             padding: 45px;
             border-radius: 35px;
-            box-shadow: 0 12px 30px rgba(184, 115, 87, 0.1);
-            border: 2px solid #fcebe1;
+            box-shadow: 0 12px 30px var(--shadow-color);
+            border: 2px solid var(--border-color);
         }
 
         .main-card h1 {
-            color: #4a3b32;
-            font-size: 32px;
+            color: var(--text-color);
+            font-size: 30px;
             margin-top: 0;
             margin-bottom: 25px;
             font-weight: 800;
@@ -229,14 +299,14 @@
         .main-card p {
             font-size: 17px;
             line-height: 1.7;
-            color: #634f43;
+            color: var(--subtext-color);
             margin-bottom: 20px;
         }
 
         .beta-badge {
             display: inline-block;
-            background-color: #f7d2c4;
-            color: #8c4a2b;
+            background-color: var(--accent-color);
+            color: #ffffff;
             padding: 6px 16px;
             border-radius: 20px;
             font-size: 13px;
@@ -246,20 +316,20 @@
             letter-spacing: 1px;
         }
 
-        /* Jobb oldali előugró menü (Sidebar) - Lekerekített krémes stílusban */
+        /* Jobb oldali előugró menü (Sidebar) */
         .right-sidebar {
             position: fixed;
             top: 20px;
             right: -280px;
             width: 260px;
             height: calc(100vh - 40px);
-            background-color: #fffbf5;
-            box-shadow: -10px 0 25px rgba(184, 115, 87, 0.15);
+            background-color: var(--nav-bg);
+            box-shadow: -10px 0 25px var(--shadow-color);
             transition: right 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             padding: 40px 15px 20px 15px;
             z-index: 1000;
             border-radius: 28px 0 0 28px;
-            border: 2px solid #f2dfd3;
+            border: 2px solid var(--border-color);
             border-right: none;
         }
 
@@ -282,42 +352,35 @@
             align-items: center;
             gap: 12px;
             padding: 14px 18px;
-            color: #5c4335;
+            color: var(--text-color);
             text-decoration: none;
             font-size: 16px;
             font-weight: 600;
             border-radius: 18px;
-            transition: all 0.2s ease;
         }
 
         .right-sidebar ul li a:hover {
-            background-color: #fcebe1;
-            color: #d9825b;
-            transform: translateX(-3px);
+            background-color: var(--card-bg);
+            color: var(--accent-color);
         }
 
-        /* Nyilacska gomb lekerekítve */
+        /* Nyilacska gomb */
         .toggle-btn {
             position: fixed;
             top: 50%;
             right: 0;
             transform: translateY(-50%);
-            background-color: #fffbf5;
-            color: #8c6d5d;
-            border: 2px solid #f2dfd3;
+            background-color: var(--nav-bg);
+            color: var(--text-color);
+            border: 2px solid var(--border-color);
             border-right: none;
             padding: 16px 12px;
             cursor: pointer;
             font-size: 16px;
             border-radius: 16px 0 0 16px;
-            transition: right 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.2s;
+            transition: right 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             z-index: 1001;
-            box-shadow: -5px 0 15px rgba(184, 115, 87, 0.1);
-        }
-
-        .toggle-btn:hover {
-            background-color: #fcebe1;
-            color: #5c4335;
+            box-shadow: -5px 0 15px var(--shadow-color);
         }
 
         .toggle-btn.open {
@@ -332,22 +395,21 @@
         .toggle-btn.open .arrow-icon {
             transform: rotate(180deg);
         }
-
     </style>
 </head>
 <body>
 
-    <!-- 1. REGISZTRÁCIÓS / BEJELENTKEZÉSI KÉPERNYŐ (Krém színű, puha lekerekítésekkel) -->
+    <!-- 1. REGISZTRÁCIÓS / BEJELENTKEZÉSI KÉPERNYŐ -->
     <div class="auth-overlay" id="authOverlay">
         <div class="auth-card">
             <div class="logo" style="justify-content: center; margin-bottom: 15px;">
                 <span class="plumbob"></span> S4Memo
             </div>
             <h2 id="authTitle">Regisztráció</h2>
-            <form id="authForm" onsubmit="handleLogin(event)">
+            <form id="authForm" onsubmit="handleAuthSubmit(event)">
                 <div class="form-group" id="emailGroup">
                     <label for="email">E-mail cím</label>
-                    <input type="email" id="email" placeholder="pelda@email.com" required>
+                    <input type="email" id="email" placeholder="pelda@email.com">
                 </div>
                 <div class="form-group">
                     <label for="username">Felhasználónév</label>
@@ -368,25 +430,34 @@
     </div>
 
 
-    <!-- 2. APPLIKÁCIÓ TARTALMA (Főoldal barack és krém tónusokkal) -->
-
-    <!-- Felső navigáció -->
+    <!-- 2. ALKALMAZÁS FELÜLET -->
     <div class="top-nav-container">
         <nav class="top-nav">
-            <!-- S4Memo Logó Plumbob gyémánttal -->
-            <div class="logo">
-                <span class="plumbob"></span> S4Memo
+            <div class="nav-left">
+                <div class="logo">
+                    <span class="plumbob"></span> S4Memo
+                </div>
+                <div class="nav-links">
+                    <a href="#" class="nav-item active">Főoldal</a>
+                    <a href="#publikum" class="nav-item">Publikum</a>
+                </div>
             </div>
             
-            <div class="nav-links">
-                <!-- Fehéren világító aktív Főoldal opció -->
-                <a href="#" class="active">Főoldal</a>
-                <a href="#publikum">Publikum</a>
+            <div class="nav-right">
+                <!-- Light / Dark Mode gomb -->
+                <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeBtn">
+                    🌙 Dark
+                </button>
+
+                <!-- Saját neved mint kattintható gomb -->
+                <button class="user-profile-btn" id="userProfileBtn" onclick="openProfile()">
+                    👤 <span id="displayUsername">Vendég</span>
+                </button>
             </div>
         </nav>
     </div>
 
-    <!-- Főoldal tartalma lekerekített kártyában -->
+    <!-- Főoldal tartalma -->
     <div class="main-container">
         <main class="main-card">
             <span class="beta-badge">Béta Verzió</span>
@@ -400,7 +471,7 @@
         </main>
     </div>
 
-    <!-- Jobb oldali előugró menü (Sidebar) -->
+    <!-- Jobb oldali előugró menü -->
     <div class="right-sidebar" id="sidebar">
         <ul>
             <li><a href="#">🏠 Főoldal</a></li>
@@ -411,7 +482,7 @@
         </ul>
     </div>
 
-    <!-- Előugró menüt nyitó nyilacska -->
+    <!-- Nyilacska gomb -->
     <button class="toggle-btn" id="toggleBtn">
         <span class="arrow-icon">◀</span>
     </button>
@@ -419,32 +490,75 @@
 
     <!-- JAVASCRIPT LOGIKA -->
     <script>
-        // Jobb oldali sáv nyitása/zárása
+        // DOM elemek
         const sidebar = document.getElementById('sidebar');
         const toggleBtn = document.getElementById('toggleBtn');
-
-        toggleBtn.addEventListener('click', () => {
-            sidebar.classList.toggle('open');
-            toggleBtn.classList.toggle('open');
-        });
-
-        // Belépés kezelése (szimuláció)
         const authOverlay = document.getElementById('authOverlay');
+        const displayUsername = document.getElementById('displayUsername');
+        const themeBtn = document.getElementById('themeBtn');
+
         let isRegistration = true;
 
-        function handleLogin(event) {
+        // --------------------------------------------------
+        // 1. TÉMA VÁLTÓ (LIGHT / DARK MODE)
+        // --------------------------------------------------
+        function initTheme() {
+            const savedTheme = localStorage.getItem('s4memo_theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeButton(savedTheme);
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('s4memo_theme', newTheme);
+            updateThemeButton(newTheme);
+        }
+
+        function updateThemeButton(theme) {
+            themeBtn.innerHTML = theme === 'dark' ? '☀️ Light' : '🌙 Dark';
+        }
+
+        // --------------------------------------------------
+        // 2. BEJELENTKEZÉS & REGISZTRÁCIÓ (localStorage)
+        // --------------------------------------------------
+        function checkAutoLogin() {
+            const loggedInUser = localStorage.getItem('s4memo_active_user');
+            if (loggedInUser) {
+                // Ha már be van jelentkezve, elrejtjük a regisztrációs ablakot
+                displayUsername.innerText = loggedInUser;
+                authOverlay.classList.add('hidden');
+            }
+        }
+
+        function handleAuthSubmit(event) {
             event.preventDefault();
+            const usernameInput = document.getElementById('username').value.trim();
+
+            if (!usernameInput) return;
+
+            if (isRegistration) {
+                // Regisztráció elmentése
+                localStorage.setItem('s4memo_user_' + usernameInput, true);
+            }
+
+            // Aktív munkamenet elmentése
+            localStorage.setItem('s4memo_active_user', usernameInput);
+            displayUsername.innerText = usernameInput;
+            
+            // Ablak elrejtése
             authOverlay.classList.add('hidden');
         }
 
-        // Kijelentkezés funkció
         function logout() {
+            localStorage.removeItem('s4memo_active_user');
             authOverlay.classList.remove('hidden');
             sidebar.classList.remove('open');
             toggleBtn.classList.remove('open');
         }
 
-        // Váltás Regisztráció és Bejelentkezés között
         function toggleAuthMode() {
             isRegistration = !isRegistration;
             
@@ -468,6 +582,21 @@
                 emailGroup.style.display = 'none';
             }
         }
+
+        // Saját profil kattintása funkció
+        function openProfile() {
+            alert('Később itt tudod majd szerkeszteni a saját profilodat (' + displayUsername.innerText + ')!');
+        }
+
+        // Jobb oldali sáv gombja
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+            toggleBtn.classList.toggle('open');
+        });
+
+        // Betöltéskor lefutó ellenőrzések
+        initTheme();
+        checkAutoLogin();
     </script>
 </body>
 </html>
