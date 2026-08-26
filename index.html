@@ -586,10 +586,11 @@
             100% { transform: translateY(0px); }
         }
 
+        /* ELEGÁNS CSALÁDFA UI CSOMÓPONT STÍLUSOK */
         .sim-node {
             position: absolute; 
-            width: 94px; 
-            height: 94px;
+            width: 110px; 
+            height: 110px;
             cursor: pointer; 
             z-index: 2; 
             user-select: none;
@@ -597,15 +598,19 @@
             align-items: center; 
             justify-content: center;
             background: transparent;
+            transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.25s ease;
         }
-        .sim-node:hover { transform: scale(1.08); z-index: 5; }
+        .sim-node:hover { 
+            transform: scale(1.12) translateY(-2px); 
+            z-index: 20; 
+        }
         .sim-node.selected {
             animation: borderRainbow 3s linear infinite, simFloat 2.5s ease-in-out infinite;
-            z-index: 10 !important;
+            z-index: 30 !important;
         }
         .sim-node.drop-target .sim-node-avatar {
-            box-shadow: 0 0 25px rgba(46, 213, 115, 1) !important;
-            transform: scale(1.1);
+            box-shadow: 0 0 0 5px var(--btn-green), 0 0 25px rgba(46, 213, 115, 0.9) !important;
+            transform: scale(1.08);
         }
 
         .sim-node-avatar {
@@ -617,42 +622,97 @@
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            font-size: 34px;
+            font-size: 38px;
             background-color: var(--card-bg);
             background-size: cover; 
             background-position: center; 
             pointer-events: none;
-            box-shadow: inset 0 0 0 4px var(--accent-color), 0 8px 20px var(--shadow-color);
-            transition: all 0.2s ease;
+            box-shadow: 0 0 0 4px var(--accent-color), 0 10px 25px var(--shadow-color), inset 0 0 12px rgba(0,0,0,0.1);
+            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 3px solid var(--card-bg);
         }
 
         .sim-node-label {
-            position: absolute; bottom: -28px; white-space: nowrap;
-            font-weight: 800; font-size: 13px; color: var(--text-color);
-            background-color: var(--card-bg); padding: 4px 12px; border-radius: 20px;
-            border: 2px solid var(--border-color); box-shadow: 0 4px 10px var(--shadow-color);
-            pointer-events: none; z-index: 15;
+            position: absolute; 
+            bottom: -32px; 
+            white-space: nowrap;
+            font-weight: 800; 
+            font-size: 12px; 
+            letter-spacing: 0.3px;
+            color: var(--text-color);
+            background: var(--card-bg); 
+            padding: 5px 14px; 
+            border-radius: 20px;
+            border: 1.5px solid var(--border-color); 
+            box-shadow: 0 6px 16px var(--shadow-color);
+            pointer-events: none; 
+            z-index: 15;
+            backdrop-filter: blur(8px);
         }
 
         .sim-edit-pencil {
-            position: absolute; top: -4px; right: -4px;
-            width: 26px; height: 26px; background-color: var(--card-bg);
-            border: 2px solid var(--border-color); border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 11px; cursor: pointer; z-index: 20; box-shadow: 0 3px 8px var(--shadow-color);
+            position: absolute; 
+            top: -2px; 
+            right: -2px;
+            width: 28px; 
+            height: 28px; 
+            background-color: var(--card-bg);
+            border: 1.5px solid var(--border-color); 
+            border-radius: 50%;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            font-size: 12px; 
+            cursor: pointer; 
+            z-index: 25; 
+            box-shadow: 0 4px 10px var(--shadow-color);
+            transition: all 0.2s ease;
         }
-        .sim-edit-pencil:hover { background-color: var(--accent-color); color: white; transform: rotate(15deg) scale(1.2); }
+        .sim-edit-pencil:hover { 
+            background-color: var(--accent-color); 
+            color: white; 
+            transform: rotate(20deg) scale(1.25); 
+            border-color: var(--accent-color);
+        }
 
         .add-btn-node {
-            position: absolute; width: 28px; height: 28px;
-            color: white; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 900; font-size: 16px; cursor: pointer;
-            box-shadow: 0 4px 10px var(--shadow-color); border: 2px solid #ffffff;
-            z-index: 20;
+            position: absolute; 
+            width: 28px; 
+            height: 28px;
+            color: white; 
+            border-radius: 50%;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            font-weight: 900; 
+            font-size: 15px; 
+            cursor: pointer;
+            box-shadow: 0 4px 12px var(--shadow-color); 
+            border: 2px solid var(--card-bg);
+            z-index: 25;
+            transition: all 0.2s ease;
         }
-        .add-partner-btn { right: -10px; top: 50%; transform: translateY(-50%); background-color: var(--btn-pink); }
-        .add-child-btn { bottom: -10px; left: 50%; transform: translateX(-50%); background-color: var(--btn-green); }
+        .add-btn-node:hover {
+            transform: scale(1.25);
+        }
+        .add-partner-btn { 
+            right: -12px; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            background: linear-gradient(135deg, var(--btn-pink) 0%, var(--accent-color) 100%); 
+        }
+        .add-partner-btn:hover {
+            transform: translateY(-50%) scale(1.25);
+        }
+        .add-child-btn { 
+            bottom: -12px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            background: linear-gradient(135deg, var(--btn-green) 0%, #20bf6b 100%); 
+        }
+        .add-child-btn:hover {
+            transform: translateX(-50%) scale(1.25);
+        }
 
         /* INTEGRÁLT KÉPSZERKESZTŐ MODUL */
         .avatar-editor-container {
@@ -1959,7 +2019,7 @@
             avatar.className = 'sim-node-avatar';
             if (sim.color) {
                 avatar.style.setProperty('--accent-color', sim.color);
-                avatar.style.boxShadow = `inset 0 0 0 4px ${sim.color}, 0 8px 20px var(--shadow-color)`;
+                avatar.style.boxShadow = `0 0 0 4px ${sim.color}, 0 10px 25px var(--shadow-color)`;
             }
 
             if (sim.image) {
@@ -1999,7 +2059,7 @@
             childBtn.title = 'Gyermek hozzáadása';
             childBtn.onclick = (e) => { 
                 e.stopPropagation(); 
-                addNewSim("Gyermek", sim.lastName, sim.x, sim.y + 160, sim.id, null, 'Gyerek');
+                addNewSim("Gyermek", sim.lastName, sim.x, sim.y + 170, sim.id, null, 'Gyerek');
             };
 
             node.appendChild(partnerBtn);
@@ -2108,6 +2168,7 @@
             simModal.classList.add('active');
         }
 
+        /* ELEGÁNS CSALÁDFÁRA KORRIGÁLT VONALCSATLAKOZÁSI KOORDINÁTÁK (NODE CSOMÓPONT MÉRET: 110x110px) */
         function updateConnections() {
             svgLayer.innerHTML = '';
             const tree = getCurrentTree(); if (!tree) return;
@@ -2116,9 +2177,9 @@
                 if (sim.parentId) {
                     const parent = tree.sims.find(s => s.id === sim.parentId);
                     if (parent) {
-                        const startX = parent.x + 47;
-                        const startY = parent.y + 94;
-                        const endX = sim.x + 47;
+                        const startX = parent.x + 55;
+                        const startY = parent.y + 110;
+                        const endX = sim.x + 55;
                         const endY = sim.y;
 
                         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -2132,10 +2193,10 @@
                 if (sim.partnerId) {
                     const partner = tree.sims.find(s => s.id === sim.partnerId);
                     if (partner) {
-                        const startX = sim.x + 94;
-                        const startY = sim.y + 47;
+                        const startX = sim.x + 110;
+                        const startY = sim.y + 55;
                         const endX = partner.x;
-                        const endY = partner.y + 47;
+                        const endY = partner.y + 55;
 
                         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                         const midX = startX + (endX - startX) / 2;
@@ -2337,14 +2398,14 @@
             closeConnectionModal();
 
             if (relationType === 'Gyerek') {
-                addNewSim("Gyermek", sourceSim.lastName, sourceSim.x, sourceSim.y + 160, sourceSim.id, null, 'Gyerek');
+                addNewSim("Gyermek", sourceSim.lastName, sourceSim.x, sourceSim.y + 170, sourceSim.id, null, 'Gyerek');
             } else if (relationType === 'Szülő') {
-                const parent = addNewSim("Szülő", sourceSim.lastName, sourceSim.x, sourceSim.y - 160, null, null, null);
+                const parent = addNewSim("Szülő", sourceSim.lastName, sourceSim.x, sourceSim.y - 170, null, null, null);
                 sourceSim.parentId = parent.id;
                 saveTreesToStorage();
                 loadCurrentTreeCanvas();
             } else {
-                const newSim = addNewSim("Partner", "", sourceSim.x + 160, sourceSim.y, null, sourceSim.id, relationType);
+                const newSim = addNewSim("Partner", "", sourceSim.x + 180, sourceSim.y, null, sourceSim.id, relationType);
                 sourceSim.partnerId = newSim.id;
                 sourceSim.relationType = relationType;
                 saveTreesToStorage();
