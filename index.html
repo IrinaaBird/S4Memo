@@ -222,7 +222,6 @@
             backdrop-filter: blur(10px);
         }
         .nav-left { display: flex; align-items: center; gap: 30px; }
-        .nav-right { display: flex; align-items: center; gap: 10px; }
         .nav-links { display: flex; gap: 12px; align-items: center; }
         .top-nav a.nav-item {
             text-decoration: none; font-size: 15px; color: var(--subtext-color);
@@ -231,14 +230,12 @@
         .top-nav a.nav-item:hover { color: var(--text-color); background-color: var(--card-bg); transform: translateY(-2px); }
         .top-nav a.nav-item.active { color: #ffffff; background-color: var(--accent-color); box-shadow: 0 4px 12px var(--active-glow); }
         
-        .save-btn, .user-profile-btn, .theme-toggle-btn {
+        .user-profile-btn, .theme-toggle-btn {
             background-color: var(--card-bg); color: var(--text-color);
             border: 2px solid var(--border-color); padding: 9px 18px; border-radius: 25px;
             font-weight: 700; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px;
             box-shadow: 0 4px 12px var(--shadow-color);
         }
-        .save-btn { background-color: var(--accent-color); color: #ffffff; border-color: var(--accent-color); }
-        .save-btn:hover { background-color: var(--accent-hover); transform: translateY(-2px); }
         .user-profile-btn:hover, .theme-toggle-btn:hover { border-color: var(--accent-color); color: var(--accent-color); transform: translateY(-2px); }
 
         .logo { display: flex; align-items: center; gap: 10px; font-size: 24px; font-weight: 800; color: var(--text-color); letter-spacing: -0.5px; }
@@ -294,16 +291,6 @@
         }
         .add-sim-floating-btn:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 12px 28px rgba(255, 71, 112, 0.6); }
 
-        /* TOAST ÉRTESÍTÉS MENTÉSKOR */
-        .toast-notification {
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
-            background-color: var(--accent-color); color: white; padding: 12px 28px;
-            border-radius: 30px; font-weight: 800; font-size: 14px; box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-            z-index: 5000; opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            pointer-events: none;
-        }
-        .toast-notification.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-
         /* ZOOM PAN */
         .zoom-controls {
             position: absolute; bottom: 20px; left: 265px; z-index: 1050;
@@ -348,6 +335,7 @@
             100% { transform: translateY(0px); }
         }
 
+        /* Fő Sim kártya tároló - Nem kap semmilyen clip-path-et! */
         .sim-node {
             position: absolute; 
             width: 94px; 
@@ -370,6 +358,7 @@
             transform: scale(1.1);
         }
 
+        /* Csak az avatar rétegre alkalmazzuk az alakzat vágást és a színes keretet */
         .sim-node-avatar {
             width: 100%; 
             height: 100%; 
@@ -396,6 +385,7 @@
             pointer-events: none; z-index: 15;
         }
 
+        /* VEZÉRLŐ GOMBOK - Magas z-index, hogy sose takarja el az alakzat */
         .sim-edit-pencil {
             position: absolute; top: -4px; right: -4px;
             width: 26px; height: 26px; background-color: var(--card-bg);
@@ -416,6 +406,7 @@
         .add-partner-btn { right: -10px; top: 50%; transform: translateY(-50%); background-color: var(--btn-pink); }
         .add-child-btn { bottom: -10px; left: 50%; transform: translateX(-50%); background-color: var(--btn-green); }
 
+        /* KÉPSZERKESZTŐ BOX ELŐNÉZETTEL */
         .image-editor-box {
             background-color: var(--nav-bg); border: 2px solid var(--border-color);
             border-radius: 20px; padding: 14px; margin-top: 10px;
@@ -434,6 +425,7 @@
             display: flex; flex-direction: column; gap: 8px;
         }
 
+        /* MODALOK ÉS MENÜK */
         .context-menu {
             position: fixed; display: none; background-color: var(--nav-bg);
             border: 2px solid var(--border-color); border-radius: 24px;
@@ -508,9 +500,6 @@
     <!-- HOMÁLYOSÍTÁST VÉGZŐ BLUR RÉTEG A HÁTTÉR FÖLÖTT -->
     <div id="bgBlurOverlay"></div>
 
-    <!-- TOAST ÉRTESÍTÉS MENTÉSKOR -->
-    <div id="toastNotification" class="toast-notification">💾 Családfa sikeresen elmentve!</div>
-
     <!-- NAVIGÁCIÓ -->
     <div class="top-nav-container" id="topNavContainer">
         <nav class="top-nav">
@@ -522,7 +511,6 @@
                 </div>
             </div>
             <div class="nav-right">
-                <button class="save-btn" onclick="manualSave()">💾 Mentés</button>
                 <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeBtn">🌙 Dark</button>
                 <button class="user-profile-btn" onclick="openProfile()">👤 <span>Profilom</span></button>
             </div>
@@ -540,7 +528,6 @@
     <!-- 2. CSALÁDFÁK NÉZET -->
     <div class="page-view" id="treeView">
         <div class="tree-full-controls">
-            <button class="save-btn" onclick="manualSave()">💾 Mentés</button>
             <button class="theme-toggle-btn" onclick="toggleTheme()" id="treeThemeBtn">🌙 Dark</button>
             <button class="user-profile-btn" onclick="openProfile()">👤 <span>Profilom</span></button>
         </div>
@@ -572,7 +559,7 @@
                         
                         <div style="margin-top: 8px;" class="style-group">
                             <label>Kép Méretezése</label>
-                            <select id="bgSizeSelect" onchange="changeBgSize(this.value)">
+                            <select onchange="changeBgSize(this.value)">
                                 <option value="cover" selected>Kitöltés (Cover)</option>
                                 <option value="contain">Illesztés (Contain)</option>
                                 <option value="100% 100%">Nyújtás (Stretch)</option>
@@ -581,7 +568,7 @@
                         </div>
                         <div style="margin-top: 6px;" class="style-group">
                             <label>Kép Igazítása</label>
-                            <select id="bgPositionSelect" onchange="changeBgPosition(this.value)">
+                            <select onchange="changeBgPosition(this.value)">
                                 <option value="center" selected>Középre</option>
                                 <option value="top">Fent</option>
                                 <option value="bottom">Lent</option>
@@ -821,28 +808,14 @@
             }
         ];
 
-        // HÁTTÉR BEÁLLÍTÁSOK VÁLTOZÓJA
-        let currentBgSettings = {
-            style: 'dots',
-            size: 'cover',
-            position: 'center',
-            blur: 0,
-            lineStyle: 'style-glow',
-            simShape: 'circle'
-        };
-
-        // KÜLÖN TÁROLT SÁJÁT HÁTTÉRKÉP BASE64 STRING
-        let loadedCustomBgImage = '';
-
         let familyTrees = loadTreesFromStorage();
-        loadBgSettingsFromStorage();
-
         let currentTreeId = familyTrees.length > 0 ? familyTrees[0].id : 'tree_1';
         let editingSimId = null;
         let contextSimId = null;
         let selectedSimId = null;
         let selectedConnectionTargetId = null;
 
+        /* Képszerkesztési állapotok */
         let tempUploadedImage = '';
         let currentRotation = 0;
 
@@ -864,124 +837,39 @@
         }
 
         function changeBgStyle(style) {
-            currentBgSettings.style = style;
-            applyBgSettings();
-            saveTreesToStorage();
+            const customBgContainer = document.getElementById('customBgContainer');
+            if (style === 'custom') {
+                customBgContainer.style.display = 'block';
+                document.body.className = 'bg-custom';
+            } else {
+                customBgContainer.style.display = 'none';
+                document.body.style.backgroundImage = '';
+                document.body.className = `bg-${style}`;
+            }
         }
 
         function changeBgBlur(val) {
-            currentBgSettings.blur = parseInt(val);
-            applyBgSettings();
-            saveTreesToStorage();
-        }
-
-        // TÖMÖRÍTŐ FUNKCIÓ A HÁTTÉRKÉPHEZ (Max width 1920px, JPEG 0.75 quality)
-        function compressBgImage(file, callback) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    let width = img.width;
-                    let height = img.height;
-                    const maxDim = 1920;
-
-                    if (width > maxDim || height > maxDim) {
-                        if (width > height) {
-                            height = Math.round((height * maxDim) / width);
-                            width = maxDim;
-                        } else {
-                            width = Math.round((width * maxDim) / height);
-                            height = maxDim;
-                        }
-                    }
-
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-                    
-                    // Tömörített JPEG 0.75 minőséggel
-                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.75);
-                    callback(compressedBase64);
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
+            document.documentElement.style.setProperty('--bg-blur', `${val}px`);
+            document.getElementById('bgBlurValText').innerText = `${val}px`;
         }
 
         function handleCustomBgUpload(event) {
             const file = event.target.files[0];
             if (file) {
-                compressBgImage(file, function(compressedData) {
-                    currentBgSettings.style = 'custom';
-                    loadedCustomBgImage = compressedData;
-                    document.getElementById('bgStyleSelect').value = 'custom';
-                    
-                    try {
-                        localStorage.setItem('s4memo_custom_bg', loadedCustomBgImage);
-                    } catch (err) {
-                        console.error("Nem fér el a háttérkép a tárhelyen:", err);
-                    }
-
-                    applyBgSettings();
-                    saveTreesToStorage();
-                });
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.body.className = 'bg-custom';
+                    document.body.style.backgroundImage = `url('${e.target.result}')`;
+                };
+                reader.readAsDataURL(file);
             }
         }
 
-        function changeBgSize(val) {
-            currentBgSettings.size = val;
-            applyBgSettings();
-            saveTreesToStorage();
-        }
-
-        function changeBgPosition(val) {
-            currentBgSettings.position = val;
-            applyBgSettings();
-            saveTreesToStorage();
-        }
-
-        function changeLineStyle(styleClass) {
-            currentBgSettings.lineStyle = styleClass;
-            applyBgSettings();
-            saveTreesToStorage();
-        }
+        function changeBgSize(val) { document.documentElement.style.setProperty('--custom-bg-size', val); }
+        function changeBgPosition(val) { document.documentElement.style.setProperty('--custom-bg-position', val); }
+        function changeLineStyle(styleClass) { treeWorld.className = `tree-canvas-world ${styleClass}`; }
 
         function changeSimShape(shape) {
-            currentBgSettings.simShape = shape;
-            applyBgSettings();
-            saveTreesToStorage();
-        }
-
-        function applyBgSettings() {
-            const customBgContainer = document.getElementById('customBgContainer');
-            
-            // Stílus és kép érvényesítése
-            if (currentBgSettings.style === 'custom') {
-                customBgContainer.style.display = 'block';
-                document.body.className = 'bg-custom';
-                if (loadedCustomBgImage) {
-                    document.body.style.backgroundImage = `url('${loadedCustomBgImage}')`;
-                }
-            } else {
-                customBgContainer.style.display = 'none';
-                document.body.style.backgroundImage = '';
-                document.body.className = `bg-${currentBgSettings.style}`;
-            }
-
-            // CSS Változók frissítése
-            document.documentElement.style.setProperty('--bg-blur', `${currentBgSettings.blur}px`);
-            document.documentElement.style.setProperty('--custom-bg-size', currentBgSettings.size);
-            document.documentElement.style.setProperty('--custom-bg-position', currentBgSettings.position);
-            document.getElementById('bgBlurValText').innerText = `${currentBgSettings.blur}px`;
-            document.getElementById('bgBlurSlider').value = currentBgSettings.blur;
-
-            // Vonal animáció
-            treeWorld.className = `tree-canvas-world ${currentBgSettings.lineStyle}`;
-
-            // Sim keret alakja
-            const shape = currentBgSettings.simShape;
             if (shape === 'circle') {
                 document.documentElement.style.setProperty('--sim-node-radius', '50%');
                 document.documentElement.style.setProperty('--sim-node-clip-path', 'none');
@@ -998,72 +886,20 @@
                 document.documentElement.style.setProperty('--sim-node-radius', '0');
                 document.documentElement.style.setProperty('--sim-node-clip-path', 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)');
             }
-
-            // Inputok szinkronizálása a UI-on
-            document.getElementById('bgStyleSelect').value = currentBgSettings.style;
-            document.getElementById('bgSizeSelect').value = currentBgSettings.size;
-            document.getElementById('bgPositionSelect').value = currentBgSettings.position;
-            document.getElementById('lineStyleSelect').value = currentBgSettings.lineStyle;
-            document.getElementById('simShapeSelect').value = currentBgSettings.simShape;
         }
 
-        /* MENTÉSI ÉS TOAST FUNKCIÓK */
         function saveTreesToStorage() {
             try {
-                const exportObject = {
-                    familyTrees: familyTrees,
-                    bgSettings: currentBgSettings
-                };
-                localStorage.setItem('s4memo_family_trees_data', JSON.stringify(exportObject));
-                if (loadedCustomBgImage) {
-                    localStorage.setItem('s4memo_custom_bg', loadedCustomBgImage);
-                }
+                localStorage.setItem('s4memo_family_trees', JSON.stringify(familyTrees));
             } catch (e) {
                 console.error("Nem sikerült az elmentés:", e);
             }
         }
 
-        function loadBgSettingsFromStorage() {
-            try {
-                const saved = localStorage.getItem('s4memo_family_trees_data');
-                if (saved) {
-                    const parsed = JSON.parse(saved);
-                    if (parsed.bgSettings) {
-                        currentBgSettings = Object.assign(currentBgSettings, parsed.bgSettings);
-                    }
-                }
-                const savedBgImage = localStorage.getItem('s4memo_custom_bg');
-                if (savedBgImage) {
-                    loadedCustomBgImage = savedBgImage;
-                }
-            } catch (e) {
-                console.error("Hiba a háttér beállítások betöltésekor:", e);
-            }
-        }
-
-        function manualSave() {
-            saveTreesToStorage();
-            showToast("💾 Módosítások és családfa sikeresen elmentve!");
-        }
-
-        function showToast(message) {
-            const toast = document.getElementById('toastNotification');
-            toast.innerText = message;
-            toast.classList.add('show');
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
-        }
-
         function loadTreesFromStorage() {
             try {
-                const saved = localStorage.getItem('s4memo_family_trees_data');
-                if (saved) {
-                    const parsed = JSON.parse(saved);
-                    if (parsed.familyTrees) return parsed.familyTrees;
-                }
-                const oldSaved = localStorage.getItem('s4memo_family_trees');
-                if (oldSaved) return JSON.parse(oldSaved);
+                const saved = localStorage.getItem('s4memo_family_trees');
+                if (saved) return JSON.parse(saved);
             } catch (e) {
                 console.error("Hiba a betöltéskor:", e);
             }
@@ -1086,7 +922,6 @@
                 document.getElementById('menuTree').classList.add('active');
                 renderTreeTabs();
                 loadCurrentTreeCanvas();
-                applyBgSettings();
             } else if (viewName === 'public') {
                 topNavContainer.style.display = 'block';
                 document.getElementById('publicView').classList.add('active');
@@ -1100,7 +935,6 @@
             const savedTheme = localStorage.getItem('s4memo_theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
             updateThemeButton(savedTheme);
-            applyBgSettings();
         }
 
         function toggleTheme() {
@@ -1609,7 +1443,7 @@
             document.getElementById('searchResultsList').classList.remove('active');
         }
 
-        /* KÉPSZERKESZTŐ FUNKCIÓK A MODALBAN */
+        /* --- KÉPSZERKESZTŐ FUNKCIÓK A MODALBAN --- */
         function openSimModal(simId) {
             const tree = getCurrentTree(); if (!tree) return;
             const sim = tree.sims.find(s => s.id === simId); if (!sim) return;
@@ -1710,7 +1544,6 @@
             saveTreesToStorage();
             closeSimModal();
             loadCurrentTreeCanvas();
-            showToast("💾 Sim adatai elmentve!");
         }
 
         function deleteCurrentSimModal() {
