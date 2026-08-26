@@ -511,6 +511,9 @@
     <!-- TOAST ÉRTESÍTÉS MENTÉSKOR -->
     <div id="toastNotification" class="toast-notification">💾 Családfa sikeresen elmentve!</div>
 
+    <!-- REJTETT FILE INPUT IMPORTÁLÁSHOZ -->
+    <input type="file" id="jsonFileInput" accept=".json" style="display: none;" onchange="importTreesFromFile(event)">
+
     <!-- NAVIGÁCIÓ -->
     <div class="top-nav-container" id="topNavContainer">
         <nav class="top-nav">
@@ -523,6 +526,7 @@
             </div>
             <div class="nav-right">
                 <button class="save-btn" onclick="manualSave()">💾 Mentés</button>
+                <button class="user-profile-btn" onclick="exportTreesToFile()" title="Mentés fájlba">💾 Export fájlba</button>
                 <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeBtn">🌙 Dark</button>
                 <button class="user-profile-btn" onclick="openProfile()">👤 <span>Profilom</span></button>
             </div>
@@ -541,6 +545,7 @@
     <div class="page-view" id="treeView">
         <div class="tree-full-controls">
             <button class="save-btn" onclick="manualSave()">💾 Mentés</button>
+            <button class="user-profile-btn" onclick="exportTreesToFile()" title="Mentés fájlba">💾 Export fájlba</button>
             <button class="theme-toggle-btn" onclick="toggleTheme()" id="treeThemeBtn">🌙 Dark</button>
             <button class="user-profile-btn" onclick="openProfile()">👤 <span>Profilom</span></button>
         </div>
@@ -550,6 +555,8 @@
             <div id="treeTabsList"></div>
             <button class="add-tree-btn" onclick="createNewTree()">+ Családfa hozzáadása</button>
             <button class="save-btn" style="margin-top: 10px; width: 100%; justify-content: center;" onclick="manualSave()">💾 Családfa Mentése</button>
+            <button class="save-btn" style="margin-top: 6px; width: 100%; justify-content: center; background-color: var(--card-bg); color: var(--text-color); border: 2px solid var(--border-color);" onclick="exportTreesToFile()">💾 Export fájlba</button>
+            <button class="save-btn" style="margin-top: 6px; width: 100%; justify-content: center; background-color: var(--card-bg); color: var(--text-color); border: 2px solid var(--border-color);" onclick="triggerImport()">📁 Import fájlból</button>
         </div>
 
         <!-- BAL ALSÓ TESTRESZABÁSI PANEL BEÁLLÍTÁSOKKAL -->
@@ -901,7 +908,7 @@
             }
         }
 
-        /* MENTÉSI ÉS TOAST FUNKCIÓK */
+        /* MENTÉSI, EXPORTÁLÁSI ÉS TOAST FUNKCIÓK */
         function saveTreesToStorage() {
             try {
                 localStorage.setItem('s4memo_family_trees', JSON.stringify(familyTrees));
@@ -913,6 +920,50 @@
         function manualSave() {
             saveTreesToStorage();
             showToast("💾 Módosítások sikeresen elmentve!");
+        }
+
+        function exportTreesToFile() {
+            saveTreesToStorage();
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(familyTrees, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `s4memo_csaladfak_${Date.now()}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            showToast("📥 Családfák letöltve fájlba!");
+        }
+
+        function triggerImport() {
+            document.getElementById('jsonFileInput').click();
+        }
+
+        function importTreesFromFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    if (Array.isArray(importedData)) {
+                        familyTrees = importedData;
+                        saveTreesToStorage();
+                        if (familyTrees.length > 0) {
+                            currentTreeId = familyTrees[0].id;
+                        }
+                        renderTreeTabs();
+                        loadCurrentTreeCanvas();
+                        showToast("📂 Családfák sikeresen betöltve!");
+                    } else {
+                        alert("Érvénytelen fájlformátum!");
+                    }
+                } catch (err) {
+                    alert("Hiba történt a fájl beolvasása során: " + err.message);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
         }
 
         function showToast(message) {
