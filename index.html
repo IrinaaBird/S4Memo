@@ -224,7 +224,6 @@
         }
         .sim-node:hover { transform: scale(1.08); z-index: 5; }
 
-        /* KIJELÖLT ANIMÁCIÓ */
         .sim-node.selected {
             animation: borderRainbow 3s linear infinite, simFloat 2.5s ease-in-out infinite;
             z-index: 10 !important;
@@ -277,7 +276,6 @@
             z-index: 5;
         }
 
-        /* JOBB OLDALI RÓZSASZÍN + GOMB (SZERELEM / KAPCSOLAT) */
         .add-partner-btn {
             right: -8px; top: 50%; transform: translateY(-50%);
             background-color: var(--btn-pink);
@@ -289,7 +287,6 @@
             transform: translateY(-50%) scale(1.25);
         }
 
-        /* ALSÓ ZÖLD + GOMB (GYEREK) */
         .add-child-btn {
             bottom: -8px; left: 50%; transform: translateX(-50%);
             background-color: var(--btn-green);
@@ -329,7 +326,7 @@
             box-shadow: 0 20px 45px var(--shadow-color); max-height: 90vh; overflow-y: auto;
         }
 
-        .form-group { margin-bottom: 18px; }
+        .form-group { margin-bottom: 18px; position: relative; }
         .form-group label { display: block; font-size: 13px; font-weight: 800; color: var(--subtext-color); margin-bottom: 6px; text-transform: uppercase; }
         .form-group input, .form-group select, .form-group textarea {
             width: 100%; padding: 12px 18px; border-radius: 20px;
@@ -337,6 +334,22 @@
             color: var(--text-color); font-size: 14px; font-weight: 600; outline: none;
         }
         .form-row { display: flex; gap: 12px; }
+
+        /* DYNAMICAL AUTOCOMPLETE SEARCH STYLES */
+        .search-results-list {
+            position: absolute; top: 100%; left: 0; right: 0;
+            background-color: var(--card-bg); border: 2px solid var(--border-color);
+            border-radius: 18px; max-height: 180px; overflow-y: auto;
+            box-shadow: 0 10px 25px var(--shadow-color); z-index: 10;
+            margin-top: 6px; display: none; padding: 6px 0;
+        }
+        .search-results-list.active { display: block; }
+        .search-item {
+            padding: 10px 16px; cursor: pointer; font-size: 14px; font-weight: 700;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .search-item:hover { background-color: var(--nav-bg); color: var(--accent-color); }
+        .search-item .sim-age-badge { font-size: 11px; color: var(--subtext-color); font-weight: 600; }
 
         .modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 25px; }
         .btn-secondary { background-color: transparent; border: 2px solid var(--border-color); color: var(--text-color); padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: 700; }
@@ -495,16 +508,15 @@
         </div>
     </div>
 
-    <!-- KAPCSOLAT VÁLASZTÓ MODAL -->
+    <!-- KAPCSOLAT VÁLASZTÓ MODAL KERESŐVEL -->
     <div class="modal-overlay" id="connectionModal">
         <div class="modal-card">
             <h2 id="connectionModalTitle">Kapcsolat Hozzáadása</h2>
 
             <div class="form-group">
-                <label>Válassz egy Simet</label>
-                <select id="simSelectDropdown" onchange="onSimSelectChange()">
-                    <option value="">-- Válassz Simet --</option>
-                </select>
+                <label>Keresés név alapján</label>
+                <input type="text" id="simSearchInput" placeholder="Kezdd el írni a nevet..." autocomplete="off" oninput="filterSimSearch()">
+                <div class="search-results-list" id="searchResultsList"></div>
             </div>
 
             <div class="selected-sim-preview" id="selectedSimPreview" style="display:none;">
@@ -564,7 +576,9 @@
                 id: 'tree_1',
                 name: 'Goth család',
                 sims: [
-                    { id: 'sim_1', firstName: 'Bella', lastName: 'Goth', age: 'Fiatal felnőtt', traits: 'Romantikus', color: '#ff4770', image: '', x: 450, y: 200, parentId: null, partnerId: null, relationType: null, locked: false }
+                    { id: 'sim_1', firstName: 'Bella', lastName: 'Goth', age: 'Fiatal felnőtt', traits: 'Romantikus', color: '#ff4770', image: '', x: 450, y: 200, parentId: null, partnerId: null, relationType: null, locked: false },
+                    { id: 'sim_2', firstName: 'Mortimer', lastName: 'Goth', age: 'Felnőtt', traits: 'Könyvmoly', color: '#d97757', image: '', x: 650, y: 200, parentId: null, partnerId: null, relationType: null, locked: false },
+                    { id: 'sim_3', firstName: 'Cassandra', lastName: 'Goth', age: 'Tini', traits: 'Borongós', color: '#2ed573', image: '', x: 550, y: 380, parentId: null, partnerId: null, relationType: null, locked: false }
                 ]
             }
         ];
@@ -572,6 +586,7 @@
         let editingSimId = null;
         let contextSimId = null;
         let selectedSimId = null;
+        let selectedConnectionTargetId = null;
         let tempUploadedImage = '';
 
         // Zoom & Pan
@@ -892,7 +907,6 @@
             const tree = getCurrentTree(); if (!tree) return;
 
             tree.sims.forEach(sim => {
-                // Szülő-gyermek (zöld animált vonal)
                 if (sim.parentId) {
                     const parent = tree.sims.find(s => s.id === sim.parentId);
                     if (parent) {
@@ -909,7 +923,6 @@
                     }
                 }
 
-                // Szerelmes / Partner (rózsaszín animált vonal)
                 if (sim.partnerId) {
                     const partner = tree.sims.find(s => s.id === sim.partnerId);
                     if (partner) {
@@ -941,7 +954,13 @@
         }
 
         function closeContextMenu() { contextMenu.classList.remove('active'); }
-        document.addEventListener('click', () => closeContextMenu());
+        document.addEventListener('click', (e) => {
+            closeContextMenu();
+            const searchList = document.getElementById('searchResultsList');
+            if (searchList && !e.target.closest('#simSearchInput') && !e.target.closest('#searchResultsList')) {
+                searchList.classList.remove('active');
+            }
+        });
 
         function contextAction(action) {
             if (!contextSimId) return;
@@ -968,64 +987,102 @@
             }
         }
 
+        // DINAMIKUS SIM KERESŐ ELEMEK (AUTOCOMPLETE KERESÉS)
         function openConnectionPicker(simId, defaultType = 'Házas') {
             contextSimId = simId;
+            selectedConnectionTargetId = null;
             const tree = getCurrentTree(); if (!tree) return;
             const currentSim = tree.sims.find(s => s.id === simId); if (!currentSim) return;
 
             document.getElementById('connectionModalTitle').innerText = `${currentSim.firstName} ${currentSim.lastName} összekapcsolása`;
             document.getElementById('relationTypeSelect').value = defaultType;
-            populateSimDropdown();
+            document.getElementById('simSearchInput').value = '';
+            document.getElementById('selectedSimPreview').style.display = 'none';
+
+            filterSimSearch();
             connectionModal.classList.add('active');
         }
 
         function openDirectConnectionPicker(sourceSimId, targetSimId) {
             contextSimId = sourceSimId;
-            populateSimDropdown();
-            document.getElementById('simSelectDropdown').value = targetSimId;
-            onSimSelectChange();
+            const tree = getCurrentTree(); if (!tree) return;
+            const targetSim = tree.sims.find(s => s.id === targetSimId);
+            
+            document.getElementById('simSearchInput').value = targetSim ? `${targetSim.firstName} ${targetSim.lastName}` : '';
+            selectSimForConnection(targetSimId);
             connectionModal.classList.add('active');
         }
 
-        function populateSimDropdown() {
+        function filterSimSearch() {
+            const query = document.getElementById('simSearchInput').value.toLowerCase().trim();
+            const list = document.getElementById('searchResultsList');
             const tree = getCurrentTree(); if (!tree) return;
-            const dropdown = document.getElementById('simSelectDropdown');
-            dropdown.innerHTML = '<option value="">-- Válassz Simet --</option>';
 
-            tree.sims.filter(s => s.id !== contextSimId).forEach(sim => {
-                const option = document.createElement('option');
-                option.value = sim.id;
-                option.textContent = `${sim.image ? '🖼️' : '👤'} ${sim.firstName} ${sim.lastName} (${sim.age})`;
-                dropdown.appendChild(option);
+            const matchingSims = tree.sims.filter(s => {
+                if (s.id === contextSimId) return false;
+                const fullName = `${s.firstName} ${s.lastName}`.toLowerCase();
+                const reverseName = `${s.lastName} ${s.firstName}`.toLowerCase();
+                return fullName.includes(query) || reverseName.includes(query);
             });
+
+            // Rendezés: előre veszi azokat, amelyek a beírt kifejezéssel kezdődnek
+            matchingSims.sort((a, b) => {
+                const nameA = `${a.firstName} ${a.lastName}`.toLowerCase();
+                const nameB = `${b.firstName} ${b.lastName}`.toLowerCase();
+                const startsA = nameA.startsWith(query) || a.lastName.toLowerCase().startsWith(query);
+                const startsB = nameB.startsWith(query) || b.lastName.toLowerCase().startsWith(query);
+                if (startsA && !startsB) return -1;
+                if (!startsA && startsB) return 1;
+                return nameA.localeCompare(nameB);
+            });
+
+            list.innerHTML = '';
+            if (matchingSims.length === 0) {
+                list.innerHTML = '<div class="search-item" style="color:var(--subtext-color);">Nincs találat...</div>';
+            } else {
+                matchingSims.forEach(sim => {
+                    const item = document.createElement('div');
+                    item.className = 'search-item';
+                    item.innerHTML = `<span>${sim.image ? '🖼️' : '👤'} ${sim.firstName} ${sim.lastName}</span> <span class="sim-age-badge">${sim.age}</span>`;
+                    item.onclick = () => selectSimForConnection(sim.id);
+                    list.appendChild(item);
+                });
+            }
+
+            if (document.activeElement === document.getElementById('simSearchInput')) {
+                list.classList.add('active');
+            }
         }
 
-        function onSimSelectChange() {
-            const selectedId = document.getElementById('simSelectDropdown').value;
-            const previewBox = document.getElementById('selectedSimPreview');
-            const tree = getCurrentTree(); if (!tree) return;
+        document.getElementById('simSearchInput').addEventListener('focus', () => {
+            document.getElementById('searchResultsList').classList.add('active');
+        });
 
-            if (!selectedId) { previewBox.style.display = 'none'; return; }
-            const targetSim = tree.sims.find(s => s.id === selectedId);
+        function selectSimForConnection(simId) {
+            selectedConnectionTargetId = simId;
+            const tree = getCurrentTree(); if (!tree) return;
+            const targetSim = tree.sims.find(s => s.id === simId);
+
             if (targetSim) {
+                document.getElementById('simSearchInput').value = `${targetSim.firstName} ${targetSim.lastName}`;
                 document.getElementById('previewName').innerText = `${targetSim.firstName} ${targetSim.lastName}`;
                 document.getElementById('previewAge').innerText = targetSim.age;
                 const avatar = document.getElementById('previewAvatar');
                 if (targetSim.image) { avatar.style.backgroundImage = `url(${targetSim.image})`; avatar.innerText = ''; }
                 else { avatar.style.backgroundImage = 'none'; avatar.innerText = '👤'; }
-                previewBox.style.display = 'flex';
+                document.getElementById('selectedSimPreview').style.display = 'flex';
             }
+            document.getElementById('searchResultsList').classList.remove('active');
         }
 
         function confirmConnection() {
-            const targetSimId = document.getElementById('simSelectDropdown').value;
             const relationType = document.getElementById('relationTypeSelect').value;
             const tree = getCurrentTree(); if (!tree) return;
 
-            if (!targetSimId) return alert('Válassz ki egy Simet!');
+            if (!selectedConnectionTargetId) return alert('Válassz ki vagy keress egy Simet!');
 
             const sourceSim = tree.sims.find(s => s.id === contextSimId);
-            const targetSim = tree.sims.find(s => s.id === targetSimId);
+            const targetSim = tree.sims.find(s => s.id === selectedConnectionTargetId);
 
             if (sourceSim && targetSim) {
                 if (relationType === 'Gyerek') targetSim.parentId = sourceSim.id;
@@ -1061,7 +1118,10 @@
             }
         }
 
-        function closeConnectionModal() { connectionModal.classList.remove('active'); }
+        function closeConnectionModal() { 
+            connectionModal.classList.remove('active'); 
+            document.getElementById('searchResultsList').classList.remove('active');
+        }
 
         function openSimModal(simId) {
             const tree = getCurrentTree(); if (!tree) return;
