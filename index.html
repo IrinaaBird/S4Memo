@@ -194,7 +194,7 @@
             max-height: 520px; opacity: 1; pointer-events: all;
         }
 
-        .style-group { display: flex; flex-direction: column; gap: 3px; }
+        .style-group { display: flex; flex-direction: column; gap: 3px; text-align: left; }
         .style-group label { font-size: 10px; font-weight: 800; color: var(--subtext-color); text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
         .style-group select, .style-group input[type="file"] {
             padding: 5px 8px; border-radius: 10px; border: 1.5px solid var(--border-color);
@@ -526,23 +526,68 @@
         .add-partner-btn { right: -10px; top: 50%; transform: translateY(-50%); background-color: var(--btn-pink); }
         .add-child-btn { bottom: -10px; left: 50%; transform: translateX(-50%); background-color: var(--btn-green); }
 
-        /* KÉPSZERKESZTŐ BOX */
-        .image-editor-box {
-            background-color: var(--nav-bg); border: 2px solid var(--border-color);
-            border-radius: 20px; padding: 14px; margin-top: 10px;
+        /* INTEGRÁLT KÉPSZERKESZTŐ MODUL */
+        .avatar-editor-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            background-color: var(--nav-bg);
+            padding: 16px;
+            border-radius: 24px;
+            border: 2px solid var(--border-color);
+            margin-bottom: 15px;
         }
-        .img-preview-frame {
-            width: 100px; height: 100px; border-radius: 50%;
-            border: 3px solid var(--accent-color); margin: 0 auto 12px auto;
-            overflow: hidden; background-color: var(--card-bg);
-            display: flex; align-items: center; justify-content: center; font-size: 40px;
+
+        .avatar-crop-view {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            border: 3.5px solid var(--accent-color);
+            overflow: hidden;
+            position: relative;
+            background-color: var(--card-bg);
+            box-shadow: 0 6px 18px var(--shadow-color);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .img-preview-element {
-            width: 100%; height: 100%; object-fit: cover;
-            transform-origin: center center; transition: transform 0.1s ease, filter 0.1s ease;
+
+        .avatar-crop-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform-origin: center center;
+            transition: transform 0.05s ease, filter 0.1s ease;
         }
-        .editor-controls-grid {
-            display: flex; flex-direction: column; gap: 8px;
+
+        .avatar-crop-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.45);
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 800;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+        }
+
+        .avatar-crop-view:hover .avatar-crop-overlay {
+            opacity: 1;
+        }
+
+        .inline-controls-grid {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
 
         /* MODALOK ÉS MENÜK */
@@ -609,62 +654,8 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        .profile-section { text-align: center; margin: 15px 0 20px 0; }
-        
-        /* KATTINTHATÓ AVATÁR KÖR */
-        .avatar-wrapper {
-            position: relative;
-            width: 110px;
-            height: 110px;
-            margin: 0 auto;
-            cursor: pointer;
-            border-radius: 50%;
-        }
-
-        .avatar-wrapper img {
-            width: 100%; height: 100%; border-radius: 50%;
-            object-fit: cover; border: 3px solid var(--accent-color);
-            box-shadow: 0 4px 15px var(--shadow-color);
-            transition: filter 0.2s ease, opacity 0.2s ease;
-        }
-
-        .avatar-placeholder-box {
-            width: 100%; height: 100%; border-radius: 50%;
-            background: var(--nav-bg); display: flex; align-items: center; justify-content: center;
-            font-size: 40px; border: 3px solid var(--accent-color); box-shadow: 0 4px 15px var(--shadow-color);
-            transition: border-color 0.2s ease, background-color 0.2s ease;
-        }
-
-        .avatar-upload-overlay {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            border-radius: 50%;
-            background-color: rgba(0, 0, 0, 0.45);
-            color: #ffffff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: 800;
-            opacity: 0;
-            transition: opacity 0.2s ease;
-            pointer-events: none;
-        }
-
-        .avatar-wrapper:hover .avatar-upload-overlay {
-            opacity: 1;
-        }
-
-        .avatar-wrapper:hover img {
-            filter: brightness(0.8);
-        }
-
-        .avatar-wrapper:hover .avatar-placeholder-box {
-            background-color: var(--border-color);
-        }
-
-        .profile-section h2 { margin: 10px 0 2px 0; font-size: 20px; font-weight: 800; }
+        .profile-header-info { text-align: center; margin-bottom: 12px; }
+        .profile-header-info h2 { margin: 6px 0 2px 0; font-size: 20px; font-weight: 800; }
         .status-alive { color: #2ed573; font-size: 12px; font-weight: 700; }
         .status-dead { color: #ff5277; font-size: 12px; font-weight: 700; }
 
@@ -895,19 +886,56 @@
 
             <!-- FÜL 1: Szerkesztő és profil infók -->
             <div class="tab-content active" id="tabContentInfo">
-                <div class="profile-section">
-                    <!-- KATTINTHATÓ PROFILKÉP (REJTETT FÁJLVÁLASZTÓVAL) -->
-                    <div class="avatar-wrapper" onclick="triggerFileInput()" title="Kattints a profilkép módosításához">
-                        <img id="modalAvatar" src="" alt="Sim Avatar" style="display:none;">
-                        <div id="modalAvatarPlaceholder" class="avatar-placeholder-box">👤</div>
-                        <div class="avatar-upload-overlay">
+                
+                <!-- INTEGRÁLT AVATÁR ÉS KÉPSZERKESZTŐ BOX -->
+                <div class="avatar-editor-container">
+                    <div class="avatar-crop-view" onclick="triggerFileInput()" title="Kattints a kép módosításához">
+                        <img id="modalAvatar" class="avatar-crop-img" src="" alt="Sim Avatar" style="display:none;">
+                        <div id="modalAvatarPlaceholder" style="font-size:40px;">👤</div>
+                        <div class="avatar-crop-overlay">
                             <span style="font-size:18px;">📷</span>
                             <span>Módosítás</span>
                         </div>
                     </div>
-                    <!-- Rejtett fájlválasztó input -->
-                    <input type="file" id="editImageInput" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
 
+                    <!-- KÉPSZERKESZTŐ VEZÉRLŐK (Automatán látszanak, ha van kép) -->
+                    <div class="inline-controls-grid" id="imageEditorBox" style="display: none;">
+                        <div class="style-group">
+                            <label><span>Nagyítás (Zoom)</span> <span id="imgZoomVal">100%</span></label>
+                            <input type="range" id="imgZoomSlider" min="1" max="2.5" step="0.05" value="1" oninput="updateImageTransform()">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="style-group" style="flex:1;">
+                                <label>Vízszintes (X)</label>
+                                <input type="range" id="imgOffsetX" min="-50" max="50" step="1" value="0" oninput="updateImageTransform()">
+                            </div>
+                            <div class="style-group" style="flex:1;">
+                                <label>Függőleges (Y)</label>
+                                <input type="range" id="imgOffsetY" min="-50" max="50" step="1" value="0" oninput="updateImageTransform()">
+                            </div>
+                        </div>
+
+                        <div class="form-row" style="align-items: flex-end;">
+                            <div class="style-group" style="flex:1;">
+                                <label>Filter / Szűrő</label>
+                                <select id="imgFilterSelect" onchange="updateImageTransform()">
+                                    <option value="none" selected>Normál</option>
+                                    <option value="grayscale(100%)">Fekete-Fehér</option>
+                                    <option value="sepia(80%)">Szépia</option>
+                                    <option value="contrast(140%) brightness(110%)">Kontrasztos</option>
+                                    <option value="saturate(200%)">Élénk</option>
+                                </select>
+                            </div>
+                            <button type="button" class="btn-secondary" style="padding: 6px 10px; font-size: 11px;" onclick="rotateImage()">🔄 90° Forgatás</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rejtett fájlválasztó input -->
+                <input type="file" id="editImageInput" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+
+                <div class="profile-header-info">
                     <h2 id="modalName">Sim Neve</h2>
                     <span id="modalStatus" class="status-alive">Életben van</span>
                 </div>
@@ -942,46 +970,7 @@
                         </div>
                     </div>
 
-                    <!-- KÉPSZERKESZTŐ BOX (Automatán megnyílik kép választáskor) -->
-                    <div class="image-editor-box" id="imageEditorBox" style="display: none;">
-                        <div class="img-preview-frame" id="imgPreviewFrame">
-                            <img id="modalImgPreview" class="img-preview-element" src="" alt="Preview">
-                        </div>
-                        
-                        <div class="editor-controls-grid">
-                            <div class="style-group">
-                                <label><span>Nagyítás (Zoom)</span> <span id="imgZoomVal">100%</span></label>
-                                <input type="range" id="imgZoomSlider" min="1" max="2.5" step="0.05" value="1" oninput="updateImageTransform()">
-                            </div>
-
-                            <div class="form-row">
-                                <div class="style-group" style="flex:1;">
-                                    <label>Vízszintes (X)</label>
-                                    <input type="range" id="imgOffsetX" min="-50" max="50" step="1" value="0" oninput="updateImageTransform()">
-                                </div>
-                                <div class="style-group" style="flex:1;">
-                                    <label>Függőleges (Y)</label>
-                                    <input type="range" id="imgOffsetY" min="-50" max="50" step="1" value="0" oninput="updateImageTransform()">
-                                </div>
-                            </div>
-
-                            <div class="form-row" style="align-items: flex-end;">
-                                <div class="style-group" style="flex:1;">
-                                    <label>Filter / Szűrő</label>
-                                    <select id="imgFilterSelect" onchange="updateImageTransform()">
-                                        <option value="none" selected>Normál</option>
-                                        <option value="grayscale(100%)">Fekete-Fehér</option>
-                                        <option value="sepia(80%)">Szépia</option>
-                                        <option value="contrast(140%) brightness(110%)">Kontrasztos</option>
-                                        <option value="saturate(200%)">Élénk</option>
-                                    </select>
-                                </div>
-                                <button type="button" class="btn-secondary" style="padding: 6px 12px; font-size: 11px;" onclick="rotateImage()">🔄 90° Forgatás</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group" style="margin-top: 14px;">
+                    <div class="form-group" style="margin-top: 10px;">
                         <label>Személyiségjegyek / Leírás</label>
                         <textarea id="editTraits" rows="3" placeholder="Pl.: Vidám, Kreatív..."></textarea>
                     </div>
@@ -1786,15 +1775,6 @@
 
             const modalAvatar = document.getElementById('modalAvatar');
             const placeholder = document.getElementById('modalAvatarPlaceholder');
-            
-            if (sim.image) {
-                modalAvatar.src = sim.image;
-                modalAvatar.style.display = 'block';
-                placeholder.style.display = 'none';
-            } else {
-                modalAvatar.style.display = 'none';
-                placeholder.style.display = 'flex';
-            }
 
             document.getElementById('editFirstName').value = sim.firstName || '';
             document.getElementById('editLastName').value = sim.lastName || '';
@@ -1831,8 +1811,14 @@
             document.getElementById('imgFilterSelect').value = transform.filter || 'none';
 
             if (tempUploadedImage) {
-                showImageEditor(tempUploadedImage);
+                modalAvatar.src = tempUploadedImage;
+                modalAvatar.style.display = 'block';
+                placeholder.style.display = 'none';
+                document.getElementById('imageEditorBox').style.display = 'flex';
+                updateImageTransform();
             } else {
+                modalAvatar.style.display = 'none';
+                placeholder.style.display = 'flex';
                 document.getElementById('imageEditorBox').style.display = 'none';
             }
 
@@ -2097,30 +2083,22 @@
                     tempUploadedImage = e.target.result;
                     currentRotation = 0;
 
-                    /* Előnézet frissítése a felső körben */
                     const modalAvatar = document.getElementById('modalAvatar');
                     const placeholder = document.getElementById('modalAvatarPlaceholder');
                     modalAvatar.src = tempUploadedImage;
                     modalAvatar.style.display = 'block';
                     placeholder.style.display = 'none';
 
-                    /* Szerkesztő alaphelyzetbe állítása */
                     document.getElementById('imgZoomSlider').value = 1;
                     document.getElementById('imgOffsetX').value = 0;
                     document.getElementById('imgOffsetY').value = 0;
                     document.getElementById('imgFilterSelect').value = 'none';
 
-                    showImageEditor(tempUploadedImage);
+                    document.getElementById('imageEditorBox').style.display = 'flex';
+                    updateImageTransform();
                 };
                 reader.readAsDataURL(file);
             }
-        }
-
-        function showImageEditor(imageSrc) {
-            const imgEl = document.getElementById('modalImgPreview');
-            imgEl.src = imageSrc;
-            document.getElementById('imageEditorBox').style.display = 'block';
-            updateImageTransform();
         }
 
         function rotateImage() {
@@ -2136,7 +2114,7 @@
 
             document.getElementById('imgZoomVal').innerText = `${Math.round(scale * 100)}%`;
 
-            const imgEl = document.getElementById('modalImgPreview');
+            const imgEl = document.getElementById('modalAvatar');
             imgEl.style.transform = `scale(${scale}) rotate(${currentRotation}deg) translate(${offsetX}px, ${offsetY}px)`;
             imgEl.style.filter = filter;
         }
