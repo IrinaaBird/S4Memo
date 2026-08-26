@@ -68,7 +68,7 @@
         }
 
         /* -------------------------------------------------- */
-        /* ANIMÁLT VONALAK (SVG DASHED ANIMATION)            */
+        /* ANIMÁLT VONALAK (SVG DASHED ANIMATION & FIX)     */
         /* -------------------------------------------------- */
         @keyframes dashFlowPink {
             to { stroke-dashoffset: -20; }
@@ -77,12 +77,17 @@
             to { stroke-dashoffset: -20; }
         }
 
+        svg path {
+            fill: none !important; /* FEKETE KITÖLTÉS MEGSZÜNTETÉSE */
+        }
+
         .line-love {
             stroke: var(--line-pink);
             stroke-width: 4;
             stroke-dasharray: 8, 6;
             animation: dashFlowPink 0.8s linear infinite;
             filter: drop-shadow(0 0 6px rgba(255, 71, 112, 0.6));
+            fill: none !important;
         }
 
         .line-child {
@@ -91,6 +96,7 @@
             stroke-dasharray: 8, 6;
             animation: dashFlowGreen 0.8s linear infinite;
             filter: drop-shadow(0 0 6px rgba(46, 213, 115, 0.6));
+            fill: none !important;
         }
 
         /* -------------------------------------------------- */
@@ -199,9 +205,7 @@
         }
         .tree-svg-layer { position: absolute; top: 0; left: 0; width: 5000px; height: 5000px; pointer-events: none; z-index: 1; }
 
-        /* -------------------------------------------------- */
-        /* ANIMÁLT SIM ELEMEK ÉS KERET                      */
-        /* -------------------------------------------------- */
+        /* ANIMÁLT SIM ELEMEK ÉS KERET */
         @keyframes borderRainbow {
             0% { border-color: #ff4770; box-shadow: 0 0 18px rgba(255, 71, 112, 0.6); }
             33% { border-color: #2ed573; box-shadow: 0 0 18px rgba(46, 213, 115, 0.6); }
@@ -258,9 +262,7 @@
         }
         .sim-edit-pencil:hover { background-color: var(--accent-color); color: white; transform: rotate(15deg) scale(1.2); }
 
-        /* -------------------------------------------------- */
-        /* RÓZSASZÍN ÉS ZÖLD GOMBOK                          */
-        /* -------------------------------------------------- */
+        /* RÓZSASZÍN ÉS ZÖLD GOMBOK */
         @keyframes pulseGlow {
             0% { transform: scale(1); }
             50% { transform: scale(1.2); }
@@ -571,7 +573,6 @@
         const connectionModal = document.getElementById('connectionModal');
         const contextMenu = document.getElementById('contextMenu');
 
-        // MINTAADAT (csak akkor lép életbe, ha a böngészőben még semmi sincs elmentve)
         const defaultTrees = [
             {
                 id: 'tree_1',
@@ -606,23 +607,20 @@
         let dragStartSimPos = { x: 0, y: 0 };
         let currentDropTargetSim = null;
 
-        // LOCALSTORAGE ADATKEZELÉS (MENTÉS ÉS BETÖLTÉS)
         function saveTreesToStorage() {
             try {
                 localStorage.setItem('s4memo_family_trees', JSON.stringify(familyTrees));
             } catch (e) {
-                console.error("Nem sikerült az elmentés a localStorage tárhelyre:", e);
+                console.error("Nem sikerült az elmentés:", e);
             }
         }
 
         function loadTreesFromStorage() {
             try {
                 const saved = localStorage.getItem('s4memo_family_trees');
-                if (saved) {
-                    return JSON.parse(saved);
-                }
+                if (saved) return JSON.parse(saved);
             } catch (e) {
-                console.error("Hiba a mentett adatok betöltésekor:", e);
+                console.error("Hiba a betöltéskor:", e);
             }
             return defaultTrees;
         }
@@ -680,7 +678,6 @@
             toggleBtn.classList.toggle('open');
         });
 
-        // CANVAS NAVIGÁCIÓ
         function updateWorldTransform() {
             treeWorld.style.transform = `translate(${panX}px, ${panY}px) scale(${zoomLevel})`;
         }
@@ -737,9 +734,7 @@
         });
 
         window.addEventListener('mouseup', () => {
-            if (activeDrag) {
-                saveTreesToStorage(); // Pozíció mo mozgatása után azonnali elmentés
-            }
+            if (activeDrag) saveTreesToStorage();
 
             if (activeDrag && currentDropTargetSim) {
                 const sourceSimId = activeDrag.id;
@@ -778,7 +773,6 @@
             }
         }
 
-        // CSALÁDFÁK KEZELÉSE
         function renderTreeTabs() {
             treeTabsList.innerHTML = '';
             familyTrees.forEach(tree => {
@@ -829,15 +823,11 @@
         function setSelectedSim(simId) {
             selectedSimId = simId;
             document.querySelectorAll('.sim-node').forEach(node => {
-                if (node.id === simId) {
-                    node.classList.add('selected');
-                } else {
-                    node.classList.remove('selected');
-                }
+                if (node.id === simId) node.classList.add('selected');
+                else node.classList.remove('selected');
             });
         }
 
-        // SIMS KIRAJZOLÁS ÉS CSATLAKOZÁSI GOMBOK
         function addNewSimDialog() {
             addNewSim("Új", "Sim", 500 - panX / zoomLevel, 300 - panY / zoomLevel);
         }
@@ -890,14 +880,12 @@
             node.appendChild(avatar);
             node.appendChild(label);
 
-            // JOBB OLDALI RÓZSASZÍN + GOMB (SZERELEM / PARTNER)
             const partnerBtn = document.createElement('div');
             partnerBtn.className = 'add-btn-node add-partner-btn';
             partnerBtn.innerText = '+';
-            partnerBtn.title = 'Szerelmes / Partner kapcsolat hozzáadása';
+            partnerBtn.title = 'Szerelmes / Partner kapcsolat';
             partnerBtn.onclick = (e) => { e.stopPropagation(); openConnectionPicker(sim.id, 'Szerelmes'); };
 
-            // ALSÓ ZÖLD + GOMB (GYEREK)
             const childBtn = document.createElement('div');
             childBtn.className = 'add-btn-node add-child-btn';
             childBtn.innerText = '+';
@@ -931,7 +919,7 @@
             treeWorld.appendChild(node);
         }
 
-        // ANIMÁLT VONALAK RAJZOLÁSA (SVG)
+        /* SVG ELEMEK ÉS PONTOS VONAL RAJZOLÁS */
         function updateConnections() {
             svgLayer.innerHTML = '';
             const tree = getCurrentTree(); if (!tree) return;
@@ -974,7 +962,6 @@
             });
         }
 
-        // KONTEXTUS MENÜ ÉS MODAL MŰKÖDÉS
         function openContextMenu(x, y, sim) {
             contextSimId = sim.id;
             contextMenu.style.left = x + 'px';
@@ -1022,7 +1009,6 @@
             }
         }
 
-        // DINAMIKUS SIM KERESŐ ELEMEK (AUTOCOMPLETE KERESÉS)
         function openConnectionPicker(simId, defaultType = 'Házas') {
             contextSimId = simId;
             selectedConnectionTargetId = null;
@@ -1060,7 +1046,6 @@
                 return fullName.includes(query) || reverseName.includes(query);
             });
 
-            // Rendezés: előre veszi azokat, amelyek a beírt kifejezéssel kezdődnek
             matchingSims.sort((a, b) => {
                 const nameA = `${a.firstName} ${a.lastName}`.toLowerCase();
                 const nameB = `${b.firstName} ${b.lastName}`.toLowerCase();
@@ -1114,7 +1099,7 @@
             const relationType = document.getElementById('relationTypeSelect').value;
             const tree = getCurrentTree(); if (!tree) return;
 
-            if (!selectedConnectionTargetId) return alert('Válassz ki vagy keress egy Simet!');
+            if (!selectedConnectionTargetId) return alert('Válassz ki egy Simet!');
 
             const sourceSim = tree.sims.find(s => s.id === contextSimId);
             const targetSim = tree.sims.find(s => s.id === selectedConnectionTargetId);
