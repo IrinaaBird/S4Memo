@@ -303,12 +303,7 @@
             pointer-events: none;
         }
         .toast-notification.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-        
-<label for="importFileInput" class="save-btn" style="cursor:pointer; display:inline-flex; align-items:center;">
-    📂 Visszatöltés
-</label>
-<input type="file" id="importFileInput" accept=".json" style="display:none;" onchange="importTreesFromFile(event)">
-        
+
         /* ZOOM PAN */
         .zoom-controls {
             position: absolute; bottom: 20px; left: 265px; z-index: 1050;
@@ -906,56 +901,38 @@
             }
         }
 
-    /* JAVÍTOTT MENTÉSI ÉS FAJL EXPORT/IMPORT FUNKCIÓK */
-function saveTreesToStorage() {
-    try {
-        localStorage.setItem('s4memo_family_trees', JSON.stringify(familyTrees));
-    } catch (e) {
-        console.error("LocalStorage hiba:", e);
-    }
-}
-
-// Manuális mentés + Letöltés JSON fájlként
-function manualSave() {
-    saveTreesToStorage();
-    
-    // JSON fájl generálása és letöltése
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(familyTrees, null, 2));
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `s4memo_mentes_${new Date().toISOString().slice(0,10)}.json`);
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
-
-    showToast("💾 Adatok elmentve és letöltve!");
-}
-
-// Biztonsági Mentés Visszatöltése fájlból
-function importTreesFromFile(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        try {
-            const importedData = JSON.parse(e.target.result);
-            if (Array.isArray(importedData)) {
-                familyTrees = importedData;
-                currentTreeId = familyTrees[0]?.id || 'tree_1';
-                saveTreesToStorage();
-                renderTreeTabs();
-                loadCurrentTreeCanvas();
-                showToast("📂 Családfa sikeresen betöltve!");
-            } else {
-                alert("Érvénytelen mentési fájl!");
+        /* MENTÉSI ÉS TOAST FUNKCIÓK */
+        function saveTreesToStorage() {
+            try {
+                localStorage.setItem('s4memo_family_trees', JSON.stringify(familyTrees));
+            } catch (e) {
+                console.error("Nem sikerült az elmentés:", e);
             }
-        } catch (err) {
-            alert("Hiba a fájl beolvasásakor: " + err.message);
         }
-    };
-    reader.readAsText(file);
-}
+
+        function manualSave() {
+            saveTreesToStorage();
+            showToast("💾 Módosítások sikeresen elmentve!");
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toastNotification');
+            toast.innerText = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function loadTreesFromStorage() {
+            try {
+                const saved = localStorage.getItem('s4memo_family_trees');
+                if (saved) return JSON.parse(saved);
+            } catch (e) {
+                console.error("Hiba a betöltéskor:", e);
+            }
+            return defaultTrees;
+        }
 
         function switchView(viewName) {
             document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
