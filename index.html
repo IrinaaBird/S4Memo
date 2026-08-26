@@ -6,7 +6,6 @@
     <title>S4Memo - Sims 4 Memorable</title>
     <style>
         :root {
-            /* Barackosabb, melegebb alapháttér finom mintával */
             --bg-color: #f7ebe1;
             --bg-pattern: radial-gradient(#e2cebe 1.5px, transparent 1.5px);
             --card-bg: #fffbf7;
@@ -19,7 +18,14 @@
             --shadow-color: rgba(90, 60, 45, 0.08);
             --nav-bg: #f1e2d5;
             --input-bg: #ffffff;
-            --line-color: #bfa89b;
+
+            /* Új egyedi színek a kapcsolatokhoz és gombokhoz */
+            --btn-pink: #ff6b8b;
+            --btn-pink-hover: #ff4770;
+            --btn-green: #2ed573;
+            --btn-green-hover: #26af5f;
+            --line-pink: #ff4770;
+            --line-green: #2ed573;
         }
 
         [data-theme="dark"] {
@@ -35,13 +41,19 @@
             --shadow-color: rgba(0, 0, 0, 0.3);
             --nav-bg: #201c1a;
             --input-bg: #2d2724;
-            --line-color: #61524a;
+
+            --btn-pink: #ff5277;
+            --btn-pink-hover: #ff2a55;
+            --btn-green: #2ed573;
+            --btn-green-hover: #219d52;
+            --line-pink: #ff5277;
+            --line-green: #2ed573;
         }
 
         * {
             box-sizing: border-box;
             font-family: 'Quicksand', 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         body {
@@ -56,13 +68,40 @@
         }
 
         /* -------------------------------------------------- */
-        /* NAVIGÁCIÓ                                          */
+        /* ANIMÁT VONA LAK (SVG DASHED ANIMATION)            */
+        /* -------------------------------------------------- */
+        @keyframes dashFlowPink {
+            to { stroke-dashoffset: -20; }
+        }
+        @keyframes dashFlowGreen {
+            to { stroke-dashoffset: -20; }
+        }
+
+        .line-love {
+            stroke: var(--line-pink);
+            stroke-width: 4;
+            stroke-dasharray: 8, 6;
+            animation: dashFlowPink 0.8s linear infinite;
+            filter: drop-shadow(0 0 6px rgba(255, 71, 112, 0.6));
+        }
+
+        .line-child {
+            stroke: var(--line-green);
+            stroke-width: 4;
+            stroke-dasharray: 8, 6;
+            animation: dashFlowGreen 0.8s linear infinite;
+            filter: drop-shadow(0 0 6px rgba(46, 213, 115, 0.6));
+        }
+
+        /* -------------------------------------------------- */
+        /* UI ELEMEK ÉS NAVIGÁCIÓ ANIMÁCIÓI                 */
         /* -------------------------------------------------- */
         .top-nav-container { padding: 20px 20px 0 20px; }
         .top-nav {
             background-color: var(--nav-bg); padding: 14px 28px;
             display: flex; align-items: center; justify-content: space-between;
             border-radius: 30px; box-shadow: 0 10px 25px var(--shadow-color); border: 2px solid var(--border-color);
+            backdrop-filter: blur(10px);
         }
         .nav-left { display: flex; align-items: center; gap: 30px; }
         .nav-links { display: flex; gap: 12px; align-items: center; }
@@ -70,21 +109,29 @@
             text-decoration: none; font-size: 15px; color: var(--subtext-color);
             padding: 8px 18px; border-radius: 20px; font-weight: 700; cursor: pointer;
         }
-        .top-nav a.nav-item:hover { color: var(--text-color); background-color: var(--card-bg); }
+        .top-nav a.nav-item:hover { color: var(--text-color); background-color: var(--card-bg); transform: translateY(-2px); }
         .top-nav a.nav-item.active { color: #ffffff; background-color: var(--accent-color); box-shadow: 0 4px 12px var(--active-glow); }
-        .nav-right { display: flex; align-items: center; gap: 15px; }
+        
         .user-profile-btn, .theme-toggle-btn {
             background-color: var(--card-bg); color: var(--text-color);
             border: 2px solid var(--border-color); padding: 9px 18px; border-radius: 25px;
             font-weight: 700; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px;
             box-shadow: 0 4px 12px var(--shadow-color);
         }
-        .user-profile-btn:hover, .theme-toggle-btn:hover { border-color: var(--accent-color); color: var(--accent-color); }
+        .user-profile-btn:hover, .theme-toggle-btn:hover { border-color: var(--accent-color); color: var(--accent-color); transform: translateY(-2px); }
+
         .logo { display: flex; align-items: center; gap: 10px; font-size: 24px; font-weight: 800; color: var(--text-color); letter-spacing: -0.5px; }
+        
+        @keyframes plumbobRotate {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.15); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
         .plumbob {
-            width: 14px; height: 22px; background: linear-gradient(135deg, #52b788 0%, #2d6a4f 100%);
+            width: 14px; height: 22px; background: linear-gradient(135deg, #2ed573 0%, #1e90ff 100%);
             clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); display: inline-block;
-            filter: drop-shadow(0 0 6px rgba(82, 183, 136, 0.6));
+            filter: drop-shadow(0 0 8px rgba(46, 213, 115, 0.8));
+            animation: plumbobRotate 6s ease-in-out infinite;
         }
 
         /* NÉZETEK */
@@ -93,13 +140,6 @@
         .main-card {
             background-color: var(--card-bg); padding: 50px; border-radius: 40px;
             box-shadow: 0 15px 35px var(--shadow-color); border: 2px solid var(--border-color);
-        }
-        .main-card h1 { color: var(--text-color); font-size: 32px; margin-top: 0; margin-bottom: 20px; font-weight: 800; }
-        .main-card p { font-size: 17px; line-height: 1.8; color: var(--subtext-color); margin-bottom: 20px; }
-        .beta-badge {
-            display: inline-block; background-color: var(--accent-color); color: #ffffff;
-            padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 800; margin-bottom: 20px;
-            text-transform: uppercase; letter-spacing: 1.2px;
         }
 
         /* CSALÁDFÁK NÉZET */
@@ -110,7 +150,6 @@
         .page-view#treeView.active { display: block; }
         .tree-full-controls { position: absolute; top: 20px; right: 80px; z-index: 1050; display: flex; gap: 12px; }
 
-        /* Bal oldali Sáv */
         .tree-left-sidebar {
             position: absolute; top: 20px; left: 20px; width: 270px;
             background-color: var(--nav-bg); border: 2px solid var(--border-color);
@@ -118,36 +157,21 @@
             z-index: 1050; display: flex; flex-direction: column; gap: 12px;
             max-height: calc(100vh - 40px); overflow-y: auto;
         }
-        .tree-sidebar-title { font-size: 13px; font-weight: 800; color: var(--subtext-color); text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 4px; padding-left: 6px; }
-
-        .tree-tab-wrapper {
-            display: flex; align-items: center; justify-content: space-between;
-            background-color: var(--card-bg); border: 2px solid var(--border-color);
-            border-radius: 20px; padding: 4px 8px; box-shadow: 0 4px 12px var(--shadow-color);
-        }
-        .tree-tab-wrapper.active { border-color: var(--accent-color); background-color: var(--card-bg); box-shadow: 0 4px 15px var(--active-glow); }
-        .tree-tab-btn {
-            background: none; border: none; color: var(--text-color);
-            font-weight: 700; font-size: 14px; cursor: pointer; text-align: left;
-            flex-grow: 1; padding: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-        .tree-tab-wrapper.active .tree-tab-btn { color: var(--accent-color); }
-        .edit-tree-name-btn { background: none; border: none; cursor: pointer; font-size: 13px; padding: 4px; opacity: 0.6; }
 
         .add-tree-btn {
             background-color: transparent; color: var(--accent-color); border: 2px dashed var(--accent-color);
             padding: 12px 16px; border-radius: 20px; font-weight: 700; font-size: 14px; cursor: pointer; text-align: center;
-            transition: all 0.2s ease; margin-top: 4px;
         }
-        .add-tree-btn:hover { background-color: var(--accent-color); color: #ffffff; }
+        .add-tree-btn:hover { background-color: var(--accent-color); color: #ffffff; transform: scale(1.02); }
 
-        /* Floating Controls */
         .add-sim-floating-btn {
             position: absolute; bottom: 25px; right: 25px; z-index: 1050;
-            background-color: var(--accent-color); color: #ffffff; border: none; padding: 15px 26px;
-            border-radius: 30px; font-weight: 800; font-size: 15px; cursor: pointer; box-shadow: 0 8px 22px var(--active-glow);
+            background: linear-gradient(135deg, var(--btn-pink) 0%, var(--accent-color) 100%);
+            color: #ffffff; border: none; padding: 16px 28px;
+            border-radius: 30px; font-weight: 800; font-size: 15px; cursor: pointer;
+            box-shadow: 0 8px 22px rgba(255, 71, 112, 0.4);
         }
-        .add-sim-floating-btn:hover { background-color: var(--accent-hover); transform: translateY(-2px); }
+        .add-sim-floating-btn:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 12px 28px rgba(255, 71, 112, 0.6); }
 
         .zoom-controls {
             position: absolute; bottom: 25px; left: 310px; z-index: 1050;
@@ -161,7 +185,7 @@
             border-radius: 50%; font-weight: 800; font-size: 16px; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
         }
-        .zoom-btn:hover { background-color: var(--accent-color); color: white; border-color: var(--accent-color); }
+        .zoom-btn:hover { background-color: var(--accent-color); color: white; border-color: var(--accent-color); transform: scale(1.1); }
 
         /* VÁSZON ÉS VILÁG */
         .tree-canvas-viewport {
@@ -175,11 +199,20 @@
         }
         .tree-svg-layer { position: absolute; top: 0; left: 0; width: 5000px; height: 5000px; pointer-events: none; z-index: 1; }
 
-        /* KEREK SIM ELEMEK ÉS ANIMÁCIÓK */
-        @keyframes simPulse {
-            0% { box-shadow: 0 0 0 0px var(--active-glow); transform: scale(1); }
-            50% { box-shadow: 0 0 0 14px rgba(217, 119, 87, 0); transform: scale(1.08); }
-            100% { box-shadow: 0 0 0 0px rgba(217, 119, 87, 0); transform: scale(1); }
+        /* -------------------------------------------------- */
+        /* ANIMÁLT SIM ELEMEK ÉS KERET CSOGY               */
+        /* -------------------------------------------------- */
+        @keyframes borderRainbow {
+            0% { border-color: #ff4770; box-shadow: 0 0 18px rgba(255, 71, 112, 0.6); }
+            33% { border-color: #2ed573; box-shadow: 0 0 18px rgba(46, 213, 115, 0.6); }
+            66% { border-color: #ffa502; box-shadow: 0 0 18px rgba(255, 165, 2, 0.6); }
+            100% { border-color: #ff4770; box-shadow: 0 0 18px rgba(255, 71, 112, 0.6); }
+        }
+
+        @keyframes simFloat {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+            100% { transform: translateY(0px); }
         }
 
         .sim-node {
@@ -188,19 +221,19 @@
             border: 4px solid var(--accent-color); box-shadow: 0 10px 25px var(--shadow-color);
             cursor: pointer; z-index: 2; user-select: none;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: border-color 0.2s, box-shadow 0.2s;
         }
-        .sim-node:hover { transform: scale(1.04); }
+        .sim-node:hover { transform: scale(1.08); z-index: 5; }
+
+        /* KIJELÖLT ANIMÁCIÓ (SZÍNES ÁRAMLÓ KERET + LEBEGÉS) */
         .sim-node.selected {
-            animation: simPulse 1.5 infinite cubic-bezier(0.66, 0, 0, 1);
-            border-color: #52b788 !important;
-            box-shadow: 0 0 20px var(--active-glow);
-            z-index: 10;
+            animation: borderRainbow 3s linear infinite, simFloat 2.5s ease-in-out infinite;
+            z-index: 10 !important;
         }
+
         .sim-node.drop-target {
-            border-color: #52b788 !important;
-            transform: scale(1.15);
-            box-shadow: 0 0 25px rgba(82, 183, 136, 0.8);
+            border-color: var(--btn-green) !important;
+            transform: scale(1.2);
+            box-shadow: 0 0 30px rgba(46, 213, 115, 0.9);
         }
 
         .sim-node-avatar {
@@ -224,20 +257,49 @@
             display: flex; align-items: center; justify-content: center;
             font-size: 11px; cursor: pointer; z-index: 6; box-shadow: 0 3px 8px var(--shadow-color);
         }
-        .sim-edit-pencil:hover { background-color: var(--accent-color); color: white; border-color: var(--accent-color); }
+        .sim-edit-pencil:hover { background-color: var(--accent-color); color: white; transform: rotate(15deg) scale(1.2); }
 
-        /* Interaktív gombok (+ jelek) */
-        .add-btn-node {
-            position: absolute; width: 26px; height: 26px;
-            background-color: var(--accent-color); color: white; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: bold; font-size: 14px; cursor: pointer;
-            box-shadow: 0 3px 8px var(--shadow-color); border: 2px solid white;
-            transition: transform 0.2s ease; z-index: 5;
+        /* -------------------------------------------------- */
+        /* EGYEDI SZÍNES RÓZSASZÍN ÉS ZÖLD + GOMBOK            */
+        /* -------------------------------------------------- */
+        @keyframes pulseGlow {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
         }
-        .add-child-btn { bottom: -8px; left: 50%; transform: translateX(-50%); }
-        .add-partner-btn { right: -8px; top: 50%; transform: translateY(-50%); }
-        .add-btn-node:hover { transform: scale(1.25); }
+
+        .add-btn-node {
+            position: absolute; width: 28px; height: 28px;
+            color: white; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 16px; cursor: pointer;
+            box-shadow: 0 4px 10px var(--shadow-color); border: 2px solid #ffffff;
+            z-index: 5;
+        }
+
+        /* JOBB OLDALI RÓZSASZÍN + GOMB (SZERELEM / KAPCSOLAT) */
+        .add-partner-btn {
+            right: -8px; top: 50%; transform: translateY(-50%);
+            background-color: var(--btn-pink);
+            box-shadow: 0 3px 10px rgba(255, 71, 112, 0.5);
+        }
+        .add-partner-btn:hover {
+            background-color: var(--btn-pink-hover);
+            animation: pulseGlow 0.6s infinite ease-in-out;
+            transform: translateY(-50%) scale(1.25);
+        }
+
+        /* ALSÓ ZÖLD + GOMB (GYEREK) */
+        .add-child-btn {
+            bottom: -8px; left: 50%; transform: translateX(-50%);
+            background-color: var(--btn-green);
+            box-shadow: 0 3px 10px rgba(46, 213, 115, 0.5);
+        }
+        .add-child-btn:hover {
+            background-color: var(--btn-green-hover);
+            animation: pulseGlow 0.6s infinite ease-in-out;
+            transform: translateX(-50%) scale(1.25);
+        }
 
         /* KONTEXTUS MENÜ */
         .context-menu {
@@ -249,18 +311,16 @@
         .context-menu.active { display: block; }
         .context-menu-item {
             padding: 11px 18px; font-size: 14px; font-weight: 700; color: var(--text-color);
-            cursor: pointer; display: flex; align-items: center; gap: 12px; transition: background 0.2s;
+            cursor: pointer; display: flex; align-items: center; gap: 12px;
             border-radius: 12px; margin: 2px 6px;
         }
-        .context-menu-item:hover { background-color: var(--card-bg); color: var(--accent-color); }
-        .context-menu-item.danger { color: #d9534f; }
-        .context-menu-item.danger:hover { background-color: #d9534f; color: white; }
+        .context-menu-item:hover { background-color: var(--card-bg); color: var(--accent-color); transform: translateX(4px); }
 
         /* MODALOK */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background-color: rgba(0, 0, 0, 0.4); z-index: 3000;
-            display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px);
+            display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px);
         }
         .modal-overlay.active { display: flex; }
         .modal-card {
@@ -268,24 +328,20 @@
             border-radius: 36px; width: 460px; max-width: 90%; padding: 32px;
             box-shadow: 0 20px 45px var(--shadow-color); max-height: 90vh; overflow-y: auto;
         }
-        .modal-card h2 { margin-top: 0; color: var(--text-color); font-size: 24px; margin-bottom: 20px; font-weight: 800; }
 
         .form-group { margin-bottom: 18px; }
-        .form-group label { display: block; font-size: 13px; font-weight: 800; color: var(--subtext-color); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 800; color: var(--subtext-color); margin-bottom: 6px; text-transform: uppercase; }
         .form-group input, .form-group select, .form-group textarea {
             width: 100%; padding: 12px 18px; border-radius: 20px;
             border: 2px solid var(--border-color); background-color: var(--input-bg);
             color: var(--text-color); font-size: 14px; font-weight: 600; outline: none;
         }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent-color); }
-        .form-group input[type="color"] { height: 46px; padding: 4px; cursor: pointer; border-radius: 20px; }
         .form-row { display: flex; gap: 12px; }
 
         .modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 25px; }
         .btn-secondary { background-color: transparent; border: 2px solid var(--border-color); color: var(--text-color); padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: 700; }
-        .btn-secondary:hover { border-color: var(--text-color); }
-        .btn-primary { background-color: var(--accent-color); border: none; color: white; padding: 10px 24px; border-radius: 20px; cursor: pointer; font-weight: 700; box-shadow: 0 4px 12px var(--active-glow); }
-        .btn-primary:hover { background-color: var(--accent-hover); }
+        .btn-primary { background-color: var(--btn-pink); border: none; color: white; padding: 10px 24px; border-radius: 20px; cursor: pointer; font-weight: 700; box-shadow: 0 4px 12px rgba(255, 71, 112, 0.4); }
+        .btn-primary:hover { background-color: var(--btn-pink-hover); transform: scale(1.04); }
         .btn-danger { background-color: #d9534f; border: none; color: white; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: 700; margin-right: auto; }
 
         .selected-sim-preview {
@@ -309,8 +365,8 @@
         .right-sidebar ul { list-style: none; padding: 0; margin: 0; }
         .right-sidebar ul li { margin-bottom: 12px; }
         .right-sidebar ul li a { display: flex; align-items: center; gap: 14px; padding: 14px 20px; color: var(--text-color); text-decoration: none; font-size: 16px; font-weight: 700; border-radius: 20px; cursor: pointer; }
-        .right-sidebar ul li a:hover, .right-sidebar ul li a.active { background-color: var(--card-bg); color: var(--accent-color); box-shadow: 0 4px 15px var(--shadow-color); }
-        .toggle-btn { position: fixed; top: 50%; right: 0; transform: translateY(-50%); background-color: var(--nav-bg); color: var(--text-color); border: 2px solid var(--border-color); border-right: none; padding: 18px 12px; cursor: pointer; font-size: 16px; border-radius: 20px 0 0 20px; transition: right 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 2001; box-shadow: -8px 0 20px var(--shadow-color); }
+        .right-sidebar ul li a:hover, .right-sidebar ul li a.active { background-color: var(--card-bg); color: var(--accent-color); box-shadow: 0 4px 15px var(--shadow-color); transform: translateX(-4px); }
+        .toggle-btn { position: fixed; top: 50%; right: 0; transform: translateY(-50%); background-color: var(--nav-bg); color: var(--text-color); border: 2px solid var(--border-color); border-right: none; padding: 18px 12px; cursor: pointer; font-size: 16px; border-radius: 20px 0 0 20px; transition: right 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 2001; }
         .toggle-btn.open { right: 270px; }
         .arrow-icon { display: inline-block; transition: transform 0.4s ease; }
         .toggle-btn.open .arrow-icon { transform: rotate(180deg); }
@@ -338,11 +394,8 @@
     <!-- 1. FŐOLDAL -->
     <div class="page-view active" id="homeView">
         <main class="main-card">
-            <span class="beta-badge">Béta Verzió</span>
             <h1>Üdvözöllek a Sims 4 Memorable oldalán!</h1>
-            <p>Ez egy új ingyenes alkalmazás, ami a családfákat képviseli, kisebb játékokkal, szabadabb és több funkcióval, ahol mindenki kiélheti a vágyait.</p>
-            <p>Az oldal jelenleg béta verzióban fut, így ha hibát tapasztalsz, vagy ötleted van, milyen funkció jönne jól, azt az e-mail címemre szívesen várom.</p>
-            <p><strong>Köszönöm a türelmet.</strong></p>
+            <p>Készíts interaktív Sims családfákat, animált vonalakkal és szabad karaktermintákkal.</p>
         </main>
     </div>
 
@@ -354,15 +407,15 @@
         </div>
 
         <div class="tree-left-sidebar">
-            <div class="tree-sidebar-title">Családfák</div>
+            <div style="font-size: 13px; font-weight: 800; color: var(--subtext-color); text-transform: uppercase;">Családfák</div>
             <div id="treeTabsList"></div>
             <button class="add-tree-btn" onclick="createNewTree()">+ Családfa hozzáadása</button>
         </div>
 
         <div class="zoom-controls">
-            <button class="zoom-btn" onclick="adjustZoom(0.1)" title="Nagyítás">+</button>
-            <button class="zoom-btn" onclick="adjustZoom(-0.1)" title="Kicsinyítés">-</button>
-            <button class="zoom-btn" onclick="resetZoom()" title="Alapméret">100%</button>
+            <button class="zoom-btn" onclick="adjustZoom(0.1)">+</button>
+            <button class="zoom-btn" onclick="adjustZoom(-0.1)">-</button>
+            <button class="zoom-btn" onclick="resetZoom()">100%</button>
         </div>
 
         <button class="add-sim-floating-btn" onclick="addNewSimDialog()">+ Új Sim Hozzáadása</button>
@@ -378,15 +431,14 @@
     <div class="context-menu" id="contextMenu">
         <div class="context-menu-item" onclick="contextAction('edit')">✏️ Szerkesztés</div>
         <div class="context-menu-item" onclick="contextAction('connect')">🔗 Kapcsolat hozzáadása...</div>
-        <div class="context-menu-item" onclick="contextAction('lock')" id="contextLockLabel">🔒 Zárolás (Lakat)</div>
-        <div class="context-menu-item danger" onclick="contextAction('delete')">🗑️ Karakter törlése</div>
+        <div class="context-menu-item" onclick="contextAction('lock')" id="contextLockLabel">🔒 Zárolás</div>
+        <div class="context-menu-item" style="color: #d9534f;" onclick="contextAction('delete')">🗑️ Karakter törlése</div>
     </div>
 
     <!-- 3. PUBLIKUM -->
     <div class="page-view" id="publicView">
         <main class="main-card">
             <h1>Publikum / Közösségi Családfák</h1>
-            <p>Itt hamarosan megtekintheted a többi játékos által nyilvánosan megosztott családfákat.</p>
         </main>
     </div>
 
@@ -471,19 +523,19 @@
             <div class="form-group" style="margin-top: 18px;">
                 <label>Kapcsolat típusa</label>
                 <select id="relationTypeSelect">
-                    <option value="Házas">Házas</option>
-                    <option value="Jegyes">Jegyes</option>
-                    <option value="Gyerek">Gyerek</option>
-                    <option value="Szülő">Szülő</option>
+                    <option value="Házas">Házas (Rózsaszín kötél)</option>
+                    <option value="Jegyes">Jegyes (Rózsaszín kötél)</option>
+                    <option value="Szerelmes">Szerelmes (Rózsaszín kötél)</option>
+                    <option value="Gyerek">Gyerek (Zöld kötél)</option>
+                    <option value="Szülő">Szülő (Zöld kötél)</option>
                     <option value="Testvér">Testvér</option>
                     <option value="Barát">Barát</option>
-                    <option value="Ex">Ex</option>
                 </select>
             </div>
 
             <div class="modal-actions">
                 <button type="button" class="btn-secondary" onclick="closeConnectionModal()">Mégse</button>
-                <button type="button" class="btn-secondary" onclick="createNewSimInConnection()" style="border-style: dashed;">+ Új Sim létrehozása</button>
+                <button type="button" class="btn-secondary" onclick="createNewSimInConnection()" style="border-style: dashed;">+ Új Sim Létrehozása</button>
                 <button type="button" class="btn-primary" onclick="confirmConnection()">Kapcsolás</button>
             </div>
         </div>
@@ -495,7 +547,6 @@
             <li><a onclick="switchView('home')" id="menuHome" class="active">🏠 Főoldal</a></li>
             <li><a onclick="switchView('tree')" id="menuTree">🌳 Családfák</a></li>
             <li><a href="#">🎮 Kisebb játékok</a></li>
-            <li><a href="#">⚙️ Beállítások</a></li>
         </ul>
     </div>
 
@@ -520,7 +571,7 @@
                 id: 'tree_1',
                 name: 'Goth család',
                 sims: [
-                    { id: 'sim_1', firstName: 'Bella', lastName: 'Goth', age: 'Fiatal felnőtt', traits: 'Romantikus', color: '#d97757', image: '', x: 450, y: 200, parentId: null, partnerId: null, relationType: null, locked: false }
+                    { id: 'sim_1', firstName: 'Bella', lastName: 'Goth', age: 'Fiatal felnőtt', traits: 'Romantikus', color: '#ff4770', image: '', x: 450, y: 200, parentId: null, partnerId: null, relationType: null, locked: false }
                 ]
             }
         ];
@@ -530,7 +581,7 @@
         let selectedSimId = null;
         let tempUploadedImage = '';
 
-        // Zoom és Pan
+        // Zoom & Pan
         let zoomLevel = 1;
         let panX = 0;
         let panY = 0;
@@ -538,7 +589,7 @@
         let startPanX = 0;
         let startPanY = 0;
 
-        // Drag and Drop (Mozgatás & Egymásra húzás)
+        // Drag & Drop
         let activeDrag = null;
         let dragStartMouse = { x: 0, y: 0 };
         let dragStartSimPos = { x: 0, y: 0 };
@@ -590,7 +641,7 @@
             treeThemeBtn.innerHTML = label;
         }
 
-        function openProfile() { alert('Később itt tudod majd szerkeszteni a saját profilodat!'); }
+        function openProfile() { alert('Profilom megnyitása!'); }
 
         toggleBtn.addEventListener('click', () => {
             sidebar.classList.toggle('open');
@@ -598,7 +649,7 @@
         });
 
         // --------------------------------------------------
-        // ZOOM ÉS PANNING
+        // CANVAS NAVIGÁCIÓ
         // --------------------------------------------------
         function updateWorldTransform() {
             treeWorld.style.transform = `translate(${panX}px, ${panY}px) scale(${zoomLevel})`;
@@ -610,9 +661,7 @@
         }
 
         function resetZoom() {
-            zoomLevel = 1;
-            panX = 0;
-            panY = 0;
+            zoomLevel = 1; panX = 0; panY = 0;
             updateWorldTransform();
         }
 
@@ -626,9 +675,7 @@
             if (e.button !== 0) return;
             if (e.target.closest('.sim-node') || e.target.closest('.zoom-controls') || e.target.closest('.tree-left-sidebar') || e.target.closest('.tree-full-controls') || e.target.closest('.modal-overlay') || e.target.closest('.context-menu')) return;
             
-            // Kijelölés megszüntetése az üres területre kattintva
             setSelectedSim(null);
-
             isPanning = true;
             startPanX = e.clientX - panX;
             startPanY = e.clientY - panY;
@@ -655,24 +702,17 @@
                 node.style.top = activeDrag.y + 'px';
             }
 
-            // SIM DRAG OVER EGY MÁSIK SIMRE
             checkSimDropTarget(e.clientX, e.clientY);
             updateConnections();
         });
 
         window.addEventListener('mouseup', () => {
             if (activeDrag && currentDropTargetSim) {
-                // RÁHÚZÁSOS KAPCSOLAT LÉTREHOZÁSA (SIMS 4 STÍLUS)
                 const sourceSimId = activeDrag.id;
                 const targetSimId = currentDropTargetSim.id;
-                
-                // Visszaállítjuk a célpont vizuális állapotát
                 document.querySelectorAll('.sim-node').forEach(n => n.classList.remove('drop-target'));
-                
                 activeDrag = null;
                 currentDropTargetSim = null;
-
-                // Megnyitjuk a kapcsolódási ablakot a két Sim között
                 openDirectConnectionPicker(sourceSimId, targetSimId);
                 return;
             }
@@ -705,7 +745,7 @@
         }
 
         // --------------------------------------------------
-        // CSALÁDFÁK KEZELÉSE
+        // CSALÁDFÁK
         // --------------------------------------------------
         function renderTreeTabs() {
             treeTabsList.innerHTML = '';
@@ -715,17 +755,11 @@
 
                 const btn = document.createElement('button');
                 btn.className = 'tree-tab-btn';
+                btn.style.cssText = 'background:none; border:none; font-weight:700; color:var(--text-color); cursor:pointer; font-size:14px;';
                 btn.innerText = tree.name;
                 btn.onclick = () => selectTree(tree.id);
 
-                const editBtn = document.createElement('button');
-                editBtn.className = 'edit-tree-name-btn';
-                editBtn.innerHTML = '✏️';
-                editBtn.title = 'Családfa átnevezése';
-                editBtn.onclick = (e) => { e.stopPropagation(); renameTree(tree.id); };
-
                 wrapper.appendChild(btn);
-                wrapper.appendChild(editBtn);
                 treeTabsList.appendChild(wrapper);
             });
         }
@@ -738,22 +772,13 @@
         }
 
         function createNewTree() {
-            const name = prompt("Mi legyen az új családfa neve?", "Új családfa");
+            const name = prompt("Új családfa neve:", "Új családfa");
             if (!name || name.trim() === "") return;
             const newTree = { id: 'tree_' + Date.now(), name: name.trim(), sims: [] };
             familyTrees.push(newTree);
             currentTreeId = newTree.id;
             renderTreeTabs();
             loadCurrentTreeCanvas();
-        }
-
-        function renameTree(treeId) {
-            const tree = familyTrees.find(t => t.id === treeId); if (!tree) return;
-            const newName = prompt("Írd át a családfa nevét:", tree.name);
-            if (newName && newName.trim() !== "") {
-                tree.name = newName.trim();
-                renderTreeTabs();
-            }
         }
 
         function getCurrentTree() { return familyTrees.find(t => t.id === currentTreeId); }
@@ -780,7 +805,7 @@
         }
 
         // --------------------------------------------------
-        // SIMS CSALÁDFA MOTOR
+        // SIM RENDERING ÉS GOMBOK
         // --------------------------------------------------
         function addNewSimDialog() {
             addNewSim("Új", "Sim", 500 - panX / zoomLevel, 300 - panY / zoomLevel);
@@ -792,7 +817,7 @@
             const newSim = {
                 id: 'sim_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
                 firstName: firstName, lastName: lastName, age: 'Fiatal felnőtt',
-                traits: '', color: '#d97757', image: '', x: x, y: y, parentId: parentId, partnerId: partnerId, relationType: relationType, locked: false
+                traits: '', color: '#ff4770', image: '', x: x, y: y, parentId: parentId, partnerId: partnerId, relationType: relationType, locked: false
             };
 
             tree.sims.push(newSim);
@@ -808,13 +833,12 @@
             node.id = sim.id;
             node.style.left = sim.x + 'px';
             node.style.top = sim.y + 'px';
-            node.style.borderColor = sim.color || '#d97757';
+            if (sim.color) node.style.borderColor = sim.color;
 
-            // Ceruza szerkesztő ikon
+            // Ceruza ikon
             const editPencil = document.createElement('div');
             editPencil.className = 'sim-edit-pencil';
             editPencil.innerHTML = '✏️';
-            editPencil.title = 'Szerkesztés';
             editPencil.onclick = (e) => { e.stopPropagation(); openSimModal(sim.id); };
             node.appendChild(editPencil);
 
@@ -835,33 +859,32 @@
             node.appendChild(avatar);
             node.appendChild(label);
 
-            // Jobb oldali gomb: Partner / Kapcsolat
+            // JOBB OLDALI RÓZSASZÍN + GOMB (SZERELEM / KAPCSOLAT)
             const partnerBtn = document.createElement('div');
             partnerBtn.className = 'add-btn-node add-partner-btn';
             partnerBtn.innerText = '+';
-            partnerBtn.title = 'Kapcsolat Hozzáadása';
-            partnerBtn.onclick = (e) => { e.stopPropagation(); openConnectionPicker(sim.id); };
+            partnerBtn.title = 'Szerelmes / Partner kapcsolat hozzáadása';
+            partnerBtn.onclick = (e) => { e.stopPropagation(); openConnectionPicker(sim.id, 'Szerelmes'); };
 
-            // Alsó gomb: Gyerek hozzáadása
+            // ALSÓ ZÖLD + GOMB (GYEREK)
             const childBtn = document.createElement('div');
             childBtn.className = 'add-btn-node add-child-btn';
             childBtn.innerText = '+';
             childBtn.title = 'Gyermek hozzáadása';
             childBtn.onclick = (e) => { 
                 e.stopPropagation(); 
-                addNewSim("Gyermek", sim.lastName, sim.x, sim.y + 150, sim.id, null, 'Gyerek');
+                addNewSim("Gyermek", sim.lastName, sim.x, sim.y + 160, sim.id, null, 'Gyerek');
             };
 
             node.appendChild(partnerBtn);
             node.appendChild(childBtn);
 
-            // Kattintás kijelöléshez és Drag and Drop indításához
+            // Drag and Drop
             node.addEventListener('mousedown', (e) => {
                 if (e.button !== 0) return;
                 if (e.target.classList.contains('add-btn-node') || e.target.classList.contains('sim-edit-pencil')) return;
                 
                 setSelectedSim(sim.id);
-
                 if (sim.locked) return;
 
                 activeDrag = sim;
@@ -869,10 +892,8 @@
                 dragStartSimPos = { x: sim.x, y: sim.y };
             });
 
-            // Kontextus menü
             node.addEventListener('contextmenu', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
+                e.preventDefault(); e.stopPropagation();
                 setSelectedSim(sim.id);
                 openContextMenu(e.clientX, e.clientY, sim);
             });
@@ -881,16 +902,61 @@
         }
 
         // --------------------------------------------------
-        // KONTEXTUS MENÜ
+        // ANIMÁLT VONALAK RAJZOLÁSA (SVG)
+        // --------------------------------------------------
+        function updateConnections() {
+            svgLayer.innerHTML = '';
+            const tree = getCurrentTree(); if (!tree) return;
+
+            tree.sims.forEach(sim => {
+                // 1. SZÜLŐ-GYEREK (ALSÓ ZÖLD ANIMÁLT VONAL)
+                if (sim.parentId) {
+                    const parent = tree.sims.find(s => s.id === sim.parentId);
+                    if (parent) {
+                        const startX = parent.x + 47;
+                        const startY = parent.y + 94; // Szülő alja
+                        const endX = sim.x + 47;
+                        const endY = sim.y; // Gyerek teteje
+
+                        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                        const midY = startY + (endY - startY) / 2;
+                        path.setAttribute('d', `M ${startX} ${startY} C ${startX} ${midY}, ${endX} ${midY}, ${endX} ${endY}`);
+                        path.setAttribute('class', 'line-child');
+                        svgLayer.appendChild(path);
+                    }
+                }
+
+                // 2. SZERELEM / PARTNER (JOBB OLDALI RÓZSASZÍN ANIMÁLT KÖTÉL)
+                if (sim.partnerId) {
+                    const partner = tree.sims.find(s => s.id === sim.partnerId);
+                    if (partner) {
+                        const startX = sim.x + 94; // Jobb oldal
+                        const startY = sim.y + 47;
+                        const endX = partner.x; // Partner bal oldala
+                        const endY = partner.y + 47;
+
+                        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                        const midX = startX + (endX - startX) / 2;
+                        path.setAttribute('d', `M ${startX} ${startY} C ${midX} ${startY}, ${midX} ${endY}, ${endX} ${endY}`);
+                        
+                        // Ha szerelmes/házas/jegyes, akkor rózsaszín kötél
+                        const isLove = ['Házas', 'Jegyes', 'Szerelmes', null].includes(sim.relationType);
+                        path.setAttribute('class', isLove ? 'line-love' : 'line-child');
+                        
+                        svgLayer.appendChild(path);
+                    }
+                }
+            });
+        }
+
+        // --------------------------------------------------
+        // KONTEXTUS ÉS MODALOK
         // --------------------------------------------------
         function openContextMenu(x, y, sim) {
             contextSimId = sim.id;
             contextMenu.style.left = x + 'px';
             contextMenu.style.top = y + 'px';
-            
-            const lockLabel = document.getElementById('contextLockLabel');
-            lockLabel.innerHTML = sim.locked ? '🔓 Zárolás feloldása' : '🔒 Pozíció zárolása (Lakat)';
-
+            document.getElementById('contextLockLabel').innerHTML = sim.locked ? '🔓 Zárolás feloldása' : '🔒 Pozíció zárolása';
             contextMenu.classList.add('active');
         }
 
@@ -902,22 +968,16 @@
             const tree = getCurrentTree(); if (!tree) return;
             const sim = tree.sims.find(s => s.id === contextSimId); if (!sim) return;
 
-            if (action === 'edit') {
-                openSimModal(sim.id);
-            } else if (action === 'connect') {
-                openConnectionPicker(sim.id);
-            } else if (action === 'lock') {
-                sim.locked = !sim.locked;
-                loadCurrentTreeCanvas();
-            } else if (action === 'delete') {
-                deleteSim(sim.id);
-            }
+            if (action === 'edit') openSimModal(sim.id);
+            else if (action === 'connect') openConnectionPicker(sim.id);
+            else if (action === 'lock') { sim.locked = !sim.locked; loadCurrentTreeCanvas(); }
+            else if (action === 'delete') deleteSim(sim.id);
             closeContextMenu();
         }
 
         function deleteSim(simId) {
             const tree = getCurrentTree(); if (!tree) return;
-            if (confirm("Biztosan törölni szeretnéd ezt a Simet?")) {
+            if (confirm("Törölni szeretnéd ezt a Simet?")) {
                 tree.sims = tree.sims.filter(s => s.id !== simId);
                 tree.sims.forEach(s => {
                     if (s.parentId === simId) s.parentId = null;
@@ -928,89 +988,51 @@
             }
         }
 
-        // --------------------------------------------------
-        // KAPCSOLAT VÁLASZTÓ (LENYÍLÓ KÉPEKKEL)
-        // --------------------------------------------------
-        function openConnectionPicker(simId) {
+        function openConnectionPicker(simId, defaultType = 'Házas') {
             contextSimId = simId;
             const tree = getCurrentTree(); if (!tree) return;
             const currentSim = tree.sims.find(s => s.id === simId); if (!currentSim) return;
 
             document.getElementById('connectionModalTitle').innerText = `${currentSim.firstName} ${currentSim.lastName} összekapcsolása`;
-            document.getElementById('simSearchInput').value = '';
-            document.getElementById('selectedSimPreview').style.display = 'none';
-
+            document.getElementById('relationTypeSelect').value = defaultType;
             populateSimDropdown();
             connectionModal.classList.add('active');
         }
 
         function openDirectConnectionPicker(sourceSimId, targetSimId) {
             contextSimId = sourceSimId;
-            const tree = getCurrentTree(); if (!tree) return;
-            const currentSim = tree.sims.find(s => s.id === sourceSimId); if (!currentSim) return;
-
-            document.getElementById('connectionModalTitle').innerText = `${currentSim.firstName} ${currentSim.lastName} összekapcsolása`;
-            document.getElementById('simSearchInput').value = '';
-
             populateSimDropdown();
-            
-            // Automatikusan kiválasztjuk a rágörgetett Simet
-            const dropdown = document.getElementById('simSelectDropdown');
-            dropdown.value = targetSimId;
+            document.getElementById('simSelectDropdown').value = targetSimId;
             onSimSelectChange();
-
             connectionModal.classList.add('active');
         }
 
-        function populateSimDropdown(filterText = '') {
+        function populateSimDropdown() {
             const tree = getCurrentTree(); if (!tree) return;
             const dropdown = document.getElementById('simSelectDropdown');
             dropdown.innerHTML = '<option value="">-- Válassz Simet --</option>';
 
-            const availableSims = tree.sims.filter(s => s.id !== contextSimId);
-
-            availableSims.forEach(sim => {
-                const fullName = `${sim.firstName} ${sim.lastName}`;
-                if (filterText === '' || fullName.toLowerCase().includes(filterText.toLowerCase())) {
-                    const option = document.createElement('option');
-                    option.value = sim.id;
-                    // Megjelenítünk egy profil emojit a lenyíló listában is
-                    const icon = sim.image ? '🖼️' : '👤';
-                    option.textContent = `${icon} ${fullName} (${sim.age})`;
-                    dropdown.appendChild(option);
-                }
+            tree.sims.filter(s => s.id !== contextSimId).forEach(sim => {
+                const option = document.createElement('option');
+                option.value = sim.id;
+                option.textContent = `${sim.image ? '🖼️' : '👤'} ${sim.firstName} ${sim.lastName} (${sim.age})`;
+                dropdown.appendChild(option);
             });
         }
 
-        function filterSimDropdown() {
-            const searchText = document.getElementById('simSearchInput').value;
-            populateSimDropdown(searchText);
-        }
-
         function onSimSelectChange() {
-            const dropdown = document.getElementById('simSelectDropdown');
-            const selectedId = dropdown.value;
+            const selectedId = document.getElementById('simSelectDropdown').value;
             const previewBox = document.getElementById('selectedSimPreview');
             const tree = getCurrentTree(); if (!tree) return;
 
-            if (!selectedId) {
-                previewBox.style.display = 'none';
-                return;
-            }
-
+            if (!selectedId) { previewBox.style.display = 'none'; return; }
             const targetSim = tree.sims.find(s => s.id === selectedId);
             if (targetSim) {
                 document.getElementById('previewName').innerText = `${targetSim.firstName} ${targetSim.lastName}`;
                 document.getElementById('previewAge').innerText = targetSim.age;
-                
                 const avatar = document.getElementById('previewAvatar');
-                if (targetSim.image) {
-                    avatar.style.backgroundImage = `url(${targetSim.image})`;
-                    avatar.innerText = '';
-                } else {
-                    avatar.style.backgroundImage = 'none';
-                    avatar.innerText = '👤';
-                }
+                if (targetSim.image) { avatar.style.backgroundImage = `url(${targetSim.image})`; avatar.innerText = ''; }
+                else { avatar.style.backgroundImage = 'none'; avatar.innerText = '👤'; }
                 previewBox.style.display = 'flex';
             }
         }
@@ -1020,20 +1042,15 @@
             const relationType = document.getElementById('relationTypeSelect').value;
             const tree = getCurrentTree(); if (!tree) return;
 
-            if (!targetSimId) {
-                alert('Kérlek válassz ki egy Simet a listából!');
-                return;
-            }
+            if (!targetSimId) return alert('Válassz ki egy Simet!');
 
             const sourceSim = tree.sims.find(s => s.id === contextSimId);
             const targetSim = tree.sims.find(s => s.id === targetSimId);
 
             if (sourceSim && targetSim) {
-                if (relationType === 'Gyerek') {
-                    targetSim.parentId = sourceSim.id;
-                } else if (relationType === 'Szülő') {
-                    sourceSim.parentId = targetSim.id;
-                } else {
+                if (relationType === 'Gyerek') targetSim.parentId = sourceSim.id;
+                else if (relationType === 'Szülő') sourceSim.parentId = targetSim.id;
+                else {
                     sourceSim.partnerId = targetSim.id;
                     sourceSim.relationType = relationType;
                 }
@@ -1051,13 +1068,13 @@
             closeConnectionModal();
 
             if (relationType === 'Gyerek') {
-                addNewSim("Gyermek", sourceSim.lastName, sourceSim.x, sourceSim.y + 150, sourceSim.id, null, 'Gyerek');
+                addNewSim("Gyermek", sourceSim.lastName, sourceSim.x, sourceSim.y + 160, sourceSim.id, null, 'Gyerek');
             } else if (relationType === 'Szülő') {
-                const parent = addNewSim("Szülő", sourceSim.lastName, sourceSim.x, sourceSim.y - 150, null, null, null);
+                const parent = addNewSim("Szülő", sourceSim.lastName, sourceSim.x, sourceSim.y - 160, null, null, null);
                 sourceSim.parentId = parent.id;
                 loadCurrentTreeCanvas();
             } else {
-                const newSim = addNewSim(relationType, "", sourceSim.x + 150, sourceSim.y, null, sourceSim.id, relationType);
+                const newSim = addNewSim("Partner", "", sourceSim.x + 160, sourceSim.y, null, sourceSim.id, relationType);
                 sourceSim.partnerId = newSim.id;
                 sourceSim.relationType = relationType;
                 loadCurrentTreeCanvas();
@@ -1066,55 +1083,6 @@
 
         function closeConnectionModal() { connectionModal.classList.remove('active'); }
 
-        // --------------------------------------------------
-        // CSALÁDFÁK VONALAK (SVG)
-        // --------------------------------------------------
-        function updateConnections() {
-            svgLayer.innerHTML = '';
-            const strokeColor = getComputedStyle(document.documentElement).getPropertyValue('--line-color').trim() || '#bfa89b';
-            const tree = getCurrentTree(); if (!tree) return;
-
-            tree.sims.forEach(sim => {
-                if (sim.parentId) {
-                    const parent = tree.sims.find(s => s.id === sim.parentId);
-                    if (parent) {
-                        const startX = parent.x + 47;
-                        const startY = parent.y + 94;
-                        const endX = sim.x + 47;
-                        const endY = sim.y;
-
-                        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                        const midY = startY + (endY - startY) / 2;
-                        path.setAttribute('d', `M ${startX} ${startY} C ${startX} ${midY}, ${endX} ${midY}, ${endX} ${endY}`);
-                        path.setAttribute('stroke', strokeColor);
-                        path.setAttribute('stroke-width', '3');
-                        path.setAttribute('fill', 'none');
-                        svgLayer.appendChild(path);
-                    }
-                }
-                if (sim.partnerId) {
-                    const partner = tree.sims.find(s => s.id === sim.partnerId);
-                    if (partner) {
-                        const startX = sim.x + 94;
-                        const startY = sim.y + 47;
-                        const endX = partner.x;
-                        const endY = partner.y + 47;
-
-                        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                        line.setAttribute('x1', startX); line.setAttribute('y1', startY);
-                        line.setAttribute('x2', endX); line.setAttribute('y2', endY);
-                        line.setAttribute('stroke', sim.color || '#d97757');
-                        line.setAttribute('stroke-width', '3');
-                        line.setAttribute('stroke-dasharray', '6,6');
-                        svgLayer.appendChild(line);
-                    }
-                }
-            });
-        }
-
-        // --------------------------------------------------
-        // SIM SZERKESZTŐ MODAL LOGIKA
-        // --------------------------------------------------
         function openSimModal(simId) {
             const tree = getCurrentTree(); if (!tree) return;
             const sim = tree.sims.find(s => s.id === simId); if (!sim) return;
@@ -1125,17 +1093,13 @@
             document.getElementById('editFirstName').value = sim.firstName || '';
             document.getElementById('editLastName').value = sim.lastName || '';
             document.getElementById('editAge').value = sim.age || 'Fiatal felnőtt';
-            document.getElementById('editColor').value = sim.color || '#d97757';
+            document.getElementById('editColor').value = sim.color || '#ff4770';
             document.getElementById('editTraits').value = sim.traits || '';
-            document.getElementById('editImageInput').value = '';
 
             simModal.classList.add('active');
         }
 
-        function closeSimModal() {
-            simModal.classList.remove('active');
-            editingSimId = null;
-        }
+        function closeSimModal() { simModal.classList.remove('active'); editingSimId = null; }
 
         function handleImageUpload(event) {
             const file = event.target.files[0];
