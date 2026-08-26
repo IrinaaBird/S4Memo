@@ -873,6 +873,7 @@
     <div class="context-menu" id="contextMenu">
         <div class="context-menu-item" onclick="contextAction('edit')">✏️ Szerkesztés</div>
         <div class="context-menu-item" onclick="contextAction('connect')">🔗 Kapcsolat hozzáadása...</div>
+        <div class="context-menu-item" onclick="contextAction('disconnect')">✂️ Kapcsolatok törlése</div>
         <div class="context-menu-item" onclick="contextAction('lock')" id="contextLockLabel">🔒 Zárolás</div>
         <div class="context-menu-item" style="color: #d9534f;" onclick="contextAction('delete')">🗑️ Karakter törlése</div>
     </div>
@@ -1905,6 +1906,7 @@
 
             if (action === 'edit') openSimModal(sim.id);
             else if (action === 'connect') openConnectionPicker(sim.id);
+            else if (action === 'disconnect') deleteSimConnection(sim.id);
             else if (action === 'lock') { 
                 sim.locked = !sim.locked; 
                 saveTreesToStorage();
@@ -1912,6 +1914,28 @@
             }
             else if (action === 'delete') deleteSim(sim.id);
             closeContextMenu();
+        }
+
+        function deleteSimConnection(simId) {
+            const tree = getCurrentTree(); if (!tree) return;
+            
+            tree.sims.forEach(s => {
+                if (s.id === simId) {
+                    s.partnerId = null;
+                    s.parentId = null;
+                    s.relationType = null;
+                }
+                if (s.partnerId === simId) {
+                    s.partnerId = null;
+                    s.relationType = null;
+                }
+                if (s.parentId === simId) {
+                    s.parentId = null;
+                }
+            });
+
+            saveTreesToStorage();
+            loadCurrentTreeCanvas();
         }
 
         function deleteSim(simId) {
