@@ -338,11 +338,15 @@
         }
         .tree-canvas-viewport:active { cursor: grabbing; }
         
+        /* Végteleníthető világ túllógó SVG réteggel */
         .tree-canvas-world {
-            width: 5000px; height: 5000px; position: absolute; top: 0; left: 0;
+            width: 0; height: 0; position: absolute; top: 0; left: 0;
             transform-origin: 0 0; will-change: transform;
         }
-        .tree-svg-layer { position: absolute; top: 0; left: 0; width: 5000px; height: 5000px; pointer-events: none; z-index: 1; }
+        .tree-svg-layer { 
+            position: absolute; top: -10000px; left: -10000px; width: 20000px; height: 20000px; 
+            pointer-events: none; z-index: 1; 
+        }
 
         /* SIM KERETEK ÉS KÁRTYA JAVÍTÁSA */
         @keyframes borderRainbow {
@@ -565,7 +569,7 @@
 
         <div class="tree-canvas-viewport" id="treeViewport">
             <div class="tree-canvas-world style-glow" id="treeWorld">
-                <svg class="tree-svg-layer" id="svgLayer"></svg>
+                <svg class="tree-svg-layer" id="svgLayer" viewBox="-10000 -10000 20000 20000"></svg>
             </div>
         </div>
     </div>
@@ -1093,8 +1097,9 @@
             const dx = (e.clientX - dragStartMouse.x) / zoomLevel;
             const dy = (e.clientY - dragStartMouse.y) / zoomLevel;
 
-            activeDrag.x = Math.max(0, dragStartSimPos.x + dx);
-            activeDrag.y = Math.max(0, dragStartSimPos.y + dy);
+            /* Teljesen korlátozásmentes pozicionálás bármilyen irányba */
+            activeDrag.x = dragStartSimPos.x + dx;
+            activeDrag.y = dragStartSimPos.y + dy;
 
             const node = document.getElementById(activeDrag.id);
             if (node) {
