@@ -589,7 +589,7 @@
                         
                         <div style="margin-top: 8px;" class="style-group">
                             <label>Kép Méretezése</label>
-                            <select onchange="changeBgSize(this.value)">
+                            <select id="bgSizeSelect" onchange="changeBgSize(this.value)">
                                 <option value="cover" selected>Kitöltés (Cover)</option>
                                 <option value="contain">Illesztés (Contain)</option>
                                 <option value="100% 100%">Nyújtás (Stretch)</option>
@@ -598,7 +598,7 @@
                         </div>
                         <div style="margin-top: 6px;" class="style-group">
                             <label>Kép Igazítása</label>
-                            <select onchange="changeBgPosition(this.value)">
+                            <select id="bgPosSelect" onchange="changeBgPosition(this.value)">
                                 <option value="center" selected>Középre</option>
                                 <option value="top">Fent</option>
                                 <option value="bottom">Lent</option>
@@ -867,6 +867,56 @@
             document.getElementById('drawerArrow').innerText = styleDrawer.classList.contains('open') ? '▼' : '▲';
         }
 
+        /* HÁTTÉR BEÁLLÍTÁSOK MENTÉSE ÉS BETÖLTÉSE (LOCALSTORAGE) */
+        function saveBgSettings() {
+            const bgSettings = {
+                style: document.getElementById('bgStyleSelect').value,
+                customUrl: customBgUrl,
+                size: document.documentElement.style.getPropertyValue('--custom-bg-size') || 'cover',
+                position: document.documentElement.style.getPropertyValue('--custom-bg-position') || 'center',
+                blur: document.getElementById('bgBlurSlider').value
+            };
+            localStorage.setItem('s4memo_bg_settings', JSON.stringify(bgSettings));
+        }
+
+        function loadBgSettings() {
+            const saved = localStorage.getItem('s4memo_bg_settings');
+            if (!saved) return;
+            
+            try {
+                const bgSettings = JSON.parse(saved);
+                
+                document.getElementById('bgStyleSelect').value = bgSettings.style;
+                customBgUrl = bgSettings.customUrl || '';
+                
+                if (bgSettings.style === 'custom' && customBgUrl) {
+                    document.getElementById('customBgContainer').style.display = 'block';
+                    document.body.className = 'bg-custom';
+                    document.body.style.backgroundImage = `url('${customBgUrl}')`;
+                } else {
+                    document.body.className = `bg-${bgSettings.style}`;
+                }
+
+                if (bgSettings.blur !== undefined) {
+                    document.getElementById('bgBlurSlider').value = bgSettings.blur;
+                    changeBgBlur(bgSettings.blur, false);
+                }
+
+                if (bgSettings.size) {
+                    document.getElementById('bgSizeSelect').value = bgSettings.size;
+                    changeBgSize(bgSettings.size, false);
+                }
+                
+                if (bgSettings.position) {
+                    document.getElementById('bgPosSelect').value = bgSettings.position;
+                    changeBgPosition(bgSettings.position, false);
+                }
+
+            } catch (e) {
+                console.error("Hiba a háttérbeállítások betöltésekor:", e);
+            }
+        }
+
         function changeBgStyle(style) {
             const customBgContainer = document.getElementById('customBgContainer');
             if (style === 'custom') {
@@ -880,11 +930,13 @@
                 document.body.style.backgroundImage = '';
                 document.body.className = `bg-${style}`;
             }
+            saveBgSettings();
         }
 
-        function changeBgBlur(val) {
+        function changeBgBlur(val, shouldSave = true) {
             document.documentElement.style.setProperty('--bg-blur', `${val}px`);
             document.getElementById('bgBlurValText').innerText = `${val}px`;
+            if (shouldSave) saveBgSettings();
         }
 
         function handleCustomBgUpload(event) {
@@ -895,13 +947,22 @@
                     customBgUrl = e.target.result;
                     document.body.className = 'bg-custom';
                     document.body.style.backgroundImage = `url('${customBgUrl}')`;
+                    saveBgSettings();
                 };
                 reader.readAsDataURL(file);
             }
         }
 
-        function changeBgSize(val) { document.documentElement.style.setProperty('--custom-bg-size', val); }
-        function changeBgPosition(val) { document.documentElement.style.setProperty('--custom-bg-position', val); }
+        function changeBgSize(val, shouldSave = true) { 
+            document.documentElement.style.setProperty('--custom-bg-size', val); 
+            if (shouldSave) saveBgSettings();
+        }
+        
+        function changeBgPosition(val, shouldSave = true) { 
+            document.documentElement.style.setProperty('--custom-bg-position', val); 
+            if (shouldSave) saveBgSettings();
+        }
+
         function changeLineStyle(styleClass) { treeWorld.className = `tree-canvas-world ${styleClass}`; }
 
         function changeSimShape(shape) {
@@ -1161,7 +1222,6 @@
             if (confirm(`Biztosan törölni szeretnéd a(z) "${treeToDelete.name}" családfát és az összes benne lévő Simet?`)) {
                 familyTrees = familyTrees.filter(t => t.id !== treeId);
 
-                // Ha az épp aktív fát töröljük, átváltunk az első megmaradt fára
                 if (currentTreeId === treeId) {
                     currentTreeId = familyTrees[0].id;
                 }
@@ -1650,7 +1710,9 @@
             closeSimModal();
         }
 
+        /* KEZDŐ ÁLLAPOTOK BETÖLTÉSE */
         initTheme();
+        loadBgSettings();
     </script>
 </body>
 </html>
