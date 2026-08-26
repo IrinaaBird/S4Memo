@@ -1632,6 +1632,172 @@
             treeWorld.appendChild(node);
         }
 
+        <!-- Modal ablak szerkezete -->
+<div id="simModal" class="modal-overlay">
+  <div class="modal-card">
+    <button class="close-btn" onclick="closeSimModal()">&times;</button>
+    
+    <!-- Fejléc / Fülek -->
+    <div class="modal-header">
+      <h3 class="modal-title">Sim Card</h3>
+      <div class="tab-menu">
+        <button class="tab-btn active">Information</button>
+        <button class="tab-btn">Diary</button>
+        <button class="tab-btn">Avatars <span class="badge">1</span></button>
+      </div>
+    </div>
+
+    <!-- Tartalom -->
+    <div class="modal-body">
+      <!-- Profil szekció -->
+      <div class="profile-section">
+        <div class="avatar-wrapper">
+          <img id="modalAvatar" src="" alt="Sim Avatar">
+        </div>
+        <h2 id="modalName">Sim Neve</h2>
+        <span id="modalStatus" class="status-alive">Alive</span>
+      </div>
+
+      <!-- Galéria szekció -->
+      <div class="gallery-section">
+        <h4>Gallery</h4>
+        <div class="gallery-grid" id="modalGallery">
+          <!-- Képek dinamikusan kerülnek ide -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        /* Sötét téma és Modal stílusok */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-card {
+  background-color: #17181c;
+  color: #ffffff;
+  width: 420px;
+  border-radius: 12px;
+  padding: 20px;
+  position: relative;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.close-btn {
+  position: absolute;
+  top: 15px; right: 15px;
+  background: none; border: none;
+  color: #717686; font-size: 20px;
+  cursor: pointer;
+}
+
+.modal-header {
+  border-bottom: 1px solid #282a30;
+  padding-bottom: 12px;
+}
+
+.modal-title {
+  margin: 0 0 15px 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.tab-menu { display: flex; gap: 15px; }
+
+.tab-btn {
+  background: none; border: none;
+  color: #717686; font-size: 14px;
+  padding-bottom: 5px; cursor: pointer;
+}
+
+.tab-btn.active {
+  color: #3b82f6;
+  border-bottom: 2px solid #3b82f6;
+}
+
+.badge {
+  background: #10b981; color: #fff;
+  font-size: 10px; padding: 2px 6px;
+  border-radius: 10px;
+}
+
+/* Profil elemek */
+.profile-section {
+  text-align: center;
+  margin: 25px 0;
+}
+
+.avatar-wrapper img {
+  width: 130px; height: 130px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.profile-section h2 {
+  margin: 12px 0 4px 0;
+  font-size: 20px;
+}
+
+.status-alive {
+  color: #6b7280; font-size: 13px;
+}
+
+/* Galéria */
+.gallery-section h4 {
+  font-size: 14px; margin-bottom: 10px;
+  color: #e5e7eb;
+}
+
+.gallery-grid {
+  display: flex; gap: 10px;
+  overflow-x: auto;
+}
+
+.gallery-grid img {
+  width: 170px; height: 110px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+        // Megnyitó és adatfeltöltő függvény
+function openSimModal(simData) {
+  document.getElementById('modalName').textContent = simData.name;
+  document.getElementById('modalAvatar').src = simData.avatar;
+  document.getElementById('modalStatus').textContent = simData.status || 'Alive';
+  
+  // Galéria képek betöltése
+  const galleryEl = document.getElementById('modalGallery');
+  galleryEl.innerHTML = '';
+  if(simData.gallery) {
+    simData.gallery.forEach(imgUrl => {
+      const img = document.createElement('img');
+      img.src = imgUrl;
+      galleryEl.appendChild(img);
+    });
+  }
+
+  document.getElementById('simModal').style.display = 'flex';
+}
+
+function closeSimModal() {
+  document.getElementById('simModal').style.display = 'none';
+}
+
+// Így hívhatod meg, amikor a Sim fejére / node-jára kattintanak:
+// openSimModal({
+//   name: "Catherine Brownstone",
+//   avatar: "catherine_avatar.jpg",
+//   gallery: ["wedding.jpg", "portrait.jpg"]
+// });
+
         function updateConnections() {
             svgLayer.innerHTML = '';
             const tree = getCurrentTree(); if (!tree) return;
