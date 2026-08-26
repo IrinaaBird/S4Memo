@@ -170,9 +170,9 @@
             stroke-dasharray: 6 10; animation: flowDots 1s linear infinite;
         }
 
-        /* TESTRESZABÁSI PANEL */
+        /* TESTRESZABÁSI PANEL - Lebegő, minden oldalon elérhető */
         .style-panel-drawer {
-            position: absolute; bottom: 20px; left: 20px; z-index: 1060;
+            position: fixed; bottom: 20px; left: 20px; z-index: 1060;
             background-color: var(--nav-bg); border: 1.5px solid var(--border-color);
             border-radius: 18px; box-shadow: 0 8px 24px var(--shadow-color);
             width: 230px; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -266,7 +266,6 @@
             position: fixed; top: 0; left: 0; z-index: 100;
         }
         .page-view#treeView.active { display: block; }
-        .tree-full-controls { position: absolute; top: 20px; right: 80px; z-index: 1050; display: flex; gap: 12px; }
 
         .tree-left-sidebar {
             position: absolute; top: 20px; left: 20px; width: 270px;
@@ -335,7 +334,6 @@
             100% { transform: translateY(0px); }
         }
 
-        /* Fő Sim kártya tároló - Nem kap semmilyen clip-path-et! */
         .sim-node {
             position: absolute; 
             width: 94px; 
@@ -358,7 +356,6 @@
             transform: scale(1.1);
         }
 
-        /* Csak az avatar rétegre alkalmazzuk az alakzat vágást és a színes keretet */
         .sim-node-avatar {
             width: 100%; 
             height: 100%; 
@@ -385,7 +382,6 @@
             pointer-events: none; z-index: 15;
         }
 
-        /* VEZÉRLŐ GOMBOK - Magas z-index, hogy sose takarja el az alakzat */
         .sim-edit-pencil {
             position: absolute; top: -4px; right: -4px;
             width: 26px; height: 26px; background-color: var(--card-bg);
@@ -507,6 +503,7 @@
                 <div class="logo"><span class="plumbob"></span> S4Memo</div>
                 <div class="nav-links">
                     <a class="nav-item active" id="navHome" onclick="switchView('home')">Főoldal</a>
+                    <a class="nav-item" id="navTree" onclick="switchView('tree')">Családfák</a>
                     <a class="nav-item" id="navPublic" onclick="switchView('public')">Publikum</a>
                 </div>
             </div>
@@ -527,85 +524,10 @@
 
     <!-- 2. CSALÁDFÁK NÉZET -->
     <div class="page-view" id="treeView">
-        <div class="tree-full-controls">
-            <button class="theme-toggle-btn" onclick="toggleTheme()" id="treeThemeBtn">🌙 Dark</button>
-            <button class="user-profile-btn" onclick="openProfile()">👤 <span>Profilom</span></button>
-        </div>
-
         <div class="tree-left-sidebar">
             <div style="font-size: 13px; font-weight: 800; color: var(--subtext-color); text-transform: uppercase;">Családfák</div>
             <div id="treeTabsList"></div>
             <button class="add-tree-btn" onclick="createNewTree()">+ Családfa hozzáadása</button>
-        </div>
-
-        <!-- BAL ALSÓ TESTRESZABÁSI PANEL BEÁLLÍTÁSOKKAL -->
-        <div class="style-panel-drawer" id="styleDrawer">
-            <div class="style-panel-header" onclick="toggleStyleDrawer()">
-                <span>🎨 Testreszabás</span>
-                <span id="drawerArrow">▲</span>
-            </div>
-            <div class="style-panel-content">
-                <div class="style-group">
-                    <label>Háttér Stílusa</label>
-                    <select id="bgStyleSelect" onchange="changeBgStyle(this.value)">
-                        <option value="dots" selected>Pöttyös</option>
-                        <option value="clean">Letisztult</option>
-                        <option value="grid">Rácsos</option>
-                        <option value="custom">Saját kép (Feltöltés)</option>
-                    </select>
-                    <div id="customBgContainer" style="display: none; margin-top: 4px;">
-                        <label for="bgFileInput" class="custom-file-btn">📁 Kép tallózása...</label>
-                        <input type="file" id="bgFileInput" class="custom-file-upload" accept="image/*" onchange="handleCustomBgUpload(event)">
-                        
-                        <div style="margin-top: 8px;" class="style-group">
-                            <label>Kép Méretezése</label>
-                            <select onchange="changeBgSize(this.value)">
-                                <option value="cover" selected>Kitöltés (Cover)</option>
-                                <option value="contain">Illesztés (Contain)</option>
-                                <option value="100% 100%">Nyújtás (Stretch)</option>
-                                <option value="auto">Eredeti Méret (Original)</option>
-                            </select>
-                        </div>
-                        <div style="margin-top: 6px;" class="style-group">
-                            <label>Kép Igazítása</label>
-                            <select onchange="changeBgPosition(this.value)">
-                                <option value="center" selected>Középre</option>
-                                <option value="top">Fent</option>
-                                <option value="bottom">Lent</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="style-group" style="margin-top: 4px;">
-                    <label>
-                        <span>Háttér Homályosítás</span>
-                        <span id="bgBlurValText" style="font-weight:700;">0px</span>
-                    </label>
-                    <input type="range" id="bgBlurSlider" min="0" max="20" step="1" value="0" oninput="changeBgBlur(this.value)">
-                </div>
-
-                <div class="style-group">
-                    <label>Vonal Animáció</label>
-                    <select id="lineStyleSelect" onchange="changeLineStyle(this.value)">
-                        <option value="style-glow" selected>Glow Stream</option>
-                        <option value="style-solid">Folyamatos Neon</option>
-                        <option value="style-dashed">Szaggatott</option>
-                        <option value="style-flicker">Villódzó Pulzus</option>
-                        <option value="style-dots-flow">Pontozott Áramlás</option>
-                    </select>
-                </div>
-                <div class="style-group">
-                    <label>Sim Keret Alakja</label>
-                    <select id="simShapeSelect" onchange="changeSimShape(this.value)">
-                        <option value="circle" selected>Kör</option>
-                        <option value="rounded">Lekerekített négyzet</option>
-                        <option value="square">Éles négyzet</option>
-                        <option value="plumbob">Plumbob (Gyémánt)</option>
-                        <option value="hexagon">Hatszög (Hexagon)</option>
-                    </select>
-                </div>
-            </div>
         </div>
 
         <!-- ZOOM VEZÉRLŐPANEL -->
@@ -624,19 +546,89 @@
         </div>
     </div>
 
+    <!-- 3. PUBLIKUM -->
+    <div class="page-view" id="publicView">
+        <main class="main-card">
+            <h1>Publikum / Közösségi Családfák</h1>
+        </main>
+    </div>
+
+    <!-- BAL ALSÓ TESTRESZABÁSI PANEL (MINDEN OLDALON ELÉRHERŐ) -->
+    <div class="style-panel-drawer" id="styleDrawer">
+        <div class="style-panel-header" onclick="toggleStyleDrawer()">
+            <span>🎨 Testreszabás</span>
+            <span id="drawerArrow">▲</span>
+        </div>
+        <div class="style-panel-content">
+            <div class="style-group">
+                <label>Háttér Stílusa</label>
+                <select id="bgStyleSelect" onchange="changeBgStyle(this.value)">
+                    <option value="dots" selected>Pöttyös</option>
+                    <option value="clean">Letisztult</option>
+                    <option value="grid">Rácsos</option>
+                    <option value="custom">Saját kép (Feltöltés)</option>
+                </select>
+                <div id="customBgContainer" style="display: none; margin-top: 4px;">
+                    <label for="bgFileInput" class="custom-file-btn">📁 Kép tallózása...</label>
+                    <input type="file" id="bgFileInput" class="custom-file-upload" accept="image/*" onchange="handleCustomBgUpload(event)">
+                    
+                    <div style="margin-top: 8px;" class="style-group">
+                        <label>Kép Méretezése</label>
+                        <select id="bgSizeSelect" onchange="changeBgSize(this.value)">
+                            <option value="cover" selected>Kitöltés (Cover)</option>
+                            <option value="contain">Illesztés (Contain)</option>
+                            <option value="100% 100%">Nyújtás (Stretch)</option>
+                            <option value="auto">Eredeti Méret (Original)</option>
+                        </select>
+                    </div>
+                    <div style="margin-top: 6px;" class="style-group">
+                        <label>Kép Igazítása</label>
+                        <select id="bgPosSelect" onchange="changeBgPosition(this.value)">
+                            <option value="center" selected>Középre</option>
+                            <option value="top">Fent</option>
+                            <option value="bottom">Lent</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="style-group" style="margin-top: 4px;">
+                <label>
+                    <span>Háttér Homályosítás</span>
+                    <span id="bgBlurValText" style="font-weight:700;">0px</span>
+                </label>
+                <input type="range" id="bgBlurSlider" min="0" max="20" step="1" value="0" oninput="changeBgBlur(this.value)">
+            </div>
+
+            <div class="style-group" id="lineStyleGroup">
+                <label>Vonal Animáció</label>
+                <select id="lineStyleSelect" onchange="changeLineStyle(this.value)">
+                    <option value="style-glow" selected>Glow Stream</option>
+                    <option value="style-solid">Folyamatos Neon</option>
+                    <option value="style-dashed">Szaggatott</option>
+                    <option value="style-flicker">Villódzó Pulzus</option>
+                    <option value="style-dots-flow">Pontozott Áramlás</option>
+                </select>
+            </div>
+            <div class="style-group" id="simShapeGroup">
+                <label>Sim Keret Alakja</label>
+                <select id="simShapeSelect" onchange="changeSimShape(this.value)">
+                    <option value="circle" selected>Kör</option>
+                    <option value="rounded">Lekerekített négyzet</option>
+                    <option value="square">Éles négyzet</option>
+                    <option value="plumbob">Plumbob (Gyémánt)</option>
+                    <option value="hexagon">Hatszög (Hexagon)</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
     <!-- KONTEXTUS MENÜ -->
     <div class="context-menu" id="contextMenu">
         <div class="context-menu-item" onclick="contextAction('edit')">✏️ Szerkesztés</div>
         <div class="context-menu-item" onclick="contextAction('connect')">🔗 Kapcsolat hozzáadása...</div>
         <div class="context-menu-item" onclick="contextAction('lock')" id="contextLockLabel">🔒 Zárolás</div>
         <div class="context-menu-item" style="color: #d9534f;" onclick="contextAction('delete')">🗑️ Karakter törlése</div>
-    </div>
-
-    <!-- 3. PUBLIKUM -->
-    <div class="page-view" id="publicView">
-        <main class="main-card">
-            <h1>Publikum / Közösségi Családfák</h1>
-        </main>
     </div>
 
     <!-- SIM SZERKESZTŐ MODAL INTERAKTÍV KÉPSZERKESZTŐVEL -->
@@ -774,6 +766,7 @@
         <ul>
             <li><a onclick="switchView('home')" id="menuHome" class="active">🏠 Főoldal</a></li>
             <li><a onclick="switchView('tree')" id="menuTree">🌳 Családfák</a></li>
+            <li><a onclick="switchView('public')" id="menuPublic">🌐 Publikum</a></li>
             <li><a href="#">🎮 Kisebb játékok</a></li>
         </ul>
     </div>
@@ -784,7 +777,6 @@
         const sidebar = document.getElementById('sidebar');
         const toggleBtn = document.getElementById('toggleBtn');
         const themeBtn = document.getElementById('themeBtn');
-        const treeThemeBtn = document.getElementById('treeThemeBtn');
         const topNavContainer = document.getElementById('topNavContainer');
         const treeWorld = document.getElementById('treeWorld');
         const treeViewport = document.getElementById('treeViewport');
@@ -795,6 +787,14 @@
         const contextMenu = document.getElementById('contextMenu');
         const styleDrawer = document.getElementById('styleDrawer');
         const zoomPercentLabel = document.getElementById('zoomPercentLabel');
+
+        /* Oldalspecifikus Háttér Beállítások Mátrixa */
+        let currentView = 'home';
+        let pageBackgrounds = {
+            home: { style: 'dots', customUrl: '', size: 'cover', position: 'center', blur: 0 },
+            tree: { style: 'dots', customUrl: '', size: 'cover', position: 'center', blur: 0 },
+            public: { style: 'dots', customUrl: '', size: 'cover', position: 'center', blur: 0 }
+        };
 
         const defaultTrees = [
             {
@@ -836,21 +836,46 @@
             document.getElementById('drawerArrow').innerText = styleDrawer.classList.contains('open') ? '▼' : '▲';
         }
 
-        function changeBgStyle(style) {
+        /* --- OLDALSPECIFIKUS HÁTTÉR BEÁLLÍTÁSOK VÉGREHAJTÁSA --- */
+        function applyPageBackground() {
+            const bgConfig = pageBackgrounds[currentView];
+            if (!bgConfig) return;
+
+            document.getElementById('bgStyleSelect').value = bgConfig.style;
+            document.getElementById('bgBlurSlider').value = bgConfig.blur;
+            document.getElementById('bgBlurValText').innerText = `${bgConfig.blur}px`;
+            document.documentElement.style.setProperty('--bg-blur', `${bgConfig.blur}px`);
+
             const customBgContainer = document.getElementById('customBgContainer');
-            if (style === 'custom') {
+            
+            if (bgConfig.style === 'custom') {
                 customBgContainer.style.display = 'block';
                 document.body.className = 'bg-custom';
+                document.body.style.backgroundImage = bgConfig.customUrl ? `url('${bgConfig.customUrl}')` : '';
+                document.getElementById('bgSizeSelect').value = bgConfig.size;
+                document.getElementById('bgPosSelect').value = bgConfig.position;
+                document.documentElement.style.setProperty('--custom-bg-size', bgConfig.size);
+                document.documentElement.style.setProperty('--custom-bg-position', bgConfig.position);
             } else {
                 customBgContainer.style.display = 'none';
                 document.body.style.backgroundImage = '';
-                document.body.className = `bg-${style}`;
+                document.body.className = `bg-${bgConfig.style}`;
             }
+
+            // Csak családfa nézetben látsszanak a családfa specifikus vezérlők
+            const isTree = currentView === 'tree';
+            document.getElementById('lineStyleGroup').style.display = isTree ? 'flex' : 'none';
+            document.getElementById('simShapeGroup').style.display = isTree ? 'flex' : 'none';
+        }
+
+        function changeBgStyle(style) {
+            pageBackgrounds[currentView].style = style;
+            applyPageBackground();
         }
 
         function changeBgBlur(val) {
-            document.documentElement.style.setProperty('--bg-blur', `${val}px`);
-            document.getElementById('bgBlurValText').innerText = `${val}px`;
+            pageBackgrounds[currentView].blur = val;
+            applyPageBackground();
         }
 
         function handleCustomBgUpload(event) {
@@ -858,15 +883,23 @@
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    document.body.className = 'bg-custom';
-                    document.body.style.backgroundImage = `url('${e.target.result}')`;
+                    pageBackgrounds[currentView].customUrl = e.target.result;
+                    pageBackgrounds[currentView].style = 'custom';
+                    applyPageBackground();
                 };
                 reader.readAsDataURL(file);
             }
         }
 
-        function changeBgSize(val) { document.documentElement.style.setProperty('--custom-bg-size', val); }
-        function changeBgPosition(val) { document.documentElement.style.setProperty('--custom-bg-position', val); }
+        function changeBgSize(val) { 
+            pageBackgrounds[currentView].size = val;
+            applyPageBackground(); 
+        }
+        function changeBgPosition(val) { 
+            pageBackgrounds[currentView].position = val;
+            applyPageBackground(); 
+        }
+
         function changeLineStyle(styleClass) { treeWorld.className = `tree-canvas-world ${styleClass}`; }
 
         function changeSimShape(shape) {
@@ -907,26 +940,28 @@
         }
 
         function switchView(viewName) {
+            currentView = viewName;
             document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.right-sidebar a').forEach(el => el.classList.remove('active'));
 
             if (viewName === 'home') {
-                topNavContainer.style.display = 'block';
                 document.getElementById('homeView').classList.add('active');
                 document.getElementById('navHome').classList.add('active');
                 document.getElementById('menuHome').classList.add('active');
             } else if (viewName === 'tree') {
-                topNavContainer.style.display = 'none';
                 document.getElementById('treeView').classList.add('active');
+                document.getElementById('navTree').classList.add('active');
                 document.getElementById('menuTree').classList.add('active');
                 renderTreeTabs();
                 loadCurrentTreeCanvas();
             } else if (viewName === 'public') {
-                topNavContainer.style.display = 'block';
                 document.getElementById('publicView').classList.add('active');
                 document.getElementById('navPublic').classList.add('active');
+                document.getElementById('menuPublic').classList.add('active');
             }
+
+            applyPageBackground();
             sidebar.classList.remove('open');
             toggleBtn.classList.remove('open');
         }
@@ -935,6 +970,7 @@
             const savedTheme = localStorage.getItem('s4memo_theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
             updateThemeButton(savedTheme);
+            applyPageBackground();
         }
 
         function toggleTheme() {
@@ -949,7 +985,6 @@
         function updateThemeButton(theme) {
             const label = theme === 'dark' ? '☀️ Light' : '🌙 Dark';
             themeBtn.innerHTML = label;
-            treeThemeBtn.innerHTML = label;
         }
 
         function openProfile() { alert('Profilom megnyitása!'); }
@@ -984,7 +1019,7 @@
 
         treeViewport.addEventListener('mousedown', (e) => {
             if (e.button !== 0) return;
-            if (e.target.closest('.sim-node') || e.target.closest('.zoom-controls') || e.target.closest('.tree-left-sidebar') || e.target.closest('.tree-full-controls') || e.target.closest('.modal-overlay') || e.target.closest('.context-menu') || e.target.closest('.style-panel-drawer')) return;
+            if (e.target.closest('.sim-node') || e.target.closest('.zoom-controls') || e.target.closest('.tree-left-sidebar') || e.target.closest('.modal-overlay') || e.target.closest('.context-menu') || e.target.closest('.style-panel-drawer')) return;
             
             setSelectedSim(null);
             isPanning = true;
