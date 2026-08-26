@@ -68,35 +68,41 @@
         }
 
         /* -------------------------------------------------- */
-        /* ANIMÁLT VONALAK (SVG DASHED ANIMATION & FIX)     */
+        /* ÚJ, FOLYÉKONY ANIMÁLT VONALAK (GLOW STREAM EFFECT) */
         /* -------------------------------------------------- */
-        @keyframes dashFlowPink {
-            to { stroke-dashoffset: -20; }
-        }
-        @keyframes dashFlowGreen {
-            to { stroke-dashoffset: -20; }
+        @keyframes pulseGlowPath {
+            0% {
+                stroke-dashoffset: 200;
+                opacity: 0.8;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                stroke-dashoffset: 0;
+                opacity: 0.8;
+            }
         }
 
         svg path {
-            fill: none !important; /* FEKETE KITÖLTÉS MEGSZÜNTETÉSE */
+            fill: none !important;
+            stroke-linecap: round;
         }
 
         .line-love {
             stroke: var(--line-pink);
-            stroke-width: 4;
-            stroke-dasharray: 8, 6;
-            animation: dashFlowPink 0.8s linear infinite;
-            filter: drop-shadow(0 0 6px rgba(255, 71, 112, 0.6));
-            fill: none !important;
+            stroke-width: 3.5;
+            stroke-dasharray: 140 30;
+            animation: pulseGlowPath 2.5s ease-in-out infinite alternate;
+            filter: drop-shadow(0 0 8px rgba(255, 71, 112, 0.75)) drop-shadow(0 0 2px #fff);
         }
 
         .line-child {
             stroke: var(--line-green);
-            stroke-width: 4;
-            stroke-dasharray: 8, 6;
-            animation: dashFlowGreen 0.8s linear infinite;
-            filter: drop-shadow(0 0 6px rgba(46, 213, 115, 0.6));
-            fill: none !important;
+            stroke-width: 3.5;
+            stroke-dasharray: 140 30;
+            animation: pulseGlowPath 2.5s ease-in-out infinite alternate;
+            filter: drop-shadow(0 0 8px rgba(46, 213, 115, 0.75)) drop-shadow(0 0 2px #fff);
         }
 
         /* -------------------------------------------------- */
