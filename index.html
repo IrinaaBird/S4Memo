@@ -169,6 +169,22 @@
             stroke-dasharray: 6 10; animation: flowDots 1s linear infinite;
         }
 
+        /* KAPOCS STÍLUSOK (SVG INTERAKTÍV ELEMEK) */
+        .joint-handle {
+            fill: var(--card-bg);
+            stroke: var(--line-green);
+            stroke-width: 2.5px;
+            cursor: pointer;
+            pointer-events: all;
+            transition: transform 0.2s ease, fill 0.2s ease, stroke 0.2s ease;
+        }
+        .joint-handle:hover {
+            fill: var(--line-green);
+            stroke: #ffffff;
+            transform: scale(1.3);
+            filter: drop-shadow(0 0 6px var(--line-green));
+        }
+
         /* TESTRESZABÁSI PANEL */
         .style-panel-drawer {
             position: fixed; bottom: 20px; left: 20px; z-index: 1060;
@@ -1121,7 +1137,7 @@
                 sims: [
                     { id: 'sim_1', firstName: 'Bella', lastName: 'Goth', age: 'Fiatal felnőtt', traits: 'Romantikus', color: '#ff4770', image: '', imageTransform: null, x: 450, y: 200, parentId: null, partnerId: 'sim_2', relationType: 'Házas', locked: false, isDead: false, gallery: [] },
                     { id: 'sim_2', firstName: 'Mortimer', lastName: 'Goth', age: 'Felnőtt', traits: 'Könyvmoly', color: '#d97757', image: '', imageTransform: null, x: 650, y: 200, parentId: null, partnerId: 'sim_1', relationType: 'Házas', locked: false, isDead: false, gallery: [] },
-                    { id: 'sim_3', firstName: 'Cassandra', lastName: 'Goth', age: 'Tini', traits: 'Borongós', color: '#2ed573', image: '', imageTransform: null, x: 550, y: 380, parentId: 'sim_1', partnerId: null, relationType: null, locked: false, isDead: false, gallery: [] }
+                    { id: 'sim_3', firstName: 'Cassandra', lastName: 'Goth', age: 'Tini', traits: 'Borongós', color: '#2ed573', image: '', imageTransform: null, x: 550, y: 380, parentId: 'sim_1', partnerId: null, relationType: null, parentMode: 'both', locked: false, isDead: false, gallery: [] }
                 ],
                 journal: [
                     { id: 'j_1', title: 'Megérkezés Goth birtokra', date: '2026-01-15', content: 'A család beköltözött az új kúriába. Bella azonnal nekilátott a ház szépítésének.' }
@@ -1675,7 +1691,7 @@
             const newSim = {
                 id: 'sim_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
                 firstName: firstName, lastName: lastName, age: 'Fiatal felnőtt',
-                traits: '', color: '#ff4770', image: '', imageTransform: null, x: x, y: y, parentId: parentId, partnerId: partnerId, relationType: relationType, locked: false, isDead: false, gallery: []
+                traits: '', color: '#ff4770', image: '', imageTransform: null, x: x, y: y, parentId: parentId, partnerId: partnerId, relationType: relationType, parentMode: 'both', locked: false, isDead: false, gallery: []
             };
 
             tree.sims.push(newSim);
@@ -1885,38 +1901,25 @@
             simModal.classList.add('active');
         }
 
+        /* T-KAPOCS MODELL KIVITELEZÉSE ÉS KAPCSOLÓ INTERAKCIÓ */
+        function cycleParentMode(simId) {
+            const tree = getCurrentTree(); if (!tree) return;
+            const sim = tree.sims.find(s => s.id === simId); if (!sim) return;
+
+            const modes = ['both', 'parent1', 'parent2'];
+            const currentIndex = modes.indexOf(sim.parentMode || 'both');
+            sim.parentMode = modes[(currentIndex + 1) % modes.length];
+
+            saveTreesToStorage();
+            updateConnections();
+        }
+
         function updateConnections() {
             svgLayer.innerHTML = '';
             const tree = getCurrentTree(); if (!tree) return;
 
+            /* 1. Partner vonalak megrajzolása (Rózsaszín) */
             tree.sims.forEach(sim => {
-                if (sim.parentId) {
-                    const parent1 = tree.sims.find(s => s.id === sim.parentId);
-                    if (parent1) {
-                        let startX = parent1.x + 47;
-                        let startY = parent1.y + 94;
-
-                        if (parent1.partnerId) {
-                            const parent2 = tree.sims.find(s => s.id === parent1.partnerId);
-                            if (parent2) {
-                                const p1CenterX = parent1.x + 47;
-                                const p2CenterX = parent2.x + 47;
-                                startX = (p1CenterX + p2CenterX) / 2;
-                                startY = (parent1.y + 47 + parent2.y + 47) / 2;
-                            }
-                        }
-
-                        const endX = sim.x + 47;
-                        const endY = sim.y;
-
-                        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                        const midY = startY + (endY - startY) / 2;
-                        path.setAttribute('d', `M ${startX} ${startY} C ${startX} ${midY}, ${endX} ${midY}, ${endX} ${endY}`);
-                        path.setAttribute('class', 'line-child');
-                        svgLayer.appendChild(path);
-                    }
-                }
-
                 if (sim.partnerId) {
                     const partner = tree.sims.find(s => s.id === sim.partnerId);
                     if (partner && sim.id < partner.id) {
@@ -1942,6 +1945,84 @@
                         path.setAttribute('class', isLove ? 'line-love' : 'line-child');
                         
                         svgLayer.appendChild(path);
+                    }
+                }
+            });
+
+            /* 2. Gyermek vonalak és Kapcsoló T-Kapcsok megrajzolása (Zöld) */
+            tree.sims.forEach(sim => {
+                if (sim.parentId) {
+                    const parent1 = tree.sims.find(s => s.id === sim.parentId);
+                    if (parent1) {
+                        const parent2 = parent1.partnerId ? tree.sims.find(s => s.id === parent1.partnerId) : null;
+                        const mode = sim.parentMode || 'both';
+
+                        let startX, startY;
+                        let showJoint = false;
+                        let jointX = 0, jointY = 0;
+
+                        if (parent2 && mode === 'both') {
+                            // T-leágazás a két szülőt összekötő vonal közepéről
+                            const p1CenterX = parent1.x + 47;
+                            const p1CenterY = parent1.y + 47;
+                            const p2CenterX = parent2.x + 47;
+                            const p2CenterY = parent2.y + 47;
+
+                            startX = (p1CenterX + p2CenterX) / 2;
+                            startY = (p1CenterY + p2CenterY) / 2;
+                            
+                            showJoint = true;
+                            jointX = startX;
+                            jointY = startY;
+                        } else if (parent2 && mode === 'parent2') {
+                            // Kizárólag a második szülőhöz (partnerhez) kapcsolva
+                            startX = parent2.x + 47;
+                            startY = parent2.y + 94;
+
+                            showJoint = true;
+                            jointX = (parent1.x + 47 + parent2.x + 47) / 2;
+                            jointY = (parent1.y + 47 + parent2.y + 47) / 2;
+                        } else {
+                            // Kizárólag az első szülőhöz (vagy egyedülálló szülőhöz) kapcsolva
+                            startX = parent1.x + 47;
+                            startY = parent1.y + 94;
+
+                            if (parent2) {
+                                showJoint = true;
+                                jointX = (parent1.x + 47 + parent2.x + 47) / 2;
+                                jointY = (parent1.y + 47 + parent2.y + 47) / 2;
+                            }
+                        }
+
+                        const endX = sim.x + 47;
+                        const endY = sim.y;
+
+                        // Gyermek zöld vonalának megrajzolása
+                        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                        const midY = startY + (endY - startY) / 2;
+                        path.setAttribute('d', `M ${startX} ${startY} C ${startX} ${midY}, ${endX} ${midY}, ${endX} ${endY}`);
+                        path.setAttribute('class', 'line-child');
+                        svgLayer.appendChild(path);
+
+                        // Kapcsoló gomb (T-Kapocs) rajzolása
+                        if (showJoint) {
+                            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                            circle.setAttribute('cx', jointX);
+                            circle.setAttribute('cy', jointY);
+                            circle.setAttribute('r', '7');
+                            circle.setAttribute('class', 'joint-handle');
+                            
+                            let titleText = "Váltás: Két szülőhöz kapcsolva";
+                            if (mode === 'parent1') titleText = `Váltás: Csak ${parent1.firstName} szülőhöz kapcsolva`;
+                            if (mode === 'parent2') titleText = `Váltás: Csak ${parent2 ? parent2.firstName : 'Partner'} szülőhöz kapcsolva`;
+                            
+                            circle.innerHTML = `<title>${titleText} (Kattints a váltáshoz!)</title>`;
+                            circle.onclick = (e) => {
+                                e.stopPropagation();
+                                cycleParentMode(sim.id);
+                            };
+                            svgLayer.appendChild(circle);
+                        }
                     }
                 }
             });
