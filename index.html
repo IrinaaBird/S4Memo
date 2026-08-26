@@ -222,6 +222,7 @@
             backdrop-filter: blur(10px);
         }
         .nav-left { display: flex; align-items: center; gap: 30px; }
+        .nav-right { display: flex; align-items: center; gap: 10px; }
         .nav-links { display: flex; gap: 12px; align-items: center; }
         .top-nav a.nav-item {
             text-decoration: none; font-size: 15px; color: var(--subtext-color);
@@ -230,12 +231,14 @@
         .top-nav a.nav-item:hover { color: var(--text-color); background-color: var(--card-bg); transform: translateY(-2px); }
         .top-nav a.nav-item.active { color: #ffffff; background-color: var(--accent-color); box-shadow: 0 4px 12px var(--active-glow); }
         
-        .user-profile-btn, .theme-toggle-btn {
+        .save-btn, .user-profile-btn, .theme-toggle-btn {
             background-color: var(--card-bg); color: var(--text-color);
             border: 2px solid var(--border-color); padding: 9px 18px; border-radius: 25px;
             font-weight: 700; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px;
             box-shadow: 0 4px 12px var(--shadow-color);
         }
+        .save-btn { background-color: var(--accent-color); color: #ffffff; border-color: var(--accent-color); }
+        .save-btn:hover { background-color: var(--accent-hover); transform: translateY(-2px); }
         .user-profile-btn:hover, .theme-toggle-btn:hover { border-color: var(--accent-color); color: var(--accent-color); transform: translateY(-2px); }
 
         .logo { display: flex; align-items: center; gap: 10px; font-size: 24px; font-weight: 800; color: var(--text-color); letter-spacing: -0.5px; }
@@ -291,6 +294,16 @@
         }
         .add-sim-floating-btn:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 12px 28px rgba(255, 71, 112, 0.6); }
 
+        /* TOAST ÉRTESÍTÉS MENTÉSKOR */
+        .toast-notification {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
+            background-color: var(--accent-color); color: white; padding: 12px 28px;
+            border-radius: 30px; font-weight: 800; font-size: 14px; box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            z-index: 5000; opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+        }
+        .toast-notification.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
         /* ZOOM PAN */
         .zoom-controls {
             position: absolute; bottom: 20px; left: 265px; z-index: 1050;
@@ -335,7 +348,6 @@
             100% { transform: translateY(0px); }
         }
 
-        /* Fő Sim kártya tároló - Nem kap semmilyen clip-path-et! */
         .sim-node {
             position: absolute; 
             width: 94px; 
@@ -358,7 +370,6 @@
             transform: scale(1.1);
         }
 
-        /* Csak az avatar rétegre alkalmazzuk az alakzat vágást és a színes keretet */
         .sim-node-avatar {
             width: 100%; 
             height: 100%; 
@@ -385,7 +396,6 @@
             pointer-events: none; z-index: 15;
         }
 
-        /* VEZÉRLŐ GOMBOK - Magas z-index, hogy sose takarja el az alakzat */
         .sim-edit-pencil {
             position: absolute; top: -4px; right: -4px;
             width: 26px; height: 26px; background-color: var(--card-bg);
@@ -406,7 +416,6 @@
         .add-partner-btn { right: -10px; top: 50%; transform: translateY(-50%); background-color: var(--btn-pink); }
         .add-child-btn { bottom: -10px; left: 50%; transform: translateX(-50%); background-color: var(--btn-green); }
 
-        /* KÉPSZERKESZTŐ BOX ELŐNÉZETTEL */
         .image-editor-box {
             background-color: var(--nav-bg); border: 2px solid var(--border-color);
             border-radius: 20px; padding: 14px; margin-top: 10px;
@@ -425,7 +434,6 @@
             display: flex; flex-direction: column; gap: 8px;
         }
 
-        /* MODALOK ÉS MENÜK */
         .context-menu {
             position: fixed; display: none; background-color: var(--nav-bg);
             border: 2px solid var(--border-color); border-radius: 24px;
@@ -500,6 +508,9 @@
     <!-- HOMÁLYOSÍTÁST VÉGZŐ BLUR RÉTEG A HÁTTÉR FÖLÖTT -->
     <div id="bgBlurOverlay"></div>
 
+    <!-- TOAST ÉRTESÍTÉS MENTÉSKOR -->
+    <div id="toastNotification" class="toast-notification">💾 Családfa sikeresen elmentve!</div>
+
     <!-- NAVIGÁCIÓ -->
     <div class="top-nav-container" id="topNavContainer">
         <nav class="top-nav">
@@ -511,6 +522,7 @@
                 </div>
             </div>
             <div class="nav-right">
+                <button class="save-btn" onclick="manualSave()">💾 Mentés</button>
                 <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeBtn">🌙 Dark</button>
                 <button class="user-profile-btn" onclick="openProfile()">👤 <span>Profilom</span></button>
             </div>
@@ -528,6 +540,7 @@
     <!-- 2. CSALÁDFÁK NÉZET -->
     <div class="page-view" id="treeView">
         <div class="tree-full-controls">
+            <button class="save-btn" onclick="manualSave()">💾 Mentés</button>
             <button class="theme-toggle-btn" onclick="toggleTheme()" id="treeThemeBtn">🌙 Dark</button>
             <button class="user-profile-btn" onclick="openProfile()">👤 <span>Profilom</span></button>
         </div>
@@ -536,6 +549,7 @@
             <div style="font-size: 13px; font-weight: 800; color: var(--subtext-color); text-transform: uppercase;">Családfák</div>
             <div id="treeTabsList"></div>
             <button class="add-tree-btn" onclick="createNewTree()">+ Családfa hozzáadása</button>
+            <button class="save-btn" style="margin-top: 10px; width: 100%; justify-content: center;" onclick="manualSave()">💾 Családfa Mentése</button>
         </div>
 
         <!-- BAL ALSÓ TESTRESZABÁSI PANEL BEÁLLÍTÁSOKKAL -->
@@ -815,7 +829,6 @@
         let selectedSimId = null;
         let selectedConnectionTargetId = null;
 
-        /* Képszerkesztési állapotok */
         let tempUploadedImage = '';
         let currentRotation = 0;
 
@@ -888,12 +901,27 @@
             }
         }
 
+        /* MENTÉSI ÉS TOAST FUNKCIÓK */
         function saveTreesToStorage() {
             try {
                 localStorage.setItem('s4memo_family_trees', JSON.stringify(familyTrees));
             } catch (e) {
                 console.error("Nem sikerült az elmentés:", e);
             }
+        }
+
+        function manualSave() {
+            saveTreesToStorage();
+            showToast("💾 Módosítások sikeresen elmentve!");
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toastNotification');
+            toast.innerText = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
         }
 
         function loadTreesFromStorage() {
@@ -1443,7 +1471,7 @@
             document.getElementById('searchResultsList').classList.remove('active');
         }
 
-        /* --- KÉPSZERKESZTŐ FUNKCIÓK A MODALBAN --- */
+        /* KÉPSZERKESZTŐ FUNKCIÓK A MODALBAN */
         function openSimModal(simId) {
             const tree = getCurrentTree(); if (!tree) return;
             const sim = tree.sims.find(s => s.id === simId); if (!sim) return;
@@ -1544,6 +1572,7 @@
             saveTreesToStorage();
             closeSimModal();
             loadCurrentTreeCanvas();
+            showToast("💾 Sim adatai elmentve!");
         }
 
         function deleteCurrentSimModal() {
