@@ -19,7 +19,7 @@
             --nav-bg: #f1e2d5;
             --input-bg: #ffffff;
 
-            /* Új egyedi színek a kapcsolatokhoz és gombokhoz */
+            /* Kapcsolatok és gombok színei */
             --btn-pink: #ff6b8b;
             --btn-pink-hover: #ff4770;
             --btn-green: #2ed573;
@@ -68,7 +68,7 @@
         }
 
         /* -------------------------------------------------- */
-        /* ANIMÁT VONA LAK (SVG DASHED ANIMATION)            */
+        /* ANIMÁLT VONALAK (SVG DASHED ANIMATION)            */
         /* -------------------------------------------------- */
         @keyframes dashFlowPink {
             to { stroke-dashoffset: -20; }
@@ -94,7 +94,7 @@
         }
 
         /* -------------------------------------------------- */
-        /* UI ELEMEK ÉS NAVIGÁCIÓ ANIMÁCIÓI                 */
+        /* UI ELEMEK ÉS NAVIGÁCIÓ                            */
         /* -------------------------------------------------- */
         .top-nav-container { padding: 20px 20px 0 20px; }
         .top-nav {
@@ -200,7 +200,7 @@
         .tree-svg-layer { position: absolute; top: 0; left: 0; width: 5000px; height: 5000px; pointer-events: none; z-index: 1; }
 
         /* -------------------------------------------------- */
-        /* ANIMÁLT SIM ELEMEK ÉS KERET CSOGY               */
+        /* ANIMÁLT SIM ELEMEK ÉS KERET                      */
         /* -------------------------------------------------- */
         @keyframes borderRainbow {
             0% { border-color: #ff4770; box-shadow: 0 0 18px rgba(255, 71, 112, 0.6); }
@@ -224,7 +224,7 @@
         }
         .sim-node:hover { transform: scale(1.08); z-index: 5; }
 
-        /* KIJELÖLT ANIMÁCIÓ (SZÍNES ÁRAMLÓ KERET + LEBEGÉS) */
+        /* KIJELÖLT ANIMÁCIÓ */
         .sim-node.selected {
             animation: borderRainbow 3s linear infinite, simFloat 2.5s ease-in-out infinite;
             z-index: 10 !important;
@@ -260,7 +260,7 @@
         .sim-edit-pencil:hover { background-color: var(--accent-color); color: white; transform: rotate(15deg) scale(1.2); }
 
         /* -------------------------------------------------- */
-        /* EGYEDI SZÍNES RÓZSASZÍN ÉS ZÖLD + GOMBOK            */
+        /* RÓZSASZÍN ÉS ZÖLD GOMBOK                          */
         /* -------------------------------------------------- */
         @keyframes pulseGlow {
             0% { transform: scale(1); }
@@ -499,11 +499,6 @@
     <div class="modal-overlay" id="connectionModal">
         <div class="modal-card">
             <h2 id="connectionModalTitle">Kapcsolat Hozzáadása</h2>
-            
-            <div class="form-group">
-                <label>Keresés a meglévő Simek között</label>
-                <input type="text" id="simSearchInput" placeholder="Írj be egy nevet..." oninput="filterSimDropdown()">
-            </div>
 
             <div class="form-group">
                 <label>Válassz egy Simet</label>
@@ -528,8 +523,6 @@
                     <option value="Szerelmes">Szerelmes (Rózsaszín kötél)</option>
                     <option value="Gyerek">Gyerek (Zöld kötél)</option>
                     <option value="Szülő">Szülő (Zöld kötél)</option>
-                    <option value="Testvér">Testvér</option>
-                    <option value="Barát">Barát</option>
                 </select>
             </div>
 
@@ -648,9 +641,7 @@
             toggleBtn.classList.toggle('open');
         });
 
-        // --------------------------------------------------
         // CANVAS NAVIGÁCIÓ
-        // --------------------------------------------------
         function updateWorldTransform() {
             treeWorld.style.transform = `translate(${panX}px, ${panY}px) scale(${zoomLevel})`;
         }
@@ -744,9 +735,7 @@
             }
         }
 
-        // --------------------------------------------------
-        // CSALÁDFÁK
-        // --------------------------------------------------
+        // CSALÁDFÁK KEZELÉSE
         function renderTreeTabs() {
             treeTabsList.innerHTML = '';
             familyTrees.forEach(tree => {
@@ -804,9 +793,7 @@
             });
         }
 
-        // --------------------------------------------------
-        // SIM RENDERING ÉS GOMBOK
-        // --------------------------------------------------
+        // SIMS KIRAJZOLÁS ÉS CSATLAKOZÁSI GOMBOK
         function addNewSimDialog() {
             addNewSim("Új", "Sim", 500 - panX / zoomLevel, 300 - panY / zoomLevel);
         }
@@ -835,7 +822,6 @@
             node.style.top = sim.y + 'px';
             if (sim.color) node.style.borderColor = sim.color;
 
-            // Ceruza ikon
             const editPencil = document.createElement('div');
             editPencil.className = 'sim-edit-pencil';
             editPencil.innerHTML = '✏️';
@@ -859,7 +845,7 @@
             node.appendChild(avatar);
             node.appendChild(label);
 
-            // JOBB OLDALI RÓZSASZÍN + GOMB (SZERELEM / KAPCSOLAT)
+            // JOBB OLDALI RÓZSASZÍN + GOMB (SZERELEM / PARTNER)
             const partnerBtn = document.createElement('div');
             partnerBtn.className = 'add-btn-node add-partner-btn';
             partnerBtn.innerText = '+';
@@ -879,7 +865,6 @@
             node.appendChild(partnerBtn);
             node.appendChild(childBtn);
 
-            // Drag and Drop
             node.addEventListener('mousedown', (e) => {
                 if (e.button !== 0) return;
                 if (e.target.classList.contains('add-btn-node') || e.target.classList.contains('sim-edit-pencil')) return;
@@ -901,22 +886,20 @@
             treeWorld.appendChild(node);
         }
 
-        // --------------------------------------------------
         // ANIMÁLT VONALAK RAJZOLÁSA (SVG)
-        // --------------------------------------------------
         function updateConnections() {
             svgLayer.innerHTML = '';
             const tree = getCurrentTree(); if (!tree) return;
 
             tree.sims.forEach(sim => {
-                // 1. SZÜLŐ-GYEREK (ALSÓ ZÖLD ANIMÁLT VONAL)
+                // Szülő-gyermek (zöld animált vonal)
                 if (sim.parentId) {
                     const parent = tree.sims.find(s => s.id === sim.parentId);
                     if (parent) {
                         const startX = parent.x + 47;
-                        const startY = parent.y + 94; // Szülő alja
+                        const startY = parent.y + 94;
                         const endX = sim.x + 47;
-                        const endY = sim.y; // Gyerek teteje
+                        const endY = sim.y;
 
                         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                         const midY = startY + (endY - startY) / 2;
@@ -926,20 +909,19 @@
                     }
                 }
 
-                // 2. SZERELEM / PARTNER (JOBB OLDALI RÓZSASZÍN ANIMÁLT KÖTÉL)
+                // Szerelmes / Partner (rózsaszín animált vonal)
                 if (sim.partnerId) {
                     const partner = tree.sims.find(s => s.id === sim.partnerId);
                     if (partner) {
-                        const startX = sim.x + 94; // Jobb oldal
+                        const startX = sim.x + 94;
                         const startY = sim.y + 47;
-                        const endX = partner.x; // Partner bal oldala
+                        const endX = partner.x;
                         const endY = partner.y + 47;
 
                         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                         const midX = startX + (endX - startX) / 2;
                         path.setAttribute('d', `M ${startX} ${startY} C ${midX} ${startY}, ${midX} ${endY}, ${endX} ${endY}`);
                         
-                        // Ha szerelmes/házas/jegyes, akkor rózsaszín kötél
                         const isLove = ['Házas', 'Jegyes', 'Szerelmes', null].includes(sim.relationType);
                         path.setAttribute('class', isLove ? 'line-love' : 'line-child');
                         
@@ -949,9 +931,7 @@
             });
         }
 
-        // --------------------------------------------------
-        // KONTEXTUS ÉS MODALOK
-        // --------------------------------------------------
+        // KONTEXTUS MENÜ ÉS MODAL MŰKÖDÉS
         function openContextMenu(x, y, sim) {
             contextSimId = sim.id;
             contextMenu.style.left = x + 'px';
