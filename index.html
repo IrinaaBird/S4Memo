@@ -335,7 +335,6 @@
             100% { transform: translateY(0px); }
         }
 
-        /* Fő Sim kártya tároló - Nem kap semmilyen clip-path-et! */
         .sim-node {
             position: absolute; 
             width: 94px; 
@@ -358,7 +357,6 @@
             transform: scale(1.1);
         }
 
-        /* Csak az avatar rétegre alkalmazzuk az alakzat vágást és a színes keretet */
         .sim-node-avatar {
             width: 100%; 
             height: 100%; 
@@ -385,7 +383,6 @@
             pointer-events: none; z-index: 15;
         }
 
-        /* VEZÉRLŐ GOMBOK - Magas z-index, hogy sose takarja el az alakzat */
         .sim-edit-pencil {
             position: absolute; top: -4px; right: -4px;
             width: 26px; height: 26px; background-color: var(--card-bg);
@@ -801,9 +798,9 @@
                 id: 'tree_1',
                 name: 'Goth család',
                 sims: [
-                    { id: 'sim_1', firstName: 'Bella', lastName: 'Goth', age: 'Fiatal felnőtt', traits: 'Romantikus', color: '#ff4770', image: '', imageTransform: null, x: 450, y: 200, parentId: null, partnerId: null, relationType: null, locked: false },
-                    { id: 'sim_2', firstName: 'Mortimer', lastName: 'Goth', age: 'Felnőtt', traits: 'Könyvmoly', color: '#d97757', image: '', imageTransform: null, x: 650, y: 200, parentId: null, partnerId: null, relationType: null, locked: false },
-                    { id: 'sim_3', firstName: 'Cassandra', lastName: 'Goth', age: 'Tini', traits: 'Borongós', color: '#2ed573', image: '', imageTransform: null, x: 550, y: 380, parentId: null, partnerId: null, relationType: null, locked: false }
+                    { id: 'sim_1', firstName: 'Bella', lastName: 'Goth', age: 'Fiatal felnőtt', traits: 'Romantikus', color: '#ff4770', image: '', imageTransform: null, x: 450, y: 200, parentIds: [], partnerId: 'sim_2', relationType: 'Házas', locked: false },
+                    { id: 'sim_2', firstName: 'Mortimer', lastName: 'Goth', age: 'Felnőtt', traits: 'Könyvmoly', color: '#d97757', image: '', imageTransform: null, x: 650, y: 200, parentIds: [], partnerId: 'sim_1', relationType: 'Házas', locked: false },
+                    { id: 'sim_3', firstName: 'Cassandra', lastName: 'Goth', age: 'Tini', traits: 'Borongós', color: '#2ed573', image: '', imageTransform: null, x: 550, y: 380, parentIds: ['sim_1', 'sim_2'], partnerId: null, relationType: null, locked: false }
                 ]
             }
         ];
@@ -817,6 +814,7 @@
 
         /* Képszerkesztési állapotok */
         let tempUploadedImage = '';
+        let customBgUrl = '';
         let currentRotation = 0;
 
         let zoomLevel = 1;
@@ -841,6 +839,9 @@
             if (style === 'custom') {
                 customBgContainer.style.display = 'block';
                 document.body.className = 'bg-custom';
+                if (customBgUrl) {
+                    document.body.style.backgroundImage = `url('${customBgUrl}')`;
+                }
             } else {
                 customBgContainer.style.display = 'none';
                 document.body.style.backgroundImage = '';
@@ -858,8 +859,9 @@
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
+                    customBgUrl = e.target.result;
                     document.body.className = 'bg-custom';
-                    document.body.style.backgroundImage = `url('${e.target.result}')`;
+                    document.body.style.backgroundImage = `url('${customBgUrl}')`;
                 };
                 reader.readAsDataURL(file);
             }
@@ -899,7 +901,18 @@
         function loadTreesFromStorage() {
             try {
                 const saved = localStorage.getItem('s4memo_family_trees');
-                if (saved) return JSON.parse(saved);
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    // Migráció a korábbi egyetlen parentId formátumról több parentIds tömbre
+                    parsed.forEach(t => {
+                        t.sims.forEach(s => {
+                            if (!s.parentIds) {
+                                s.parentIds = s.parentId ? [s.parentId] : [];
+                            }
+                        });
+                    });
+                    return parsed;
+                }
             } catch (e) {
                 console.error("Hiba a betöltéskor:", e);
             }
@@ -1116,13 +1129,13 @@
             addNewSim("Új", "Sim", 500 - panX / zoomLevel, 300 - panY / zoomLevel);
         }
 
-        function addNewSim(firstName = "Új", lastName = "Sim", x = 400, y = 200, parentId = null, partnerId = null, relationType = null) {
+        function addNewSim(firstName = "Új", lastName = "Sim", x = 400, y = 200, parentIds = [], partnerId = null, relationType = null) {
             const tree = getCurrentTree(); if (!tree) return;
 
             const newSim = {
                 id: 'sim_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
                 firstName: firstName, lastName: lastName, age: 'Fiatal felnőtt',
-                traits: '', color: '#ff4770', image: '', imageTransform: null, x: x, y: y, parentId: parentId, partnerId: partnerId, relationType: relationType, locked: false
+                traits: '', color: '#ff4770', image: '', imageTransform: null, x: x, y: y, parentIds: Array.isArray(parentIds) ? parentIds : (parentIds ? [parentIds] : []), partnerId: partnerId, relationType: relationType, locked: false
             };
 
             tree.sims.push(newSim);
@@ -1190,7 +1203,7 @@
             childBtn.title = 'Gyermek hozzáadása';
             childBtn.onclick = (e) => { 
                 e.stopPropagation(); 
-                addNewSim("Gyermek", sim.lastName, sim.x, sim.y + 160, sim.id, null, 'Gyerek');
+                addNewSim("Gyermek", sim.lastName, sim.x, sim.y + 160, [sim.id], null, 'Gyerek');
             };
 
             node.appendChild(partnerBtn);
@@ -1200,6 +1213,7 @@
                 if (e.button !== 0) return;
                 if (e.target.classList.contains('add-btn-node') || e.target.classList.contains('sim-edit-pencil')) return;
                 
+                e.stopPropagation(); // MEGAPADÁLYOZZA A VÁSZON MOZGÁSÁT ELEM MOZGATÁSAKOR
                 setSelectedSim(sim.id);
                 if (sim.locked) return;
 
@@ -1217,43 +1231,54 @@
             treeWorld.appendChild(node);
         }
 
+        /* JAVÍTOTT KÖTÉL-KIRAJZOLÁS (DUPLÁZÓDÁS SZŰRÉSÉVEL ÉS TÖBB SZÜLŐ TÁMOGATÁSÁVAL) */
         function updateConnections() {
             svgLayer.innerHTML = '';
             const tree = getCurrentTree(); if (!tree) return;
 
-            tree.sims.forEach(sim => {
-                if (sim.parentId) {
-                    const parent = tree.sims.find(s => s.id === sim.parentId);
-                    if (parent) {
-                        const startX = parent.x + 47;
-                        const startY = parent.y + 94;
-                        const endX = sim.x + 47;
-                        const endY = sim.y;
+            const drawnPartners = new Set();
 
-                        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                        const midY = startY + (endY - startY) / 2;
-                        path.setAttribute('d', `M ${startX} ${startY} C ${startX} ${midY}, ${endX} ${midY}, ${endX} ${endY}`);
-                        path.setAttribute('class', 'line-child');
-                        svgLayer.appendChild(path);
-                    }
+            tree.sims.forEach(sim => {
+                // Szülő - Gyerek kapcsolatok kirajzolása
+                if (sim.parentIds && sim.parentIds.length > 0) {
+                    sim.parentIds.forEach(parentId => {
+                        const parent = tree.sims.find(s => s.id === parentId);
+                        if (parent) {
+                            const startX = parent.x + 47;
+                            const startY = parent.y + 94;
+                            const endX = sim.x + 47;
+                            const endY = sim.y;
+
+                            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                            const midY = startY + (endY - startY) / 2;
+                            path.setAttribute('d', `M ${startX} ${startY} C ${startX} ${midY}, ${endX} ${midY}, ${endX} ${endY}`);
+                            path.setAttribute('class', 'line-child');
+                            svgLayer.appendChild(path);
+                        }
+                    });
                 }
 
+                // Partner / Házastárs kapcsolatok (Duplikálás elleni szűrővel)
                 if (sim.partnerId) {
-                    const partner = tree.sims.find(s => s.id === sim.partnerId);
-                    if (partner) {
-                        const startX = sim.x + 94;
-                        const startY = sim.y + 47;
-                        const endX = partner.x;
-                        const endY = partner.y + 47;
+                    const pairKey = [sim.id, sim.partnerId].sort().join('_');
+                    if (!drawnPartners.has(pairKey)) {
+                        drawnPartners.add(pairKey);
+                        const partner = tree.sims.find(s => s.id === sim.partnerId);
+                        if (partner) {
+                            const startX = sim.x + 94;
+                            const startY = sim.y + 47;
+                            const endX = partner.x;
+                            const endY = partner.y + 47;
 
-                        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                        const midX = startX + (endX - startX) / 2;
-                        path.setAttribute('d', `M ${startX} ${startY} C ${midX} ${startY}, ${midX} ${endY}, ${endX} ${endY}`);
-                        
-                        const isLove = ['Házas', 'Jegyes', 'Szerelmes', null].includes(sim.relationType);
-                        path.setAttribute('class', isLove ? 'line-love' : 'line-child');
-                        
-                        svgLayer.appendChild(path);
+                            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                            const midX = startX + (endX - startX) / 2;
+                            path.setAttribute('d', `M ${startX} ${startY} C ${midX} ${startY}, ${midX} ${endY}, ${endX} ${endY}`);
+                            
+                            const isLove = ['Házas', 'Jegyes', 'Szerelmes', null].includes(sim.relationType);
+                            path.setAttribute('class', isLove ? 'line-love' : 'line-child');
+                            
+                            svgLayer.appendChild(path);
+                        }
                     }
                 }
             });
@@ -1297,7 +1322,9 @@
             if (confirm("Törölni szeretnéd ezt a Simet?")) {
                 tree.sims = tree.sims.filter(s => s.id !== simId);
                 tree.sims.forEach(s => {
-                    if (s.parentId === simId) s.parentId = null;
+                    if (s.parentIds) {
+                        s.parentIds = s.parentIds.filter(pId => pId !== simId);
+                    }
                     if (s.partnerId === simId) s.partnerId = null;
                 });
                 if (selectedSimId === simId) setSelectedSim(null);
@@ -1402,11 +1429,17 @@
             const targetSim = tree.sims.find(s => s.id === selectedConnectionTargetId);
 
             if (sourceSim && targetSim) {
-                if (relationType === 'Gyerek') targetSim.parentId = sourceSim.id;
-                else if (relationType === 'Szülő') sourceSim.parentId = targetSim.id;
-                else {
+                if (relationType === 'Gyerek') {
+                    if (!targetSim.parentIds) targetSim.parentIds = [];
+                    if (!targetSim.parentIds.includes(sourceSim.id)) targetSim.parentIds.push(sourceSim.id);
+                } else if (relationType === 'Szülő') {
+                    if (!sourceSim.parentIds) sourceSim.parentIds = [];
+                    if (!sourceSim.parentIds.includes(targetSim.id)) sourceSim.parentIds.push(targetSim.id);
+                } else {
                     sourceSim.partnerId = targetSim.id;
                     sourceSim.relationType = relationType;
+                    targetSim.partnerId = sourceSim.id;
+                    targetSim.relationType = relationType;
                 }
             }
 
@@ -1423,14 +1456,15 @@
             closeConnectionModal();
 
             if (relationType === 'Gyerek') {
-                addNewSim("Gyermek", sourceSim.lastName, sourceSim.x, sourceSim.y + 160, sourceSim.id, null, 'Gyerek');
+                addNewSim("Gyermek", sourceSim.lastName, sourceSim.x, sourceSim.y + 160, [sourceSim.id], null, 'Gyerek');
             } else if (relationType === 'Szülő') {
-                const parent = addNewSim("Szülő", sourceSim.lastName, sourceSim.x, sourceSim.y - 160, null, null, null);
-                sourceSim.parentId = parent.id;
+                const parent = addNewSim("Szülő", sourceSim.lastName, sourceSim.x, sourceSim.y - 160, [], null, null);
+                if (!sourceSim.parentIds) sourceSim.parentIds = [];
+                sourceSim.parentIds.push(parent.id);
                 saveTreesToStorage();
                 loadCurrentTreeCanvas();
             } else {
-                const newSim = addNewSim("Partner", "", sourceSim.x + 160, sourceSim.y, null, sourceSim.id, relationType);
+                const newSim = addNewSim("Partner", "", sourceSim.x + 160, sourceSim.y, [], sourceSim.id, relationType);
                 sourceSim.partnerId = newSim.id;
                 sourceSim.relationType = relationType;
                 saveTreesToStorage();
