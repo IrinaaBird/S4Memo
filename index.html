@@ -321,12 +321,12 @@
         }
         .tree-svg-layer { position: absolute; top: 0; left: 0; width: 5000px; height: 5000px; pointer-events: none; z-index: 1; }
 
-        /* SIM KERETEK */
+        /* SIM KERETEK ÉS KÁRTYA JAVÍTÁSA */
         @keyframes borderRainbow {
-            0% { border-color: #ff4770; box-shadow: 0 0 18px rgba(255, 71, 112, 0.6); }
-            33% { border-color: #2ed573; box-shadow: 0 0 18px rgba(46, 213, 115, 0.6); }
-            66% { border-color: #ffa502; box-shadow: 0 0 18px rgba(255, 165, 2, 0.6); }
-            100% { border-color: #ff4770; box-shadow: 0 0 18px rgba(255, 71, 112, 0.6); }
+            0% { filter: drop-shadow(0 0 12px rgba(255, 71, 112, 0.8)); }
+            33% { filter: drop-shadow(0 0 12px rgba(46, 213, 115, 0.8)); }
+            66% { filter: drop-shadow(0 0 12px rgba(255, 165, 2, 0.8)); }
+            100% { filter: drop-shadow(0 0 12px rgba(255, 71, 112, 0.8)); }
         }
 
         @keyframes simFloat {
@@ -335,33 +335,46 @@
             100% { transform: translateY(0px); }
         }
 
+        /* Fő Sim kártya tároló - Nem kap semmilyen clip-path-et! */
         .sim-node {
-            position: absolute; width: 94px; height: 94px;
-            border-radius: var(--sim-node-radius); 
-            clip-path: var(--sim-node-clip-path);
-            background-color: var(--card-bg);
-            border: 4px solid var(--accent-color); box-shadow: 0 10px 25px var(--shadow-color);
-            cursor: pointer; z-index: 2; user-select: none;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: absolute; 
+            width: 94px; 
+            height: 94px;
+            cursor: pointer; 
+            z-index: 2; 
+            user-select: none;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            background: transparent;
         }
         .sim-node:hover { transform: scale(1.08); z-index: 5; }
         .sim-node.selected {
             animation: borderRainbow 3s linear infinite, simFloat 2.5s ease-in-out infinite;
             z-index: 10 !important;
         }
-        .sim-node.drop-target {
-            border-color: var(--btn-green) !important;
-            transform: scale(1.2);
-            box-shadow: 0 0 30px rgba(46, 213, 115, 0.9);
+        .sim-node.drop-target .sim-node-avatar {
+            box-shadow: 0 0 25px rgba(46, 213, 115, 1) !important;
+            transform: scale(1.1);
         }
 
+        /* Csak az avatar rétegre alkalmazzuk az alakzat vágást és a színes keretet */
         .sim-node-avatar {
-            width: 100%; height: 100%; 
+            width: 100%; 
+            height: 100%; 
             border-radius: var(--sim-node-radius);
             clip-path: var(--sim-node-clip-path);
             overflow: hidden;
-            display: flex; align-items: center; justify-content: center; font-size: 34px;
-            background-size: cover; background-position: center; pointer-events: none;
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 34px;
+            background-color: var(--card-bg);
+            background-size: cover; 
+            background-position: center; 
+            pointer-events: none;
+            box-shadow: inset 0 0 0 4px var(--accent-color), 0 8px 20px var(--shadow-color);
+            transition: all 0.2s ease;
         }
 
         .sim-node-label {
@@ -369,15 +382,16 @@
             font-weight: 800; font-size: 13px; color: var(--text-color);
             background-color: var(--card-bg); padding: 4px 12px; border-radius: 20px;
             border: 2px solid var(--border-color); box-shadow: 0 4px 10px var(--shadow-color);
-            pointer-events: none;
+            pointer-events: none; z-index: 15;
         }
 
+        /* VEZÉRLŐ GOMBOK - Magas z-index, hogy sose takarja el az alakzat */
         .sim-edit-pencil {
             position: absolute; top: -4px; right: -4px;
             width: 26px; height: 26px; background-color: var(--card-bg);
             border: 2px solid var(--border-color); border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 11px; cursor: pointer; z-index: 6; box-shadow: 0 3px 8px var(--shadow-color);
+            font-size: 11px; cursor: pointer; z-index: 20; box-shadow: 0 3px 8px var(--shadow-color);
         }
         .sim-edit-pencil:hover { background-color: var(--accent-color); color: white; transform: rotate(15deg) scale(1.2); }
 
@@ -387,10 +401,10 @@
             display: flex; align-items: center; justify-content: center;
             font-weight: 900; font-size: 16px; cursor: pointer;
             box-shadow: 0 4px 10px var(--shadow-color); border: 2px solid #ffffff;
-            z-index: 5;
+            z-index: 20;
         }
-        .add-partner-btn { right: -8px; top: 50%; transform: translateY(-50%); background-color: var(--btn-pink); }
-        .add-child-btn { bottom: -8px; left: 50%; transform: translateX(-50%); background-color: var(--btn-green); }
+        .add-partner-btn { right: -10px; top: 50%; transform: translateY(-50%); background-color: var(--btn-pink); }
+        .add-child-btn { bottom: -10px; left: 50%; transform: translateX(-50%); background-color: var(--btn-green); }
 
         /* KÉPSZERKESZTŐ BOX ELŐNÉZETTEL */
         .image-editor-box {
@@ -870,7 +884,7 @@
                 document.documentElement.style.setProperty('--sim-node-clip-path', 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)');
             } else if (shape === 'hexagon') {
                 document.documentElement.style.setProperty('--sim-node-radius', '0');
-                document.documentElement.style.setProperty('--sim-node-clip-path', 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)');
+                document.documentElement.style.setProperty('--sim-node-clip-path', 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)');
             }
         }
 
@@ -1125,7 +1139,6 @@
             node.id = sim.id;
             node.style.left = sim.x + 'px';
             node.style.top = sim.y + 'px';
-            if (sim.color) node.style.borderColor = sim.color;
 
             const editPencil = document.createElement('div');
             editPencil.className = 'sim-edit-pencil';
@@ -1135,6 +1148,11 @@
 
             const avatar = document.createElement('div');
             avatar.className = 'sim-node-avatar';
+            if (sim.color) {
+                avatar.style.setProperty('--accent-color', sim.color);
+                avatar.style.boxShadow = `inset 0 0 0 4px ${sim.color}, 0 8px 20px var(--shadow-color)`;
+            }
+
             if (sim.image) {
                 const imgEl = document.createElement('img');
                 imgEl.src = sim.image;
