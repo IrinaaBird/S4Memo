@@ -30,6 +30,10 @@
             --sim-node-clip-path: none;
             --sim-node-radius: 50%;
             --line-stroke-width: 3.5px;
+            
+            /* Háttérkép testreszabása */
+            --custom-bg-size: cover;
+            --custom-bg-position: center;
         }
 
         [data-theme="dark"] {
@@ -62,8 +66,8 @@
             background-size: 30px 30px; 
         }
         body.bg-custom {
-            background-size: cover;
-            background-position: center;
+            background-size: var(--custom-bg-size);
+            background-position: var(--custom-bg-position);
             background-repeat: no-repeat;
             background-attachment: fixed;
         }
@@ -83,9 +87,7 @@
             min-height: 100vh;
         }
 
-        /* -------------------------------------------------- */
-        /* BŐVÍTETT VONAL STÍLUSOK ÉS ANIMÁCIÓK             */
-        /* -------------------------------------------------- */
+        /* ANIMÁCIÓK */
         @keyframes pulseGlowPath {
             0% { stroke-dashoffset: 200; opacity: 0.8; }
             50% { opacity: 1; }
@@ -109,7 +111,6 @@
             stroke-linecap: round;
         }
 
-        /* Glow Stream Animált */
         .style-glow .line-love {
             stroke: var(--line-pink); stroke-width: var(--line-stroke-width);
             stroke-dasharray: 140 30; animation: pulseGlowPath 2.5s ease-in-out infinite alternate;
@@ -121,7 +122,6 @@
             filter: drop-shadow(0 0 8px rgba(46, 213, 115, 0.75)) drop-shadow(0 0 2px #fff);
         }
 
-        /* Folyamatos Neon */
         .style-solid .line-love {
             stroke: var(--line-pink); stroke-width: var(--line-stroke-width); stroke-dasharray: none; animation: none;
             filter: drop-shadow(0 0 6px rgba(255, 71, 112, 0.6));
@@ -131,7 +131,6 @@
             filter: drop-shadow(0 0 6px rgba(46, 213, 115, 0.6));
         }
 
-        /* Szaggatott Klasszikus */
         .style-dashed .line-love {
             stroke: var(--line-pink); stroke-width: var(--line-stroke-width); stroke-dasharray: 8 6; animation: none; filter: none;
         }
@@ -139,7 +138,6 @@
             stroke: var(--line-green); stroke-width: var(--line-stroke-width); stroke-dasharray: 8 6; animation: none; filter: none;
         }
 
-        /* Villódzó Pulzus */
         .style-flicker .line-love {
             stroke: var(--line-pink); stroke-width: var(--line-stroke-width);
             animation: flickerPath 1.8s infinite ease-in-out;
@@ -149,7 +147,6 @@
             animation: flickerPath 2.2s infinite ease-in-out;
         }
 
-        /* Pontozott Áramlás */
         .style-dots-flow .line-love {
             stroke: var(--line-pink); stroke-width: var(--line-stroke-width);
             stroke-dasharray: 6 10; animation: flowDots 1s linear infinite;
@@ -159,14 +156,12 @@
             stroke-dasharray: 6 10; animation: flowDots 1s linear infinite;
         }
 
-        /* -------------------------------------------------- */
-        /* KOMPAKTOBB KINYITHATÓ TESTRESZABÁSI PANEL         */
-        /* -------------------------------------------------- */
+        /* TESTRESZABÁSI PANEL */
         .style-panel-drawer {
             position: absolute; bottom: 20px; left: 20px; z-index: 1060;
             background-color: var(--nav-bg); border: 1.5px solid var(--border-color);
             border-radius: 18px; box-shadow: 0 8px 24px var(--shadow-color);
-            width: 210px; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 220px; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             overflow: hidden; backdrop-filter: blur(10px);
         }
 
@@ -183,7 +178,7 @@
         }
 
         .style-panel-drawer.open .style-panel-content {
-            max-height: 380px; opacity: 1; pointer-events: all;
+            max-height: 480px; opacity: 1; pointer-events: all;
         }
 
         .style-group { display: flex; flex-direction: column; gap: 3px; }
@@ -199,7 +194,7 @@
             font-size: 10px; font-weight: 800; text-align: center; cursor: pointer; margin-top: 2px;
         }
 
-        /* UI ELEMEK ÉS NAVIGÁCIÓ */
+        /* UI ELEMEK */
         .top-nav-container { padding: 20px 20px 0 20px; }
         .top-nav {
             background-color: var(--nav-bg); padding: 14px 28px;
@@ -277,9 +272,9 @@
         }
         .add-sim-floating-btn:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 12px 28px rgba(255, 71, 112, 0.6); }
 
-        /* KOMPAKT ZOOM VEZÉRLŐPANEL */
+        /* ZOOM PAN */
         .zoom-controls {
-            position: absolute; bottom: 20px; left: 245px; z-index: 1050;
+            position: absolute; bottom: 20px; left: 255px; z-index: 1050;
             display: flex; gap: 4px; background-color: var(--nav-bg);
             padding: 4px 6px; border-radius: 16px; border: 1.5px solid var(--border-color);
             box-shadow: 0 4px 12px var(--shadow-color); align-items: center;
@@ -296,7 +291,6 @@
             font-size: 11px; font-weight: 800; color: var(--subtext-color); padding: 0 6px; cursor: pointer; user-select: none;
         }
 
-        /* VÁSZON ÉS VILÁG */
         .tree-canvas-viewport {
             width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; overflow: hidden; cursor: grab;
         }
@@ -308,7 +302,7 @@
         }
         .tree-svg-layer { position: absolute; top: 0; left: 0; width: 5000px; height: 5000px; pointer-events: none; z-index: 1; }
 
-        /* SIM KERETEK ÉS FORMÁK */
+        /* SIM KERETEK */
         @keyframes borderRainbow {
             0% { border-color: #ff4770; box-shadow: 0 0 18px rgba(255, 71, 112, 0.6); }
             33% { border-color: #2ed573; box-shadow: 0 0 18px rgba(46, 213, 115, 0.6); }
@@ -332,12 +326,10 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
         .sim-node:hover { transform: scale(1.08); z-index: 5; }
-
         .sim-node.selected {
             animation: borderRainbow 3s linear infinite, simFloat 2.5s ease-in-out infinite;
             z-index: 10 !important;
         }
-
         .sim-node.drop-target {
             border-color: var(--btn-green) !important;
             transform: scale(1.2);
@@ -370,13 +362,6 @@
         }
         .sim-edit-pencil:hover { background-color: var(--accent-color); color: white; transform: rotate(15deg) scale(1.2); }
 
-        /* GOMBOK */
-        @keyframes pulseGlow {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
-        }
-
         .add-btn-node {
             position: absolute; width: 28px; height: 28px;
             color: white; border-radius: 50%;
@@ -385,30 +370,10 @@
             box-shadow: 0 4px 10px var(--shadow-color); border: 2px solid #ffffff;
             z-index: 5;
         }
+        .add-partner-btn { right: -8px; top: 50%; transform: translateY(-50%); background-color: var(--btn-pink); }
+        .add-child-btn { bottom: -8px; left: 50%; transform: translateX(-50%); background-color: var(--btn-green); }
 
-        .add-partner-btn {
-            right: -8px; top: 50%; transform: translateY(-50%);
-            background-color: var(--btn-pink);
-            box-shadow: 0 3px 10px rgba(255, 71, 112, 0.5);
-        }
-        .add-partner-btn:hover {
-            background-color: var(--btn-pink-hover);
-            animation: pulseGlow 0.6s infinite ease-in-out;
-            transform: translateY(-50%) scale(1.25);
-        }
-
-        .add-child-btn {
-            bottom: -8px; left: 50%; transform: translateX(-50%);
-            background-color: var(--btn-green);
-            box-shadow: 0 3px 10px rgba(46, 213, 115, 0.5);
-        }
-        .add-child-btn:hover {
-            background-color: var(--btn-green-hover);
-            animation: pulseGlow 0.6s infinite ease-in-out;
-            transform: translateX(-50%) scale(1.25);
-        }
-
-        /* KONTEXTUS MENÜ */
+        /* MODALOK ÉS MENÜK */
         .context-menu {
             position: fixed; display: none; background-color: var(--nav-bg);
             border: 2px solid var(--border-color); border-radius: 24px;
@@ -418,12 +383,10 @@
         .context-menu.active { display: block; }
         .context-menu-item {
             padding: 11px 18px; font-size: 14px; font-weight: 700; color: var(--text-color);
-            cursor: pointer; display: flex; align-items: center; gap: 12px;
-            border-radius: 12px; margin: 2px 6px;
+            cursor: pointer; display: flex; align-items: center; gap: 12px; border-radius: 12px; margin: 2px 6px;
         }
         .context-menu-item:hover { background-color: var(--card-bg); color: var(--accent-color); transform: translateX(4px); }
 
-        /* MODALOK */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background-color: rgba(0, 0, 0, 0.4); z-index: 3000;
@@ -445,43 +408,28 @@
         }
         .form-row { display: flex; gap: 12px; }
 
-        /* AUTOCOMPLETE KERESŐ STÍLUSOK */
         .search-results-list {
             position: absolute; top: 100%; left: 0; right: 0;
             background-color: var(--card-bg); border: 2px solid var(--border-color);
             border-radius: 18px; max-height: 180px; overflow-y: auto;
-            box-shadow: 0 10px 25px var(--shadow-color); z-index: 10;
-            margin-top: 6px; display: none; padding: 6px 0;
+            box-shadow: 0 10px 25px var(--shadow-color); z-index: 10; margin-top: 6px; display: none; padding: 6px 0;
         }
         .search-results-list.active { display: block; }
-        .search-item {
-            padding: 10px 16px; cursor: pointer; font-size: 14px; font-weight: 700;
-            display: flex; align-items: center; justify-content: space-between;
-        }
+        .search-item { padding: 10px 16px; cursor: pointer; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; }
         .search-item:hover { background-color: var(--nav-bg); color: var(--accent-color); }
-        .search-item .sim-age-badge { font-size: 11px; color: var(--subtext-color); font-weight: 600; }
 
         .modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 25px; }
         .btn-secondary { background-color: transparent; border: 2px solid var(--border-color); color: var(--text-color); padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: 700; }
         .btn-primary { background-color: var(--btn-pink); border: none; color: white; padding: 10px 24px; border-radius: 20px; cursor: pointer; font-weight: 700; box-shadow: 0 4px 12px rgba(255, 71, 112, 0.4); }
-        .btn-primary:hover { background-color: var(--btn-pink-hover); transform: scale(1.04); }
         .btn-danger { background-color: #d9534f; border: none; color: white; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: 700; margin-right: auto; }
 
-        .selected-sim-preview {
-            display: flex; align-items: center; gap: 16px; margin-top: 12px;
-            padding: 12px 16px; background-color: var(--nav-bg); border-radius: 20px; border: 2px solid var(--border-color);
-        }
-        .sim-avatar-preview {
-            width: 54px; height: 54px; border-radius: 50%; border: 2px solid var(--accent-color);
-            background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; font-size: 24px; background-color: var(--card-bg);
-        }
+        .selected-sim-preview { display: flex; align-items: center; gap: 16px; margin-top: 12px; padding: 12px 16px; background-color: var(--nav-bg); border-radius: 20px; border: 2px solid var(--border-color); }
+        .sim-avatar-preview { width: 54px; height: 54px; border-radius: 50%; border: 2px solid var(--accent-color); background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; font-size: 24px; background-color: var(--card-bg); }
 
-        /* RIGHT SIDEBAR */
         .right-sidebar {
             position: fixed; top: 20px; right: -290px; width: 270px; height: calc(100vh - 40px);
             background-color: var(--nav-bg); box-shadow: -15px 0 35px var(--shadow-color);
-            transition: right 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            padding: 40px 18px 20px 18px; z-index: 2000; border-radius: 36px 0 0 36px;
+            transition: right 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 40px 18px 20px 18px; z-index: 2000; border-radius: 36px 0 0 36px;
             border: 2px solid var(--border-color); border-right: none;
         }
         .right-sidebar.open { right: 0; }
@@ -535,7 +483,7 @@
             <button class="add-tree-btn" onclick="createNewTree()">+ Családfa hozzáadása</button>
         </div>
 
-        <!-- BAL ALSÓ KOMPAKTOBB TESTRESZABÁSI PANEL -->
+        <!-- BAL ALSÓ TESTRESZABÁSI PANEL BEÁLLÍTÁSOKKAL -->
         <div class="style-panel-drawer" id="styleDrawer">
             <div class="style-panel-header" onclick="toggleStyleDrawer()">
                 <span>🎨 Testreszabás</span>
@@ -550,9 +498,27 @@
                         <option value="grid">Rácsos</option>
                         <option value="custom">Saját kép (Feltöltés)</option>
                     </select>
-                    <div id="customBgContainer" style="display: none;">
+                    <div id="customBgContainer" style="display: none; margin-top: 4px;">
                         <label for="bgFileInput" class="custom-file-btn">📁 Kép tallózása...</label>
                         <input type="file" id="bgFileInput" class="custom-file-upload" accept="image/*" onchange="handleCustomBgUpload(event)">
+                        
+                        <div style="margin-top: 8px;" class="style-group">
+                            <label>Kép Méretezése</label>
+                            <select onchange="changeBgSize(this.value)">
+                                <option value="cover" selected>Kitöltés (Cover)</option>
+                                <option value="contain">Illesztés (Contain)</option>
+                                <option value="100% 100%">Nyújtás (Stretch)</option>
+                                <option value="auto">Eredeti Méret (Original)</option>
+                            </select>
+                        </div>
+                        <div style="margin-top: 6px;" class="style-group">
+                            <label>Kép Igazítása</label>
+                            <select onchange="changeBgPosition(this.value)">
+                                <option value="center" selected>Középre</option>
+                                <option value="top">Fent</option>
+                                <option value="bottom">Lent</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <div class="style-group">
@@ -578,11 +544,11 @@
             </div>
         </div>
 
-        <!-- KOMPAKT ZOOM VEZÉRLŐPANEL -->
+        <!-- ZOOM VEZÉRLŐPANEL -->
         <div class="zoom-controls">
             <button class="zoom-btn" onclick="adjustZoom(0.1)" title="Nagyítás">+</button>
             <button class="zoom-btn" onclick="adjustZoom(-0.1)" title="Kicsinyítés">-</button>
-            <span class="zoom-percentage-text" id="zoomPercentLabel" onclick="resetZoom()" title="Kattints a visszaállításhoz">100%</span>
+            <span class="zoom-percentage-text" id="zoomPercentLabel" onclick="resetZoom()" title="Visszaállítás">100%</span>
         </div>
 
         <button class="add-sim-floating-btn" onclick="addNewSimDialog()">+ Új Sim Hozzáadása</button>
@@ -662,7 +628,7 @@
         </div>
     </div>
 
-    <!-- KAPCSOLAT VÁLASZTÓ MODAL KERESŐVEL -->
+    <!-- KAPCSOLAT VÁLASZTÓ MODAL -->
     <div class="modal-overlay" id="connectionModal">
         <div class="modal-card">
             <h2 id="connectionModalTitle">Kapcsolat Hozzáadása</h2>
@@ -747,7 +713,6 @@
         let selectedConnectionTargetId = null;
         let tempUploadedImage = '';
 
-        // Zoom & Pan
         let zoomLevel = 1;
         let panX = 0;
         let panY = 0;
@@ -755,7 +720,6 @@
         let startPanX = 0;
         let startPanY = 0;
 
-        // Drag & Drop
         let activeDrag = null;
         let dragStartMouse = { x: 0, y: 0 };
         let dragStartSimPos = { x: 0, y: 0 };
@@ -788,6 +752,14 @@
                 };
                 reader.readAsDataURL(file);
             }
+        }
+
+        function changeBgSize(val) {
+            document.documentElement.style.setProperty('--custom-bg-size', val);
+        }
+
+        function changeBgPosition(val) {
+            document.documentElement.style.setProperty('--custom-bg-position', val);
         }
 
         function changeLineStyle(styleClass) {
@@ -1128,7 +1100,6 @@
             treeWorld.appendChild(node);
         }
 
-        /* SVG ELEMEK ÉS PONTOS VONAL RAJZOLÁS */
         function updateConnections() {
             svgLayer.innerHTML = '';
             const tree = getCurrentTree(); if (!tree) return;
@@ -1272,7 +1243,7 @@
                 matchingSims.forEach(sim => {
                     const item = document.createElement('div');
                     item.className = 'search-item';
-                    item.innerHTML = `<span>${sim.image ? '🖼️' : '👤'} ${sim.firstName} ${sim.lastName}</span> <span class="sim-age-badge">${sim.age}</span>`;
+                    item.innerHTML = `<span>${sim.image ? '🖼️' : '👤'} ${sim.firstName} ${sim.lastName}</span> <span style="font-size:11px; color:var(--subtext-color);">${sim.age}</span>`;
                     item.onclick = () => selectSimForConnection(sim.id);
                     list.appendChild(item);
                 });
