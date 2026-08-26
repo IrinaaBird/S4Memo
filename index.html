@@ -392,6 +392,25 @@
         .add-partner-btn { right: -8px; top: 50%; transform: translateY(-50%); background-color: var(--btn-pink); }
         .add-child-btn { bottom: -8px; left: 50%; transform: translateX(-50%); background-color: var(--btn-green); }
 
+        /* KÉPSZERKESZTŐ BOX ELŐNÉZETTEL */
+        .image-editor-box {
+            background-color: var(--nav-bg); border: 2px solid var(--border-color);
+            border-radius: 20px; padding: 14px; margin-top: 10px;
+        }
+        .img-preview-frame {
+            width: 100px; height: 100px; border-radius: 50%;
+            border: 3px solid var(--accent-color); margin: 0 auto 12px auto;
+            overflow: hidden; background-color: var(--card-bg);
+            display: flex; align-items: center; justify-content: center; font-size: 40px;
+        }
+        .img-preview-element {
+            width: 100%; height: 100%; object-fit: cover;
+            transform-origin: center center; transition: transform 0.1s ease, filter 0.1s ease;
+        }
+        .editor-controls-grid {
+            display: flex; flex-direction: column; gap: 8px;
+        }
+
         /* MODALOK ÉS MENÜK */
         .context-menu {
             position: fixed; display: none; background-color: var(--nav-bg);
@@ -414,7 +433,7 @@
         .modal-overlay.active { display: flex; }
         .modal-card {
             background-color: var(--card-bg); border: 2px solid var(--border-color);
-            border-radius: 36px; width: 460px; max-width: 90%; padding: 32px;
+            border-radius: 36px; width: 480px; max-width: 90%; padding: 32px;
             box-shadow: 0 20px 45px var(--shadow-color); max-height: 90vh; overflow-y: auto;
         }
 
@@ -544,7 +563,6 @@
                     </div>
                 </div>
 
-                <!-- ÚJ HÁTTÉR HOMÁLYOSÍTÁS (BLUR) CSÚSZKA -->
                 <div class="style-group" style="margin-top: 4px;">
                     <label>
                         <span>Háttér Homályosítás</span>
@@ -607,7 +625,7 @@
         </main>
     </div>
 
-    <!-- SIM SZERKESZTŐ MODAL -->
+    <!-- SIM SZERKESZTŐ MODAL INTERAKTÍV KÉPSZERKESZTŐVEL -->
     <div class="modal-overlay" id="simModal">
         <div class="modal-card">
             <h2>Sim Szerkesztése</h2>
@@ -642,11 +660,50 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Profilkép feltöltése</label>
+                    <label>Profilkép kiválasztása</label>
                     <input type="file" id="editImageInput" accept="image/*" onchange="handleImageUpload(event)">
                 </div>
 
-                <div class="form-group">
+                <!-- INTERAKTÍV KÉPSZERKESZTŐ BOX -->
+                <div class="image-editor-box" id="imageEditorBox" style="display: none;">
+                    <div class="img-preview-frame" id="imgPreviewFrame">
+                        <img id="modalImgPreview" class="img-preview-element" src="" alt="Preview">
+                    </div>
+                    
+                    <div class="editor-controls-grid">
+                        <div class="style-group">
+                            <label><span>Nagyítás (Zoom)</span> <span id="imgZoomVal">100%</span></label>
+                            <input type="range" id="imgZoomSlider" min="1" max="2.5" step="0.05" value="1" oninput="updateImageTransform()">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="style-group" style="flex:1;">
+                                <label>Vízszintes (X)</label>
+                                <input type="range" id="imgOffsetX" min="-50" max="50" step="1" value="0" oninput="updateImageTransform()">
+                            </div>
+                            <div class="style-group" style="flex:1;">
+                                <label>Függőleges (Y)</label>
+                                <input type="range" id="imgOffsetY" min="-50" max="50" step="1" value="0" oninput="updateImageTransform()">
+                            </div>
+                        </div>
+
+                        <div class="form-row" style="align-items: flex-end;">
+                            <div class="style-group" style="flex:1;">
+                                <label>Filter / Szűrő</label>
+                                <select id="imgFilterSelect" onchange="updateImageTransform()">
+                                    <option value="none" selected>Normál</option>
+                                    <option value="grayscale(100%)">Fekete-Fehér</option>
+                                    <option value="sepia(80%)">Szépia</option>
+                                    <option value="contrast(140%) brightness(110%)">Kontrasztos</option>
+                                    <option value="saturate(200%)">Élénk</option>
+                                </select>
+                            </div>
+                            <button type="button" class="btn-secondary" style="padding: 6px 12px; font-size: 11px;" onclick="rotateImage()">🔄 90° Forgatás</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 14px;">
                     <label>Személyiségjegyek / Leírás</label>
                     <textarea id="editTraits" rows="3" placeholder="Pl.: Vidám, Kreatív..."></textarea>
                 </div>
@@ -730,9 +787,9 @@
                 id: 'tree_1',
                 name: 'Goth család',
                 sims: [
-                    { id: 'sim_1', firstName: 'Bella', lastName: 'Goth', age: 'Fiatal felnőtt', traits: 'Romantikus', color: '#ff4770', image: '', x: 450, y: 200, parentId: null, partnerId: null, relationType: null, locked: false },
-                    { id: 'sim_2', firstName: 'Mortimer', lastName: 'Goth', age: 'Felnőtt', traits: 'Könyvmoly', color: '#d97757', image: '', x: 650, y: 200, parentId: null, partnerId: null, relationType: null, locked: false },
-                    { id: 'sim_3', firstName: 'Cassandra', lastName: 'Goth', age: 'Tini', traits: 'Borongós', color: '#2ed573', image: '', x: 550, y: 380, parentId: null, partnerId: null, relationType: null, locked: false }
+                    { id: 'sim_1', firstName: 'Bella', lastName: 'Goth', age: 'Fiatal felnőtt', traits: 'Romantikus', color: '#ff4770', image: '', imageTransform: null, x: 450, y: 200, parentId: null, partnerId: null, relationType: null, locked: false },
+                    { id: 'sim_2', firstName: 'Mortimer', lastName: 'Goth', age: 'Felnőtt', traits: 'Könyvmoly', color: '#d97757', image: '', imageTransform: null, x: 650, y: 200, parentId: null, partnerId: null, relationType: null, locked: false },
+                    { id: 'sim_3', firstName: 'Cassandra', lastName: 'Goth', age: 'Tini', traits: 'Borongós', color: '#2ed573', image: '', imageTransform: null, x: 550, y: 380, parentId: null, partnerId: null, relationType: null, locked: false }
                 ]
             }
         ];
@@ -743,7 +800,10 @@
         let contextSimId = null;
         let selectedSimId = null;
         let selectedConnectionTargetId = null;
+
+        /* Képszerkesztési állapotok */
         let tempUploadedImage = '';
+        let currentRotation = 0;
 
         let zoomLevel = 1;
         let panX = 0;
@@ -774,7 +834,6 @@
             }
         }
 
-        /* ÚJ CSÚSZKA FUNKCIÓ A HOMÁLYOSÍTÁSHOZ (BLUR) */
         function changeBgBlur(val) {
             document.documentElement.style.setProperty('--bg-blur', `${val}px`);
             document.getElementById('bgBlurValText').innerText = `${val}px`;
@@ -792,17 +851,9 @@
             }
         }
 
-        function changeBgSize(val) {
-            document.documentElement.style.setProperty('--custom-bg-size', val);
-        }
-
-        function changeBgPosition(val) {
-            document.documentElement.style.setProperty('--custom-bg-position', val);
-        }
-
-        function changeLineStyle(styleClass) {
-            treeWorld.className = `tree-canvas-world ${styleClass}`;
-        }
+        function changeBgSize(val) { document.documentElement.style.setProperty('--custom-bg-size', val); }
+        function changeBgPosition(val) { document.documentElement.style.setProperty('--custom-bg-position', val); }
+        function changeLineStyle(styleClass) { treeWorld.className = `tree-canvas-world ${styleClass}`; }
 
         function changeSimShape(shape) {
             if (shape === 'circle') {
@@ -1057,7 +1108,7 @@
             const newSim = {
                 id: 'sim_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
                 firstName: firstName, lastName: lastName, age: 'Fiatal felnőtt',
-                traits: '', color: '#ff4770', image: '', x: x, y: y, parentId: parentId, partnerId: partnerId, relationType: relationType, locked: false
+                traits: '', color: '#ff4770', image: '', imageTransform: null, x: x, y: y, parentId: parentId, partnerId: partnerId, relationType: relationType, locked: false
             };
 
             tree.sims.push(newSim);
@@ -1085,10 +1136,20 @@
             const avatar = document.createElement('div');
             avatar.className = 'sim-node-avatar';
             if (sim.image) {
-                avatar.style.backgroundImage = `url(${sim.image})`;
-                avatar.innerText = '';
+                const imgEl = document.createElement('img');
+                imgEl.src = sim.image;
+                imgEl.style.width = '100%';
+                imgEl.style.height = '100%';
+                imgEl.style.objectFit = 'cover';
+
+                if (sim.imageTransform) {
+                    const { scale, rotate, offsetX, offsetY, filter } = sim.imageTransform;
+                    imgEl.style.transform = `scale(${scale}) rotate(${rotate}deg) translate(${offsetX}px, ${offsetY}px)`;
+                    imgEl.style.filter = filter || 'none';
+                }
+
+                avatar.appendChild(imgEl);
             } else {
-                avatar.style.backgroundImage = 'none';
                 avatar.innerText = '👤';
             }
 
@@ -1364,12 +1425,14 @@
             document.getElementById('searchResultsList').classList.remove('active');
         }
 
+        /* --- KÉPSZERKESZTŐ FUNKCIÓK A MODALBAN --- */
         function openSimModal(simId) {
             const tree = getCurrentTree(); if (!tree) return;
             const sim = tree.sims.find(s => s.id === simId); if (!sim) return;
 
             editingSimId = simId;
             tempUploadedImage = sim.image || '';
+            currentRotation = sim.imageTransform?.rotate || 0;
 
             document.getElementById('editFirstName').value = sim.firstName || '';
             document.getElementById('editLastName').value = sim.lastName || '';
@@ -1377,19 +1440,64 @@
             document.getElementById('editColor').value = sim.color || '#ff4770';
             document.getElementById('editTraits').value = sim.traits || '';
 
+            const transform = sim.imageTransform || { scale: 1, rotate: 0, offsetX: 0, offsetY: 0, filter: 'none' };
+            document.getElementById('imgZoomSlider').value = transform.scale || 1;
+            document.getElementById('imgOffsetX').value = transform.offsetX || 0;
+            document.getElementById('imgOffsetY').value = transform.offsetY || 0;
+            document.getElementById('imgFilterSelect').value = transform.filter || 'none';
+
+            if (tempUploadedImage) {
+                showImageEditor(tempUploadedImage);
+            } else {
+                document.getElementById('imageEditorBox').style.display = 'none';
+            }
+
             simModal.classList.add('active');
         }
-
-        function closeSimModal() { simModal.classList.remove('active'); editingSimId = null; }
 
         function handleImageUpload(event) {
             const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = function(e) { tempUploadedImage = e.target.result; };
+                reader.onload = function(e) { 
+                    tempUploadedImage = e.target.result;
+                    currentRotation = 0;
+                    document.getElementById('imgZoomSlider').value = 1;
+                    document.getElementById('imgOffsetX').value = 0;
+                    document.getElementById('imgOffsetY').value = 0;
+                    document.getElementById('imgFilterSelect').value = 'none';
+                    showImageEditor(tempUploadedImage);
+                };
                 reader.readAsDataURL(file);
             }
         }
+
+        function showImageEditor(imageSrc) {
+            const imgEl = document.getElementById('modalImgPreview');
+            imgEl.src = imageSrc;
+            document.getElementById('imageEditorBox').style.display = 'block';
+            updateImageTransform();
+        }
+
+        function rotateImage() {
+            currentRotation = (currentRotation + 90) % 360;
+            updateImageTransform();
+        }
+
+        function updateImageTransform() {
+            const scale = document.getElementById('imgZoomSlider').value;
+            const offsetX = document.getElementById('imgOffsetX').value;
+            const offsetY = document.getElementById('imgOffsetY').value;
+            const filter = document.getElementById('imgFilterSelect').value;
+
+            document.getElementById('imgZoomVal').innerText = `${Math.round(scale * 100)}%`;
+
+            const imgEl = document.getElementById('modalImgPreview');
+            imgEl.style.transform = `scale(${scale}) rotate(${currentRotation}deg) translate(${offsetX}px, ${offsetY}px)`;
+            imgEl.style.filter = filter;
+        }
+
+        function closeSimModal() { simModal.classList.remove('active'); editingSimId = null; }
 
         function saveSimDetails(event) {
             event.preventDefault();
@@ -1402,6 +1510,18 @@
             sim.color = document.getElementById('editColor').value;
             sim.traits = document.getElementById('editTraits').value;
             sim.image = tempUploadedImage;
+
+            if (tempUploadedImage) {
+                sim.imageTransform = {
+                    scale: parseFloat(document.getElementById('imgZoomSlider').value),
+                    rotate: currentRotation,
+                    offsetX: parseInt(document.getElementById('imgOffsetX').value),
+                    offsetY: parseInt(document.getElementById('imgOffsetY').value),
+                    filter: document.getElementById('imgFilterSelect').value
+                };
+            } else {
+                sim.imageTransform = null;
+            }
 
             saveTreesToStorage();
             closeSimModal();
