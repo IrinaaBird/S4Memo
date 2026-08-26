@@ -26,6 +26,10 @@
             --btn-green-hover: #26af5f;
             --line-pink: #ff4770;
             --line-green: #2ed573;
+
+            /* Dinamikus Testreszabási Változók */
+            --sim-node-radius: 50%;
+            --line-stroke-width: 3.5px;
         }
 
         [data-theme="dark"] {
@@ -50,6 +54,14 @@
             --line-green: #2ed573;
         }
 
+        /* HÁTTÉR MINTÁK */
+        body.bg-dots { background-image: var(--bg-pattern); background-size: 24px 24px; }
+        body.bg-clean { background-image: none !important; }
+        body.bg-grid { 
+            background-image: linear-gradient(var(--border-color) 1px, transparent 1px), linear-gradient(90deg, var(--border-color) 1px, transparent 1px);
+            background-size: 30px 30px; 
+        }
+
         * {
             box-sizing: border-box;
             font-family: 'Quicksand', 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
@@ -60,28 +72,18 @@
             margin: 0;
             padding: 0;
             background-color: var(--bg-color);
-            background-image: var(--bg-pattern);
-            background-size: 24px 24px;
             color: var(--text-color);
             overflow: hidden;
             min-height: 100vh;
         }
 
         /* -------------------------------------------------- */
-        /* ÚJ, FOLYÉKONY ANIMÁLT VONALAK (GLOW STREAM EFFECT) */
+        /* VONAL STÍLUSOK (ANIMÁLT ÉS KLASSZIKUS)             */
         /* -------------------------------------------------- */
         @keyframes pulseGlowPath {
-            0% {
-                stroke-dashoffset: 200;
-                opacity: 0.8;
-            }
-            50% {
-                opacity: 1;
-            }
-            100% {
-                stroke-dashoffset: 0;
-                opacity: 0.8;
-            }
+            0% { stroke-dashoffset: 200; opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { stroke-dashoffset: 0; opacity: 0.8; }
         }
 
         svg path {
@@ -89,25 +91,71 @@
             stroke-linecap: round;
         }
 
-        .line-love {
-            stroke: var(--line-pink);
-            stroke-width: 3.5;
-            stroke-dasharray: 140 30;
-            animation: pulseGlowPath 2.5s ease-in-out infinite alternate;
+        /* Glow Stream Animált */
+        .style-glow .line-love {
+            stroke: var(--line-pink); stroke-width: var(--line-stroke-width);
+            stroke-dasharray: 140 30; animation: pulseGlowPath 2.5s ease-in-out infinite alternate;
             filter: drop-shadow(0 0 8px rgba(255, 71, 112, 0.75)) drop-shadow(0 0 2px #fff);
         }
-
-        .line-child {
-            stroke: var(--line-green);
-            stroke-width: 3.5;
-            stroke-dasharray: 140 30;
-            animation: pulseGlowPath 2.5s ease-in-out infinite alternate;
+        .style-glow .line-child {
+            stroke: var(--line-green); stroke-width: var(--line-stroke-width);
+            stroke-dasharray: 140 30; animation: pulseGlowPath 2.5s ease-in-out infinite alternate;
             filter: drop-shadow(0 0 8px rgba(46, 213, 115, 0.75)) drop-shadow(0 0 2px #fff);
         }
 
+        /* Folyamatos Neon */
+        .style-solid .line-love {
+            stroke: var(--line-pink); stroke-width: var(--line-stroke-width); stroke-dasharray: none; animation: none;
+            filter: drop-shadow(0 0 6px rgba(255, 71, 112, 0.6));
+        }
+        .style-solid .line-child {
+            stroke: var(--line-green); stroke-width: var(--line-stroke-width); stroke-dasharray: none; animation: none;
+            filter: drop-shadow(0 0 6px rgba(46, 213, 115, 0.6));
+        }
+
+        /* Szaggatott Klasszikus */
+        .style-dashed .line-love {
+            stroke: var(--line-pink); stroke-width: var(--line-stroke-width); stroke-dasharray: 8 6; animation: none; filter: none;
+        }
+        .style-dashed .line-child {
+            stroke: var(--line-green); stroke-width: var(--line-stroke-width); stroke-dasharray: 8 6; animation: none; filter: none;
+        }
+
         /* -------------------------------------------------- */
-        /* UI ELEMEK ÉS NAVIGÁCIÓ                            */
+        /* BAL OLDALI KINYITHATÓ TESTRESZABÁSI PANEL         */
         /* -------------------------------------------------- */
+        .style-panel-drawer {
+            position: absolute; bottom: 20px; left: 20px; z-index: 1060;
+            background-color: var(--nav-bg); border: 2px solid var(--border-color);
+            border-radius: 28px; box-shadow: 0 12px 35px var(--shadow-color);
+            width: 270px; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            overflow: hidden; backdrop-filter: blur(10px);
+        }
+
+        .style-panel-header {
+            padding: 14px 20px; font-weight: 800; font-size: 14px;
+            display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; background-color: var(--card-bg); border-bottom: 2px solid var(--border-color);
+            user-select: none;
+        }
+
+        .style-panel-content {
+            padding: 16px; display: flex; flex-direction: column; gap: 14px;
+            max-height: 0; opacity: 0; transition: all 0.3s ease; pointer-events: none;
+        }
+
+        .style-panel-drawer.open .style-panel-content {
+            max-height: 400px; opacity: 1; pointer-events: all;
+        }
+
+        .style-group { display: flex; flex-direction: column; gap: 6px; }
+        .style-group label { font-size: 11px; font-weight: 800; color: var(--subtext-color); text-transform: uppercase; }
+        .style-group select {
+            padding: 8px 12px; border-radius: 14px; border: 2px solid var(--border-color);
+            background-color: var(--input-bg); color: var(--text-color); font-weight: 700; font-size: 13px; outline: none;
+        }
+
+        /* UI ELEMEK ÉS NAVIGÁCIÓ */
         .top-nav-container { padding: 20px 20px 0 20px; }
         .top-nav {
             background-color: var(--nav-bg); padding: 14px 28px;
@@ -167,7 +215,7 @@
             background-color: var(--nav-bg); border: 2px solid var(--border-color);
             border-radius: 32px; padding: 22px 16px; box-shadow: 0 10px 30px var(--shadow-color);
             z-index: 1050; display: flex; flex-direction: column; gap: 12px;
-            max-height: calc(100vh - 40px); overflow-y: auto;
+            max-height: calc(100vh - 120px); overflow-y: auto;
         }
 
         .add-tree-btn {
@@ -211,7 +259,7 @@
         }
         .tree-svg-layer { position: absolute; top: 0; left: 0; width: 5000px; height: 5000px; pointer-events: none; z-index: 1; }
 
-        /* ANIMÁLT SIM ELEMEK ÉS KERET */
+        /* ANIMÁLT SIM ELEMEK ÉS KERET STÍLUSOK */
         @keyframes borderRainbow {
             0% { border-color: #ff4770; box-shadow: 0 0 18px rgba(255, 71, 112, 0.6); }
             33% { border-color: #2ed573; box-shadow: 0 0 18px rgba(46, 213, 115, 0.6); }
@@ -227,7 +275,7 @@
 
         .sim-node {
             position: absolute; width: 94px; height: 94px;
-            border-radius: 50%; background-color: var(--card-bg);
+            border-radius: var(--sim-node-radius); background-color: var(--card-bg);
             border: 4px solid var(--accent-color); box-shadow: 0 10px 25px var(--shadow-color);
             cursor: pointer; z-index: 2; user-select: none;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -246,7 +294,7 @@
         }
 
         .sim-node-avatar {
-            width: 100%; height: 100%; border-radius: 50%; overflow: hidden;
+            width: 100%; height: 100%; border-radius: var(--sim-node-radius); overflow: hidden;
             display: flex; align-items: center; justify-content: center; font-size: 34px;
             background-size: cover; background-position: center; pointer-events: none;
         }
@@ -393,7 +441,7 @@
         .toggle-btn.open .arrow-icon { transform: rotate(180deg); }
     </style>
 </head>
-<body>
+<body class="bg-dots">
 
     <!-- NAVIGÁCIÓ -->
     <div class="top-nav-container" id="topNavContainer">
@@ -433,6 +481,40 @@
             <button class="add-tree-btn" onclick="createNewTree()">+ Családfa hozzáadása</button>
         </div>
 
+        <!-- BAL ALSÓ KINYITHATÓ TESTRESZABÁSI PANEL -->
+        <div class="style-panel-drawer" id="styleDrawer">
+            <div class="style-panel-header" onclick="toggleStyleDrawer()">
+                <span>🎨 Stílusok & Testreszabás</span>
+                <span id="drawerArrow">▲</span>
+            </div>
+            <div class="style-panel-content">
+                <div class="style-group">
+                    <label>Háttér Stílusa</label>
+                    <select id="bgStyleSelect" onchange="changeBgStyle(this.value)">
+                        <option value="dots" selected>Pöttyös (Alapértelmezett)</option>
+                        <option value="clean">Letisztult (Sima)</option>
+                        <option value="grid">Rácsos Műszaki</option>
+                    </select>
+                </div>
+                <div class="style-group">
+                    <label>Kötél / Vonal Animáció</label>
+                    <select id="lineStyleSelect" onchange="changeLineStyle(this.value)">
+                        <option value="style-glow" selected>Glow Stream (Animált)</option>
+                        <option value="style-solid">Folyamatos Neon</option>
+                        <option value="style-dashed">Szaggatott Klasszikus</option>
+                    </select>
+                </div>
+                <div class="style-group">
+                    <label>Sim Keret Alakja</label>
+                    <select id="simShapeSelect" onchange="changeSimShape(this.value)">
+                        <option value="50%" selected>Kör (Alapértelmezett)</option>
+                        <option value="22px">Lekerekített Négyzet</option>
+                        <option value="4px">Éles Négyzet</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
         <div class="zoom-controls">
             <button class="zoom-btn" onclick="adjustZoom(0.1)">+</button>
             <button class="zoom-btn" onclick="adjustZoom(-0.1)">-</button>
@@ -442,7 +524,7 @@
         <button class="add-sim-floating-btn" onclick="addNewSimDialog()">+ Új Sim Hozzáadása</button>
 
         <div class="tree-canvas-viewport" id="treeViewport">
-            <div class="tree-canvas-world" id="treeWorld">
+            <div class="tree-canvas-world style-glow" id="treeWorld">
                 <svg class="tree-svg-layer" id="svgLayer"></svg>
             </div>
         </div>
@@ -578,6 +660,7 @@
         const simModal = document.getElementById('simModal');
         const connectionModal = document.getElementById('connectionModal');
         const contextMenu = document.getElementById('contextMenu');
+        const styleDrawer = document.getElementById('styleDrawer');
 
         const defaultTrees = [
             {
@@ -612,6 +695,23 @@
         let dragStartMouse = { x: 0, y: 0 };
         let dragStartSimPos = { x: 0, y: 0 };
         let currentDropTargetSim = null;
+
+        function toggleStyleDrawer() {
+            styleDrawer.classList.toggle('open');
+            document.getElementById('drawerArrow').innerText = styleDrawer.classList.contains('open') ? '▼' : '▲';
+        }
+
+        function changeBgStyle(style) {
+            document.body.className = `bg-${style}`;
+        }
+
+        function changeLineStyle(styleClass) {
+            treeWorld.className = `tree-canvas-world ${styleClass}`;
+        }
+
+        function changeSimShape(radiusValue) {
+            document.documentElement.style.setProperty('--sim-node-radius', radiusValue);
+        }
 
         function saveTreesToStorage() {
             try {
@@ -706,7 +806,7 @@
 
         treeViewport.addEventListener('mousedown', (e) => {
             if (e.button !== 0) return;
-            if (e.target.closest('.sim-node') || e.target.closest('.zoom-controls') || e.target.closest('.tree-left-sidebar') || e.target.closest('.tree-full-controls') || e.target.closest('.modal-overlay') || e.target.closest('.context-menu')) return;
+            if (e.target.closest('.sim-node') || e.target.closest('.zoom-controls') || e.target.closest('.tree-left-sidebar') || e.target.closest('.tree-full-controls') || e.target.closest('.modal-overlay') || e.target.closest('.context-menu') || e.target.closest('.style-panel-drawer')) return;
             
             setSelectedSim(null);
             isPanning = true;
