@@ -355,6 +355,61 @@
         }
         .add-tree-btn:hover { background-color: var(--accent-color); color: #ffffff; transform: scale(1.02); }
 
+        /* NAPLÓ ELEMEK STÍLUSA */
+        .journal-item {
+            background-color: var(--card-bg);
+            border: 1.5px solid var(--border-color);
+            border-radius: 14px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            box-shadow: 0 2px 8px var(--shadow-color);
+        }
+        .journal-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .journal-title {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--text-color);
+        }
+        .journal-date {
+            font-size: 10px;
+            color: var(--subtext-color);
+            font-weight: 600;
+        }
+        .journal-preview {
+            font-size: 11px;
+            color: var(--subtext-color);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            word-break: break-word;
+        }
+        .journal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 4px;
+            margin-top: 4px;
+        }
+        .journal-btn {
+            background: none;
+            border: none;
+            font-size: 11px;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 6px;
+            opacity: 0.7;
+        }
+        .journal-btn:hover {
+            opacity: 1;
+            background-color: var(--nav-bg);
+        }
+
         .add-sim-floating-btn {
             position: absolute; bottom: 25px; right: 25px; z-index: 1050;
             background: linear-gradient(135deg, var(--btn-pink) 0%, var(--accent-color) 100%);
@@ -620,6 +675,22 @@
                 </div>
             </div>
 
+            <!-- ACCORDION NAPLÓM MENÜCSOPORT -->
+            <div class="accordion-group" id="journalAccordion">
+                <button class="accordion-header" onclick="toggleAccordion('journalAccordion')">
+                    <div class="header-title">
+                        <span>📖</span>
+                        <span>Naplóm</span>
+                    </div>
+                    <span class="chevron">▲</span>
+                </button>
+
+                <div class="accordion-content">
+                    <div id="journalEntriesList"></div>
+                    <button class="add-tree-btn" onclick="openJournalModal()">+ Új Bejegyzés</button>
+                </div>
+            </div>
+
         </div>
 
         <!-- ZOOM VEZÉRLŐPANEL -->
@@ -815,6 +886,31 @@
         </div>
     </div>
 
+    <!-- NAPLÓ BEJEGYZÉS MODAL -->
+    <div class="modal-overlay" id="journalModal">
+        <div class="modal-card">
+            <h2 id="journalModalTitle">Új Naplóbejegyzés</h2>
+            <form id="journalForm" onsubmit="saveJournalEntry(event)">
+                <div class="form-group">
+                    <label>Cím</label>
+                    <input type="text" id="journalTitleInput" placeholder="Pl.: Bella és Mortimer esküvője" required>
+                </div>
+                <div class="form-group">
+                    <label>Dátum</label>
+                    <input type="date" id="journalDateInput" required>
+                </div>
+                <div class="form-group">
+                    <label>Bejegyzés tartalma</label>
+                    <textarea id="journalContentInput" rows="5" placeholder="Írd le a történetedet vagy mérföldkövedet..." required></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeJournalModal()">Mégse</button>
+                    <button type="submit" class="btn-primary">Mentés</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- KAPCSOLAT VÁLASZTÓ MODAL -->
     <div class="modal-overlay" id="connectionModal">
         <div class="modal-card">
@@ -874,7 +970,9 @@
         const treeViewport = document.getElementById('treeViewport');
         const svgLayer = document.getElementById('svgLayer');
         const treeTabsList = document.getElementById('treeTabsList');
+        const journalEntriesList = document.getElementById('journalEntriesList');
         const simModal = document.getElementById('simModal');
+        const journalModal = document.getElementById('journalModal');
         const connectionModal = document.getElementById('connectionModal');
         const contextMenu = document.getElementById('contextMenu');
         const styleDrawer = document.getElementById('styleDrawer');
@@ -897,6 +995,9 @@
                     { id: 'sim_1', firstName: 'Bella', lastName: 'Goth', age: 'Fiatal felnőtt', traits: 'Romantikus', color: '#ff4770', image: '', imageTransform: null, x: 450, y: 200, parentId: null, partnerId: null, relationType: null, locked: false },
                     { id: 'sim_2', firstName: 'Mortimer', lastName: 'Goth', age: 'Felnőtt', traits: 'Könyvmoly', color: '#d97757', image: '', imageTransform: null, x: 650, y: 200, parentId: null, partnerId: null, relationType: null, locked: false },
                     { id: 'sim_3', firstName: 'Cassandra', lastName: 'Goth', age: 'Tini', traits: 'Borongós', color: '#2ed573', image: '', imageTransform: null, x: 550, y: 380, parentId: null, partnerId: null, relationType: null, locked: false }
+                ],
+                journal: [
+                    { id: 'j_1', title: 'Megérkezés Goth birtokra', date: '2026-01-15', content: 'A család beköltözött az új kúriába. Bella azonnal nekilátott a ház szépítésének.' }
                 ]
             }
         ];
@@ -904,6 +1005,7 @@
         let familyTrees = loadTreesFromStorage();
         let currentTreeId = familyTrees.length > 0 ? familyTrees[0].id : null;
         let editingSimId = null;
+        let editingJournalId = null;
         let contextSimId = null;
         let selectedSimId = null;
         let selectedConnectionTargetId = null;
@@ -1084,6 +1186,7 @@
                 document.getElementById('navTree').classList.add('active');
                 document.getElementById('menuTree').classList.add('active');
                 renderTreeTabs();
+                renderJournalEntries();
                 loadCurrentTreeCanvas();
             } else if (viewName === 'public') {
                 document.getElementById('publicView').classList.add('active');
@@ -1250,10 +1353,110 @@
             });
         }
 
+        /* NAPLÓ BEJEGYZÉSEK RENDERELÉSE */
+        function renderJournalEntries() {
+            journalEntriesList.innerHTML = '';
+            const tree = getCurrentTree();
+            if (!tree || !tree.journal || tree.journal.length === 0) {
+                journalEntriesList.innerHTML = '<div style="font-size:11px; color:var(--subtext-color); padding: 4px;">Nincsenek naplóbejegyzések.</div>';
+                return;
+            }
+
+            tree.journal.forEach(entry => {
+                const item = document.createElement('div');
+                item.className = 'journal-item';
+
+                item.innerHTML = `
+                    <div class="journal-item-header">
+                        <span class="journal-title">${entry.title}</span>
+                        <span class="journal-date">${entry.date || ''}</span>
+                    </div>
+                    <div class="journal-preview">${entry.content}</div>
+                    <div class="journal-actions">
+                        <button class="journal-btn" onclick="openJournalModal('${entry.id}')">✏️ Edit</button>
+                        <button class="journal-btn" onclick="deleteJournalEntry('${entry.id}')">🗑️</button>
+                    </div>
+                `;
+                journalEntriesList.appendChild(item);
+            });
+        }
+
+        function openJournalModal(entryId = null) {
+            const tree = getCurrentTree();
+            if (!tree) return alert('Kérlek válassz ki egy családfát!');
+
+            editingJournalId = entryId;
+            if (!tree.journal) tree.journal = [];
+
+            if (entryId) {
+                const entry = tree.journal.find(j => j.id === entryId);
+                if (entry) {
+                    document.getElementById('journalModalTitle').innerText = 'Bejegyzés Szerkesztése';
+                    document.getElementById('journalTitleInput').value = entry.title;
+                    document.getElementById('journalDateInput').value = entry.date;
+                    document.getElementById('journalContentInput').value = entry.content;
+                }
+            } else {
+                document.getElementById('journalModalTitle').innerText = 'Új Naplóbejegyzés';
+                document.getElementById('journalTitleInput').value = '';
+                document.getElementById('journalDateInput').value = new Date().toISOString().split('T')[0];
+                document.getElementById('journalContentInput').value = '';
+            }
+
+            journalModal.classList.add('active');
+        }
+
+        function closeJournalModal() {
+            journalModal.classList.remove('active');
+            editingJournalId = null;
+        }
+
+        function saveJournalEntry(event) {
+            event.preventDefault();
+            const tree = getCurrentTree();
+            if (!tree) return;
+            if (!tree.journal) tree.journal = [];
+
+            const title = document.getElementById('journalTitleInput').value;
+            const date = document.getElementById('journalDateInput').value;
+            const content = document.getElementById('journalContentInput').value;
+
+            if (editingJournalId) {
+                const entry = tree.journal.find(j => j.id === editingJournalId);
+                if (entry) {
+                    entry.title = title;
+                    entry.date = date;
+                    entry.content = content;
+                }
+            } else {
+                tree.journal.push({
+                    id: 'j_' + Date.now(),
+                    title: title,
+                    date: date,
+                    content: content
+                });
+            }
+
+            saveTreesToStorage();
+            closeJournalModal();
+            renderJournalEntries();
+        }
+
+        function deleteJournalEntry(entryId) {
+            const tree = getCurrentTree();
+            if (!tree || !tree.journal) return;
+            if (confirm('Biztosan törölni szeretnéd ezt a bejegyzést?')) {
+                tree.journal = tree.journal.filter(j => j.id !== entryId);
+                saveTreesToStorage();
+                renderJournalEntries();
+            }
+        }
+
         function selectTree(treeId) {
             currentTreeId = treeId;
             setSelectedSim(null);
             renderTreeTabs();
+            renderJournalEntries();
             applyPageBackground();
             loadCurrentTreeCanvas();
         }
@@ -1266,13 +1469,15 @@
                 id: 'tree_' + Date.now(), 
                 name: name.trim(), 
                 bgConfig: { style: 'dots', customUrl: '', size: 'cover', position: 'center', blur: 0 },
-                sims: [] 
+                sims: [],
+                journal: []
             };
             
             familyTrees.push(newTree);
             currentTreeId = newTree.id;
             saveTreesToStorage();
             renderTreeTabs();
+            renderJournalEntries();
             applyPageBackground();
             loadCurrentTreeCanvas();
         }
@@ -1290,6 +1495,7 @@
                 
                 saveTreesToStorage();
                 renderTreeTabs();
+                renderJournalEntries();
                 applyPageBackground();
                 loadCurrentTreeCanvas();
             }
