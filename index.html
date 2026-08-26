@@ -1053,7 +1053,7 @@
 
         function manualSave() {
             saveTreesToStorage();
-            showToast("💾 Módosítások és családfa sikeresen elmentve!");
+            showToast("💾 Módosítások és családfák elmentve!");
         }
 
         function showToast(message) {
@@ -1073,6 +1073,7 @@
                     if (Array.isArray(parsed)) {
                         return parsed.map(tree => {
                             if (!tree.bgSettings) tree.bgSettings = getDefaultBgSettings();
+                            if (!tree.sims) tree.sims = [];
                             return tree;
                         });
                     }
@@ -1258,6 +1259,9 @@
         }
 
         function selectTree(treeId) {
+            // Mentjük az eddigi állapotot a váltás előtt
+            saveTreesToStorage();
+
             currentTreeId = treeId;
             setSelectedSim(null);
             renderTreeTabs();
