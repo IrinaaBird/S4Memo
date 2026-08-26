@@ -214,7 +214,7 @@
         }
 
         /* UI ELEMEK */
-        .top-nav-container { padding: 20px 20px 0 20px; position: relative; z-index: 10; }
+        .top-nav-container { padding: 20px 20px 0 20px; position: relative; z-index: 1100; }
         .top-nav {
             background-color: var(--nav-bg); padding: 14px 28px;
             display: flex; align-items: center; justify-content: space-between;
@@ -222,6 +222,7 @@
             backdrop-filter: blur(10px);
         }
         .nav-left { display: flex; align-items: center; gap: 30px; }
+        .nav-right { display: flex; align-items: center; gap: 12px; }
         .nav-links { display: flex; gap: 12px; align-items: center; }
         .top-nav a.nav-item {
             text-decoration: none; font-size: 15px; color: var(--subtext-color);
@@ -230,6 +231,18 @@
         .top-nav a.nav-item:hover { color: var(--text-color); background-color: var(--card-bg); transform: translateY(-2px); }
         .top-nav a.nav-item.active { color: #ffffff; background-color: var(--accent-color); box-shadow: 0 4px 12px var(--active-glow); }
         
+        /* CSALÁDFÁK NÉZETNÉL A FELSŐ MENÜ BAL OLDALA ELTŰNIK */
+        body.tree-view-active .nav-left {
+            display: none !important;
+        }
+        body.tree-view-active .top-nav {
+            justify-content: flex-end;
+            background-color: transparent;
+            border: none;
+            box-shadow: none;
+            padding: 0;
+        }
+
         .user-profile-btn, .theme-toggle-btn {
             background-color: var(--card-bg); color: var(--text-color);
             border: 2px solid var(--border-color); padding: 9px 18px; border-radius: 25px;
@@ -985,6 +998,12 @@
             document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.right-sidebar a').forEach(el => el.classList.remove('active'));
+
+            if (viewName === 'tree') {
+                document.body.classList.add('tree-view-active');
+            } else {
+                document.body.classList.remove('tree-view-active');
+            }
 
             if (viewName === 'home') {
                 document.getElementById('homeView').classList.add('active');
