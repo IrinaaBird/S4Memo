@@ -275,6 +275,24 @@
             max-height: calc(100vh - 120px); overflow-y: auto;
         }
 
+        /* Családfa gombok és törlés ikon stílusa */
+        .tree-tab-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 8px 12px; border-radius: 16px; transition: background-color 0.2s ease;
+        }
+        .tree-tab-item:hover { background-color: var(--card-bg); }
+        .tree-tab-item.active { background-color: var(--card-bg); box-shadow: 0 4px 12px var(--shadow-color); border: 1.5px solid var(--border-color); }
+        .tree-tab-btn {
+            background: none; border: none; font-weight: 700; color: var(--text-color);
+            cursor: pointer; font-size: 14px; text-align: left; flex: 1; outline: none;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .tree-delete-btn {
+            background: none; border: none; cursor: pointer; font-size: 13px;
+            opacity: 0.6; padding: 2px 6px; border-radius: 8px; transition: all 0.2s ease;
+        }
+        .tree-delete-btn:hover { opacity: 1; background-color: rgba(217, 83, 79, 0.15); transform: scale(1.15); }
+
         .add-tree-btn {
             background-color: transparent; color: var(--accent-color); border: 2px dashed var(--accent-color);
             padding: 12px 16px; border-radius: 20px; font-weight: 700; font-size: 14px; cursor: pointer; text-align: center;
@@ -553,7 +571,7 @@
         </main>
     </div>
 
-    <!-- BAL ALSÓ TESTRESZABÁSI PANEL (MINDEN OLDALON ELÉRHERŐ) -->
+    <!-- BAL ALSÓ TESTRESZABÁSI PANEL (MINDEN OLDALON ÉS CSALÁDFÁNÁL ELÉRHERŐ) -->
     <div class="style-panel-drawer" id="styleDrawer">
         <div class="style-panel-header" onclick="toggleStyleDrawer()">
             <span>🎨 Testreszabás</span>
@@ -788,11 +806,11 @@
         const styleDrawer = document.getElementById('styleDrawer');
         const zoomPercentLabel = document.getElementById('zoomPercentLabel');
 
-        /* Oldalspecifikus Háttér Beállítások Mátrixa */
         let currentView = 'home';
+        
+        /* Főoldal és Publikum háttér-beállításai */
         let pageBackgrounds = {
             home: { style: 'dots', customUrl: '', size: 'cover', position: 'center', blur: 0 },
-            tree: { style: 'dots', customUrl: '', size: 'cover', position: 'center', blur: 0 },
             public: { style: 'dots', customUrl: '', size: 'cover', position: 'center', blur: 0 }
         };
 
@@ -800,6 +818,7 @@
             {
                 id: 'tree_1',
                 name: 'Goth család',
+                bgConfig: { style: 'dots', customUrl: '', size: 'cover', position: 'center', blur: 0 },
                 sims: [
                     { id: 'sim_1', firstName: 'Bella', lastName: 'Goth', age: 'Fiatal felnőtt', traits: 'Romantikus', color: '#ff4770', image: '', imageTransform: null, x: 450, y: 200, parentId: null, partnerId: null, relationType: null, locked: false },
                     { id: 'sim_2', firstName: 'Mortimer', lastName: 'Goth', age: 'Felnőtt', traits: 'Könyvmoly', color: '#d97757', image: '', imageTransform: null, x: 650, y: 200, parentId: null, partnerId: null, relationType: null, locked: false },
@@ -809,7 +828,7 @@
         ];
 
         let familyTrees = loadTreesFromStorage();
-        let currentTreeId = familyTrees.length > 0 ? familyTrees[0].id : 'tree_1';
+        let currentTreeId = familyTrees.length > 0 ? familyTrees[0].id : null;
         let editingSimId = null;
         let contextSimId = null;
         let selectedSimId = null;
@@ -836,15 +855,27 @@
             document.getElementById('drawerArrow').innerText = styleDrawer.classList.contains('open') ? '▼' : '▲';
         }
 
-        /* --- OLDALSPECIFIKUS HÁTTÉR BEÁLLÍTÁSOK VÉGREHAJTÁSA --- */
+        /* --- AKTUÁLIS HÁTTÉR BEÁLLÍTÁSOK LEKÉRÉSE ÉS ALKALMAZÁSA --- */
+        function getActiveBgConfig() {
+            if (currentView === 'tree') {
+                const tree = getCurrentTree();
+                if (tree) {
+                    if (!tree.bgConfig) {
+                        tree.bgConfig = { style: 'dots', customUrl: '', size: 'cover', position: 'center', blur: 0 };
+                    }
+                    return tree.bgConfig;
+                }
+            }
+            return pageBackgrounds[currentView] || { style: 'dots', customUrl: '', size: 'cover', position: 'center', blur: 0 };
+        }
+
         function applyPageBackground() {
-            const bgConfig = pageBackgrounds[currentView];
-            if (!bgConfig) return;
+            const bgConfig = getActiveBgConfig();
 
             document.getElementById('bgStyleSelect').value = bgConfig.style;
-            document.getElementById('bgBlurSlider').value = bgConfig.blur;
-            document.getElementById('bgBlurValText').innerText = `${bgConfig.blur}px`;
-            document.documentElement.style.setProperty('--bg-blur', `${bgConfig.blur}px`);
+            document.getElementById('bgBlurSlider').value = bgConfig.blur || 0;
+            document.getElementById('bgBlurValText').innerText = `${bgConfig.blur || 0}px`;
+            document.documentElement.style.setProperty('--bg-blur', `${bgConfig.blur || 0}px`);
 
             const customBgContainer = document.getElementById('customBgContainer');
             
@@ -852,29 +883,32 @@
                 customBgContainer.style.display = 'block';
                 document.body.className = 'bg-custom';
                 document.body.style.backgroundImage = bgConfig.customUrl ? `url('${bgConfig.customUrl}')` : '';
-                document.getElementById('bgSizeSelect').value = bgConfig.size;
-                document.getElementById('bgPosSelect').value = bgConfig.position;
-                document.documentElement.style.setProperty('--custom-bg-size', bgConfig.size);
-                document.documentElement.style.setProperty('--custom-bg-position', bgConfig.position);
+                document.getElementById('bgSizeSelect').value = bgConfig.size || 'cover';
+                document.getElementById('bgPosSelect').value = bgConfig.position || 'center';
+                document.documentElement.style.setProperty('--custom-bg-size', bgConfig.size || 'cover');
+                document.documentElement.style.setProperty('--custom-bg-position', bgConfig.position || 'center');
             } else {
                 customBgContainer.style.display = 'none';
                 document.body.style.backgroundImage = '';
                 document.body.className = `bg-${bgConfig.style}`;
             }
 
-            // Csak családfa nézetben látsszanak a családfa specifikus vezérlők
             const isTree = currentView === 'tree';
             document.getElementById('lineStyleGroup').style.display = isTree ? 'flex' : 'none';
             document.getElementById('simShapeGroup').style.display = isTree ? 'flex' : 'none';
         }
 
         function changeBgStyle(style) {
-            pageBackgrounds[currentView].style = style;
+            const config = getActiveBgConfig();
+            config.style = style;
+            if (currentView === 'tree') saveTreesToStorage();
             applyPageBackground();
         }
 
         function changeBgBlur(val) {
-            pageBackgrounds[currentView].blur = val;
+            const config = getActiveBgConfig();
+            config.blur = parseInt(val);
+            if (currentView === 'tree') saveTreesToStorage();
             applyPageBackground();
         }
 
@@ -883,8 +917,10 @@
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    pageBackgrounds[currentView].customUrl = e.target.result;
-                    pageBackgrounds[currentView].style = 'custom';
+                    const config = getActiveBgConfig();
+                    config.customUrl = e.target.result;
+                    config.style = 'custom';
+                    if (currentView === 'tree') saveTreesToStorage();
                     applyPageBackground();
                 };
                 reader.readAsDataURL(file);
@@ -892,11 +928,16 @@
         }
 
         function changeBgSize(val) { 
-            pageBackgrounds[currentView].size = val;
+            const config = getActiveBgConfig();
+            config.size = val;
+            if (currentView === 'tree') saveTreesToStorage();
             applyPageBackground(); 
         }
+
         function changeBgPosition(val) { 
-            pageBackgrounds[currentView].position = val;
+            const config = getActiveBgConfig();
+            config.position = val;
+            if (currentView === 'tree') saveTreesToStorage();
             applyPageBackground(); 
         }
 
@@ -1092,19 +1133,29 @@
             }
         }
 
+        /* TABOK ÉS CSALÁDFÁK RENDERELÉSE TÖRLES IKONNAL */
         function renderTreeTabs() {
             treeTabsList.innerHTML = '';
             familyTrees.forEach(tree => {
                 const wrapper = document.createElement('div');
-                wrapper.className = `tree-tab-wrapper ${tree.id === currentTreeId ? 'active' : ''}`;
+                wrapper.className = `tree-tab-item ${tree.id === currentTreeId ? 'active' : ''}`;
 
                 const btn = document.createElement('button');
                 btn.className = 'tree-tab-btn';
-                btn.style.cssText = 'background:none; border:none; font-weight:700; color:var(--text-color); cursor:pointer; font-size:14px;';
                 btn.innerText = tree.name;
                 btn.onclick = () => selectTree(tree.id);
 
+                const delBtn = document.createElement('button');
+                delBtn.className = 'tree-delete-btn';
+                delBtn.innerText = '🗑️';
+                delBtn.title = 'Családfa törlése';
+                delBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    deleteTree(tree.id);
+                };
+
                 wrapper.appendChild(btn);
+                wrapper.appendChild(delBtn);
                 treeTabsList.appendChild(wrapper);
             });
         }
@@ -1113,18 +1164,45 @@
             currentTreeId = treeId;
             setSelectedSim(null);
             renderTreeTabs();
+            applyPageBackground();
             loadCurrentTreeCanvas();
         }
 
         function createNewTree() {
             const name = prompt("Új családfa neve:", "Új családfa");
             if (!name || name.trim() === "") return;
-            const newTree = { id: 'tree_' + Date.now(), name: name.trim(), sims: [] };
+            
+            const newTree = { 
+                id: 'tree_' + Date.now(), 
+                name: name.trim(), 
+                bgConfig: { style: 'dots', customUrl: '', size: 'cover', position: 'center', blur: 0 },
+                sims: [] 
+            };
+            
             familyTrees.push(newTree);
             currentTreeId = newTree.id;
             saveTreesToStorage();
             renderTreeTabs();
+            applyPageBackground();
             loadCurrentTreeCanvas();
+        }
+
+        function deleteTree(treeId) {
+            const treeToDelete = familyTrees.find(t => t.id === treeId);
+            if (!treeToDelete) return;
+
+            if (confirm(`Biztosan törölni szeretnéd a(z) "${treeToDelete.name}" családfát? Ez az művelet nem visszavonható!`)) {
+                familyTrees = familyTrees.filter(t => t.id !== treeId);
+                
+                if (currentTreeId === treeId) {
+                    currentTreeId = familyTrees.length > 0 ? familyTrees[0].id : null;
+                }
+                
+                saveTreesToStorage();
+                renderTreeTabs();
+                applyPageBackground();
+                loadCurrentTreeCanvas();
+            }
         }
 
         function getCurrentTree() { return familyTrees.find(t => t.id === currentTreeId); }
@@ -1136,6 +1214,8 @@
             if (tree) {
                 tree.sims.forEach(sim => renderSimNode(sim));
                 updateConnections();
+            } else {
+                svgLayer.innerHTML = '';
             }
         }
 
@@ -1148,6 +1228,10 @@
         }
 
         function addNewSimDialog() {
+            if (!currentTreeId) {
+                alert('Először hozz létre vagy válassz ki egy családfát!');
+                return;
+            }
             addNewSim("Új", "Sim", 500 - panX / zoomLevel, 300 - panY / zoomLevel);
         }
 
