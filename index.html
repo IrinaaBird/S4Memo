@@ -170,7 +170,7 @@
             stroke-dasharray: 6 10; animation: flowDots 1s linear infinite;
         }
 
-        /* TESTRESZABÁSI PANEL - Lebegő, minden oldalon elérhető */
+        /* TESTRESZABÁSI PANEL */
         .style-panel-drawer {
             position: fixed; bottom: 20px; left: 20px; z-index: 1060;
             background-color: var(--nav-bg); border: 1.5px solid var(--border-color);
@@ -231,7 +231,6 @@
         .top-nav a.nav-item:hover { color: var(--text-color); background-color: var(--card-bg); transform: translateY(-2px); }
         .top-nav a.nav-item.active { color: #ffffff; background-color: var(--accent-color); box-shadow: 0 4px 12px var(--active-glow); }
         
-        /* CSALÁDFÁK NÉZETNÉL A TELJES FELSŐ MENÜ ELTŰNIK */
         body.tree-view-active #topNavContainer {
             display: none !important;
         }
@@ -266,7 +265,6 @@
             box-shadow: 0 15px 35px var(--shadow-color); border: 2px solid var(--border-color);
         }
 
-        /* CSALÁDFÁK NÉZET */
         .page-view#treeView {
             display: none; padding: 0; max-width: 100%; width: 100vw; height: 100vh;
             position: fixed; top: 0; left: 0; z-index: 100;
@@ -281,7 +279,6 @@
             max-height: calc(100vh - 120px); overflow-y: auto;
         }
 
-        /* ACCORDION (LENYÍLÓ MENÜ) STÍLUSOK */
         .accordion-group {
             border-radius: 18px;
             transition: all 0.2s ease;
@@ -330,7 +327,6 @@
             transform: rotate(180deg);
         }
 
-        /* Családfa gombok és törlés ikon stílusa */
         .tree-tab-item {
             display: flex; align-items: center; justify-content: space-between;
             padding: 8px 12px; border-radius: 16px; transition: background-color 0.2s ease;
@@ -355,7 +351,6 @@
         }
         .add-tree-btn:hover { background-color: var(--accent-color); color: #ffffff; transform: scale(1.02); }
 
-        /* NAPLÓ ELEMEK STÍLUSA */
         .journal-item {
             background-color: var(--card-bg);
             border: 1.5px solid var(--border-color);
@@ -419,7 +414,6 @@
         }
         .add-sim-floating-btn:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 12px 28px rgba(255, 71, 112, 0.6); }
 
-        /* ZOOM PAN */
         .zoom-controls {
             position: absolute; bottom: 20px; left: 265px; z-index: 1050;
             display: flex; gap: 4px; background-color: var(--nav-bg);
@@ -443,7 +437,6 @@
         }
         .tree-canvas-viewport:active { cursor: grabbing; }
         
-        /* Végteleníthető világ túllógó SVG réteggel */
         .tree-canvas-world {
             width: 0; height: 0; position: absolute; top: 0; left: 0;
             transform-origin: 0 0; will-change: transform;
@@ -453,7 +446,6 @@
             pointer-events: none; z-index: 1; 
         }
 
-        /* SIM KERETEK ÉS KÁRTYA JAVÍTÁSA */
         @keyframes borderRainbow {
             0% { filter: drop-shadow(0 0 12px rgba(255, 71, 112, 0.8)); }
             33% { filter: drop-shadow(0 0 12px rgba(46, 213, 115, 0.8)); }
@@ -535,7 +527,7 @@
         .add-partner-btn { right: -10px; top: 50%; transform: translateY(-50%); background-color: var(--btn-pink); }
         .add-child-btn { bottom: -10px; left: 50%; transform: translateX(-50%); background-color: var(--btn-green); }
 
-        /* KÉPSZERKESZTŐ BOX ELŐNÉZETTEL */
+        /* KÉPSZERKESZTŐ BOX */
         .image-editor-box {
             background-color: var(--nav-bg); border: 2px solid var(--border-color);
             border-radius: 20px; padding: 14px; margin-top: 10px;
@@ -570,24 +562,77 @@
 
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background-color: rgba(0, 0, 0, 0.4); z-index: 3000;
+            background-color: rgba(0, 0, 0, 0.6); z-index: 3000;
             display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px);
         }
         .modal-overlay.active { display: flex; }
+        
+        /* ÚJ MODAL KÁRTYA STÍLUS (EGYESÍTETT DESIGN) */
         .modal-card {
             background-color: var(--card-bg); border: 2px solid var(--border-color);
-            border-radius: 36px; width: 480px; max-width: 90%; padding: 32px;
+            border-radius: 28px; width: 460px; max-width: 92%; padding: 24px;
             box-shadow: 0 20px 45px var(--shadow-color); max-height: 90vh; overflow-y: auto;
+            position: relative;
         }
 
-        .form-group { margin-bottom: 18px; position: relative; }
-        .form-group label { display: block; font-size: 13px; font-weight: 800; color: var(--subtext-color); margin-bottom: 6px; text-transform: uppercase; }
-        .form-group input, .form-group select, .form-group textarea {
-            width: 100%; padding: 12px 18px; border-radius: 20px;
-            border: 2px solid var(--border-color); background-color: var(--input-bg);
-            color: var(--text-color); font-size: 14px; font-weight: 600; outline: none;
+        .close-btn {
+            position: absolute; top: 18px; right: 20px;
+            background: none; border: none; color: var(--subtext-color); font-size: 22px;
+            cursor: pointer; font-weight: 800; z-index: 10;
         }
-        .form-row { display: flex; gap: 12px; }
+        .close-btn:hover { color: var(--text-color); }
+
+        .modal-header {
+            border-bottom: 1.5px solid var(--border-color);
+            padding-bottom: 10px; margin-bottom: 15px;
+        }
+
+        .modal-title {
+            margin: 0 0 10px 0; font-size: 18px; font-weight: 800; color: var(--text-color);
+        }
+
+        .tab-menu { display: flex; gap: 10px; }
+
+        .tab-btn {
+            background: none; border: none; color: var(--subtext-color);
+            font-size: 13px; font-weight: 700; padding: 6px 10px; cursor: pointer;
+            border-radius: 12px; transition: all 0.2s ease;
+        }
+        .tab-btn:hover { color: var(--text-color); background-color: var(--nav-bg); }
+        .tab-btn.active {
+            color: #ffffff; background-color: var(--accent-color);
+        }
+
+        .badge {
+            background: #2ed573; color: #fff; font-size: 10px;
+            padding: 2px 6px; border-radius: 10px; margin-left: 4px;
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .profile-section { text-align: center; margin: 15px 0 20px 0; }
+        .avatar-wrapper img {
+            width: 110px; height: 110px; border-radius: 50%;
+            object-fit: cover; border: 3px solid var(--accent-color);
+            box-shadow: 0 4px 15px var(--shadow-color);
+        }
+        .profile-section h2 { margin: 10px 0 2px 0; font-size: 20px; font-weight: 800; }
+        .status-alive { color: #2ed573; font-size: 12px; font-weight: 700; }
+        .status-dead { color: #ff5277; font-size: 12px; font-weight: 700; }
+
+        .gallery-section h4 { font-size: 13px; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; color: var(--subtext-color); }
+        .gallery-grid { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 8px; }
+        .gallery-grid img { width: 140px; height: 95px; border-radius: 12px; object-fit: cover; border: 1.5px solid var(--border-color); }
+
+        .form-group { margin-bottom: 14px; position: relative; }
+        .form-group label { display: block; font-size: 11px; font-weight: 800; color: var(--subtext-color); margin-bottom: 5px; text-transform: uppercase; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 10px 14px; border-radius: 16px;
+            border: 2px solid var(--border-color); background-color: var(--input-bg);
+            color: var(--text-color); font-size: 13px; font-weight: 600; outline: none;
+        }
+        .form-row { display: flex; gap: 10px; }
 
         .search-results-list {
             position: absolute; top: 100%; left: 0; right: 0;
@@ -599,10 +644,10 @@
         .search-item { padding: 10px 16px; cursor: pointer; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; }
         .search-item:hover { background-color: var(--nav-bg); color: var(--accent-color); }
 
-        .modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 25px; }
-        .btn-secondary { background-color: transparent; border: 2px solid var(--border-color); color: var(--text-color); padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: 700; }
-        .btn-primary { background-color: var(--btn-pink); border: none; color: white; padding: 10px 24px; border-radius: 20px; cursor: pointer; font-weight: 700; box-shadow: 0 4px 12px rgba(255, 71, 112, 0.4); }
-        .btn-danger { background-color: #d9534f; border: none; color: white; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: 700; margin-right: auto; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+        .btn-secondary { background-color: transparent; border: 2px solid var(--border-color); color: var(--text-color); padding: 8px 16px; border-radius: 18px; cursor: pointer; font-weight: 700; font-size: 13px; }
+        .btn-primary { background-color: var(--btn-pink); border: none; color: white; padding: 8px 20px; border-radius: 18px; cursor: pointer; font-weight: 700; font-size: 13px; box-shadow: 0 4px 12px rgba(255, 71, 112, 0.4); }
+        .btn-danger { background-color: #d9534f; border: none; color: white; padding: 8px 16px; border-radius: 18px; cursor: pointer; font-weight: 700; font-size: 13px; margin-right: auto; }
 
         .selected-sim-preview { display: flex; align-items: center; gap: 16px; margin-top: 12px; padding: 12px 16px; background-color: var(--nav-bg); border-radius: 20px; border: 2px solid var(--border-color); }
         .sim-avatar-preview { width: 54px; height: 54px; border-radius: 50%; border: 2px solid var(--accent-color); background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; font-size: 24px; background-color: var(--card-bg); }
@@ -626,7 +671,6 @@
 </head>
 <body class="bg-dots">
 
-    <!-- HOMÁLYOSÍTÁST VÉGZŐ BLUR RÉTEG A HÁTTÉR FÖLÖTT -->
     <div id="bgBlurOverlay"></div>
 
     <!-- NAVIGÁCIÓ -->
@@ -658,8 +702,6 @@
     <!-- 2. CSALÁDFÁK NÉZET -->
     <div class="page-view" id="treeView">
         <div class="tree-left-sidebar">
-            
-            <!-- ACCORDION CSALÁDFÁK MENÜCSOPORT -->
             <div class="accordion-group open" id="dynastyAccordion">
                 <button class="accordion-header" onclick="toggleAccordion('dynastyAccordion')">
                     <div class="header-title">
@@ -668,14 +710,12 @@
                     </div>
                     <span class="chevron">▲</span>
                 </button>
-
                 <div class="accordion-content">
                     <div id="treeTabsList"></div>
                     <button class="add-tree-btn" onclick="createNewTree()">+ Családfa hozzáadása</button>
                 </div>
             </div>
 
-            <!-- ACCORDION NAPLÓM MENÜCSOPORT -->
             <div class="accordion-group" id="journalAccordion">
                 <button class="accordion-header" onclick="toggleAccordion('journalAccordion')">
                     <div class="header-title">
@@ -684,16 +724,13 @@
                     </div>
                     <span class="chevron">▲</span>
                 </button>
-
                 <div class="accordion-content">
                     <div id="journalEntriesList"></div>
                     <button class="add-tree-btn" onclick="openJournalModal()">+ Új Bejegyzés</button>
                 </div>
             </div>
-
         </div>
 
-        <!-- ZOOM VEZÉRLŐPANEL -->
         <div class="zoom-controls">
             <button class="zoom-btn" onclick="adjustZoom(0.1)" title="Nagyítás">+</button>
             <button class="zoom-btn" onclick="adjustZoom(-0.1)" title="Kicsinyítés">-</button>
@@ -716,7 +753,7 @@
         </main>
     </div>
 
-    <!-- BAL ALSÓ TESTRESZABÁSI PANEL (MINDEN OLDALON ÉS CSALÁDFÁNÁL ELÉRHERŐ) -->
+    <!-- TESTRESZABÁSI PANEL -->
     <div class="style-panel-drawer" id="styleDrawer">
         <div class="style-panel-header" onclick="toggleStyleDrawer()">
             <span>🎨 Testreszabás</span>
@@ -734,7 +771,6 @@
                 <div id="customBgContainer" style="display: none; margin-top: 4px;">
                     <label for="bgFileInput" class="custom-file-btn">📁 Kép tallózása...</label>
                     <input type="file" id="bgFileInput" class="custom-file-upload" accept="image/*" onchange="handleCustomBgUpload(event)">
-                    
                     <div style="margin-top: 8px;" class="style-group">
                         <label>Kép Méretezése</label>
                         <select id="bgSizeSelect" onchange="changeBgSize(this.value)">
@@ -794,95 +830,136 @@
         <div class="context-menu-item" style="color: #d9534f;" onclick="contextAction('delete')">🗑️ Karakter törlése</div>
     </div>
 
-    <!-- SIM SZERKESZTŐ MODAL INTERAKTÍV KÉPSZERKESZTŐVEL -->
+    <!-- SIM CARD & SZERKESZTŐ MODAL (EGYESÍTVE) -->
     <div class="modal-overlay" id="simModal">
         <div class="modal-card">
-            <h2>Sim Szerkesztése</h2>
-            <form id="simForm" onsubmit="saveSimDetails(event)">
-                <div class="form-row">
-                    <div class="form-group" style="flex:1;">
-                        <label>Vezetéknév</label>
-                        <input type="text" id="editLastName" required>
+            <button type="button" class="close-btn" onclick="closeSimModal()">&times;</button>
+
+            <!-- Fejléc / Fülek -->
+            <div class="modal-header">
+                <h3 class="modal-title">Sim Card</h3>
+                <div class="tab-menu">
+                    <button type="button" class="tab-btn active" onclick="switchSimTab('info')">Információk</button>
+                    <button type="button" class="tab-btn" onclick="switchSimTab('diary')">Napló</button>
+                    <button type="button" class="tab-btn" onclick="switchSimTab('avatars')">Avatárok <span class="badge" id="avatarBadgeCount">1</span></button>
+                </div>
+            </div>
+
+            <!-- FÜL 1: Szerkesztő és profil infók -->
+            <div class="tab-content active" id="tabContentInfo">
+                <div class="profile-section">
+                    <div class="avatar-wrapper">
+                        <img id="modalAvatar" src="" alt="Sim Avatar" style="display:none;">
+                        <div id="modalAvatarPlaceholder" style="width:110px; height:110px; border-radius:50%; background:var(--nav-bg); display:flex; align-items:center; justify-content:center; font-size:40px; margin:0 auto; border:3px solid var(--accent-color);">👤</div>
                     </div>
-                    <div class="form-group" style="flex:1;">
-                        <label>Keresztnév</label>
-                        <input type="text" id="editFirstName" required>
-                    </div>
+                    <h2 id="modalName">Sim Neve</h2>
+                    <span id="modalStatus" class="status-alive">Életben van</span>
                 </div>
 
-                <div class="form-row">
-                    <div class="form-group" style="flex:1;">
-                        <label>Életkor</label>
-                        <select id="editAge">
-                            <option value="Tipegő">Tipegő</option>
-                            <option value="Gyermek">Gyermek</option>
-                            <option value="Tini">Tini</option>
-                            <option value="Fiatal felnőtt" selected>Fiatal felnőtt</option>
-                            <option value="Felnőtt">Felnőtt</option>
-                            <option value="Idős">Idős</option>
-                        </select>
-                    </div>
-                    <div class="form-group" style="flex:1;">
-                        <label>Keretszín</label>
-                        <input type="color" id="editColor" value="#d97757">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Profilkép kiválasztása</label>
-                    <input type="file" id="editImageInput" accept="image/*" onchange="handleImageUpload(event)">
-                </div>
-
-                <!-- INTERAKTÍV KÉPSZERKESZTŐ BOX -->
-                <div class="image-editor-box" id="imageEditorBox" style="display: none;">
-                    <div class="img-preview-frame" id="imgPreviewFrame">
-                        <img id="modalImgPreview" class="img-preview-element" src="" alt="Preview">
-                    </div>
-                    
-                    <div class="editor-controls-grid">
-                        <div class="style-group">
-                            <label><span>Nagyítás (Zoom)</span> <span id="imgZoomVal">100%</span></label>
-                            <input type="range" id="imgZoomSlider" min="1" max="2.5" step="0.05" value="1" oninput="updateImageTransform()">
+                <form id="simForm" onsubmit="saveSimDetails(event)">
+                    <div class="form-row">
+                        <div class="form-group" style="flex:1;">
+                            <label>Vezetéknév</label>
+                            <input type="text" id="editLastName" required>
                         </div>
-
-                        <div class="form-row">
-                            <div class="style-group" style="flex:1;">
-                                <label>Vízszintes (X)</label>
-                                <input type="range" id="imgOffsetX" min="-50" max="50" step="1" value="0" oninput="updateImageTransform()">
-                            </div>
-                            <div class="style-group" style="flex:1;">
-                                <label>Függőleges (Y)</label>
-                                <input type="range" id="imgOffsetY" min="-50" max="50" step="1" value="0" oninput="updateImageTransform()">
-                            </div>
-                        </div>
-
-                        <div class="form-row" style="align-items: flex-end;">
-                            <div class="style-group" style="flex:1;">
-                                <label>Filter / Szűrő</label>
-                                <select id="imgFilterSelect" onchange="updateImageTransform()">
-                                    <option value="none" selected>Normál</option>
-                                    <option value="grayscale(100%)">Fekete-Fehér</option>
-                                    <option value="sepia(80%)">Szépia</option>
-                                    <option value="contrast(140%) brightness(110%)">Kontrasztos</option>
-                                    <option value="saturate(200%)">Élénk</option>
-                                </select>
-                            </div>
-                            <button type="button" class="btn-secondary" style="padding: 6px 12px; font-size: 11px;" onclick="rotateImage()">🔄 90° Forgatás</button>
+                        <div class="form-group" style="flex:1;">
+                            <label>Keresztnév</label>
+                            <input type="text" id="editFirstName" required>
                         </div>
                     </div>
-                </div>
 
-                <div class="form-group" style="margin-top: 14px;">
-                    <label>Személyiségjegyek / Leírás</label>
-                    <textarea id="editTraits" rows="3" placeholder="Pl.: Vidám, Kreatív..."></textarea>
-                </div>
+                    <div class="form-row">
+                        <div class="form-group" style="flex:1;">
+                            <label>Életkor</label>
+                            <select id="editAge">
+                                <option value="Tipegő">Tipegő</option>
+                                <option value="Gyermek">Gyermek</option>
+                                <option value="Tini">Tini</option>
+                                <option value="Fiatal felnőtt" selected>Fiatal felnőtt</option>
+                                <option value="Felnőtt">Felnőtt</option>
+                                <option value="Idős">Idős</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="flex:1;">
+                            <label>Keretszín</label>
+                            <input type="color" id="editColor" value="#d97757">
+                        </div>
+                    </div>
 
-                <div class="modal-actions">
-                    <button type="button" class="btn-danger" onclick="deleteCurrentSimModal()">Törlés</button>
-                    <button type="button" class="btn-secondary" onclick="closeSimModal()">Mégse</button>
-                    <button type="submit" class="btn-primary">Mentés</button>
+                    <div class="form-group">
+                        <label>Profilkép kiválasztása</label>
+                        <input type="file" id="editImageInput" accept="image/*" onchange="handleImageUpload(event)">
+                    </div>
+
+                    <div class="image-editor-box" id="imageEditorBox" style="display: none;">
+                        <div class="img-preview-frame" id="imgPreviewFrame">
+                            <img id="modalImgPreview" class="img-preview-element" src="" alt="Preview">
+                        </div>
+                        
+                        <div class="editor-controls-grid">
+                            <div class="style-group">
+                                <label><span>Nagyítás (Zoom)</span> <span id="imgZoomVal">100%</span></label>
+                                <input type="range" id="imgZoomSlider" min="1" max="2.5" step="0.05" value="1" oninput="updateImageTransform()">
+                            </div>
+
+                            <div class="form-row">
+                                <div class="style-group" style="flex:1;">
+                                    <label>Vízszintes (X)</label>
+                                    <input type="range" id="imgOffsetX" min="-50" max="50" step="1" value="0" oninput="updateImageTransform()">
+                                </div>
+                                <div class="style-group" style="flex:1;">
+                                    <label>Függőleges (Y)</label>
+                                    <input type="range" id="imgOffsetY" min="-50" max="50" step="1" value="0" oninput="updateImageTransform()">
+                                </div>
+                            </div>
+
+                            <div class="form-row" style="align-items: flex-end;">
+                                <div class="style-group" style="flex:1;">
+                                    <label>Filter / Szűrő</label>
+                                    <select id="imgFilterSelect" onchange="updateImageTransform()">
+                                        <option value="none" selected>Normál</option>
+                                        <option value="grayscale(100%)">Fekete-Fehér</option>
+                                        <option value="sepia(80%)">Szépia</option>
+                                        <option value="contrast(140%) brightness(110%)">Kontrasztos</option>
+                                        <option value="saturate(200%)">Élénk</option>
+                                    </select>
+                                </div>
+                                <button type="button" class="btn-secondary" style="padding: 6px 12px; font-size: 11px;" onclick="rotateImage()">🔄 90° Forgatás</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 14px;">
+                        <label>Személyiségjegyek / Leírás</label>
+                        <textarea id="editTraits" rows="3" placeholder="Pl.: Vidám, Kreatív..."></textarea>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn-danger" onclick="deleteCurrentSimModal()">Törlés</button>
+                        <button type="button" class="btn-secondary" onclick="closeSimModal()">Mégse</button>
+                        <button type="submit" class="btn-primary">Mentés</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- FÜL 2: Történet/Napló -->
+            <div class="tab-content" id="tabContentDiary">
+                <div style="padding: 10px 0;">
+                    <h4 style="margin-top:0;">Személyes Történet</h4>
+                    <p id="modalDiaryText" style="font-size: 13px; color: var(--subtext-color); line-height: 1.5;">Nincs még ehhez a Simhez kapcsolódó bejegyzés.</p>
                 </div>
-            </form>
+            </div>
+
+            <!-- FÜL 3: Galéria -->
+            <div class="tab-content" id="tabContentAvatars">
+                <div class="gallery-section" style="padding: 10px 0;">
+                    <h4>Galéria / Képek</h4>
+                    <div class="gallery-grid" id="modalGallery">
+                        <span style="font-size:12px; color:var(--subtext-color);">Nincsenek feltöltött avatárok.</span>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -980,7 +1057,6 @@
 
         let currentView = 'home';
         
-        /* Főoldal és Publikum háttér-beállításai */
         let pageBackgrounds = {
             home: { style: 'dots', customUrl: '', size: 'cover', position: 'center', blur: 0 },
             public: { style: 'dots', customUrl: '', size: 'cover', position: 'center', blur: 0 }
@@ -992,9 +1068,9 @@
                 name: 'Goth család',
                 bgConfig: { style: 'dots', customUrl: '', size: 'cover', position: 'center', blur: 0 },
                 sims: [
-                    { id: 'sim_1', firstName: 'Bella', lastName: 'Goth', age: 'Fiatal felnőtt', traits: 'Romantikus', color: '#ff4770', image: '', imageTransform: null, x: 450, y: 200, parentId: null, partnerId: null, relationType: null, locked: false },
-                    { id: 'sim_2', firstName: 'Mortimer', lastName: 'Goth', age: 'Felnőtt', traits: 'Könyvmoly', color: '#d97757', image: '', imageTransform: null, x: 650, y: 200, parentId: null, partnerId: null, relationType: null, locked: false },
-                    { id: 'sim_3', firstName: 'Cassandra', lastName: 'Goth', age: 'Tini', traits: 'Borongós', color: '#2ed573', image: '', imageTransform: null, x: 550, y: 380, parentId: null, partnerId: null, relationType: null, locked: false }
+                    { id: 'sim_1', firstName: 'Bella', lastName: 'Goth', age: 'Fiatal felnőtt', traits: 'Romantikus', color: '#ff4770', image: '', imageTransform: null, x: 450, y: 200, parentId: null, partnerId: null, relationType: null, locked: false, isDead: false, gallery: [] },
+                    { id: 'sim_2', firstName: 'Mortimer', lastName: 'Goth', age: 'Felnőtt', traits: 'Könyvmoly', color: '#d97757', image: '', imageTransform: null, x: 650, y: 200, parentId: null, partnerId: null, relationType: null, locked: false, isDead: false, gallery: [] },
+                    { id: 'sim_3', firstName: 'Cassandra', lastName: 'Goth', age: 'Tini', traits: 'Borongós', color: '#2ed573', image: '', imageTransform: null, x: 550, y: 380, parentId: null, partnerId: null, relationType: null, locked: false, isDead: false, gallery: [] }
                 ],
                 journal: [
                     { id: 'j_1', title: 'Megérkezés Goth birtokra', date: '2026-01-15', content: 'A család beköltözött az új kúriába. Bella azonnal nekilátott a ház szépítésének.' }
@@ -1010,7 +1086,6 @@
         let selectedSimId = null;
         let selectedConnectionTargetId = null;
 
-        /* Képszerkesztési állapotok */
         let tempUploadedImage = '';
         let currentRotation = 0;
 
@@ -1026,12 +1101,9 @@
         let dragStartSimPos = { x: 0, y: 0 };
         let currentDropTargetSim = null;
 
-        /* ACCORDION KEZELÉSE */
         function toggleAccordion(groupId) {
             const group = document.getElementById(groupId);
-            if (group) {
-                group.classList.toggle('open');
-            }
+            if (group) group.classList.toggle('open');
         }
 
         function toggleStyleDrawer() {
@@ -1039,7 +1111,6 @@
             document.getElementById('drawerArrow').innerText = styleDrawer.classList.contains('open') ? '▼' : '▲';
         }
 
-        /* --- AKTUÁLIS HÁTTÉR BEÁLLÍTÁSOK LEKÉRÉSE ÉS ALKALMAZÁSA --- */
         function getActiveBgConfig() {
             if (currentView === 'tree') {
                 const tree = getCurrentTree();
@@ -1170,7 +1241,6 @@
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.right-sidebar a').forEach(el => el.classList.remove('active'));
 
-            /* FELÜLÍRJUK A BODY CLASS-T A NÉZETNEK MEGFELELŐEN */
             if (viewName === 'tree') {
                 document.body.classList.add('tree-view-active');
             } else {
@@ -1272,7 +1342,6 @@
             const dx = (e.clientX - dragStartMouse.x) / zoomLevel;
             const dy = (e.clientY - dragStartMouse.y) / zoomLevel;
 
-            /* Teljesen korlátozásmentes pozicionálás bármilyen irányba */
             activeDrag.x = dragStartSimPos.x + dx;
             activeDrag.y = dragStartSimPos.y + dy;
 
@@ -1326,7 +1395,6 @@
             }
         }
 
-        /* TABOK ÉS CSALÁDFÁK RENDERELÉSE TÖRLES IKONNAL */
         function renderTreeTabs() {
             treeTabsList.innerHTML = '';
             familyTrees.forEach(tree => {
@@ -1353,7 +1421,6 @@
             });
         }
 
-        /* NAPLÓ BEJEGYZÉSEK RENDERELÉSE */
         function renderJournalEntries() {
             journalEntriesList.innerHTML = '';
             const tree = getCurrentTree();
@@ -1486,7 +1553,7 @@
             const treeToDelete = familyTrees.find(t => t.id === treeId);
             if (!treeToDelete) return;
 
-            if (confirm(`Biztosan törölni szeretnéd a(z) "${treeToDelete.name}" családfát? Ez az művelet nem visszavonható!`)) {
+            if (confirm(`Biztosan törölni szeretnéd a(z) "${treeToDelete.name}" családfát? Ez a művelet nem visszavonható!`)) {
                 familyTrees = familyTrees.filter(t => t.id !== treeId);
                 
                 if (currentTreeId === treeId) {
@@ -1537,7 +1604,7 @@
             const newSim = {
                 id: 'sim_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
                 firstName: firstName, lastName: lastName, age: 'Fiatal felnőtt',
-                traits: '', color: '#ff4770', image: '', imageTransform: null, x: x, y: y, parentId: parentId, partnerId: partnerId, relationType: relationType, locked: false
+                traits: '', color: '#ff4770', image: '', imageTransform: null, x: x, y: y, parentId: parentId, partnerId: partnerId, relationType: relationType, locked: false, isDead: false, gallery: []
             };
 
             tree.sims.push(newSim);
@@ -1632,171 +1699,93 @@
             treeWorld.appendChild(node);
         }
 
-        <!-- Modal ablak szerkezete -->
-<div id="simModal" class="modal-overlay">
-  <div class="modal-card">
-    <button class="close-btn" onclick="closeSimModal()">&times;</button>
-    
-    <!-- Fejléc / Fülek -->
-    <div class="modal-header">
-      <h3 class="modal-title">Sim Card</h3>
-      <div class="tab-menu">
-        <button class="tab-btn active">Information</button>
-        <button class="tab-btn">Diary</button>
-        <button class="tab-btn">Avatars <span class="badge">1</span></button>
-      </div>
-    </div>
+        /* SIM CARD TABS ÉS MODAL NYITÁSA */
+        function switchSimTab(tabName) {
+            document.querySelectorAll('#simModal .tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('#simModal .tab-content').forEach(c => c.classList.remove('active'));
 
-    <!-- Tartalom -->
-    <div class="modal-body">
-      <!-- Profil szekció -->
-      <div class="profile-section">
-        <div class="avatar-wrapper">
-          <img id="modalAvatar" src="" alt="Sim Avatar">
-        </div>
-        <h2 id="modalName">Sim Neve</h2>
-        <span id="modalStatus" class="status-alive">Alive</span>
-      </div>
+            if (tabName === 'info') {
+                document.querySelectorAll('#simModal .tab-btn')[0].classList.add('active');
+                document.getElementById('tabContentInfo').classList.add('active');
+            } else if (tabName === 'diary') {
+                document.querySelectorAll('#simModal .tab-btn')[1].classList.add('active');
+                document.getElementById('tabContentDiary').classList.add('active');
+            } else if (tabName === 'avatars') {
+                document.querySelectorAll('#simModal .tab-btn')[2].classList.add('active');
+                document.getElementById('tabContentAvatars').classList.add('active');
+            }
+        }
 
-      <!-- Galéria szekció -->
-      <div class="gallery-section">
-        <h4>Gallery</h4>
-        <div class="gallery-grid" id="modalGallery">
-          <!-- Képek dinamikusan kerülnek ide -->
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-        /* Sötét téma és Modal stílusok */
-.modal-overlay {
-  display: none;
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(4px);
-  z-index: 1000;
-  justify-content: center;
-  align-items: center;
-}
+        function openSimModal(simId) {
+            const tree = getCurrentTree(); if (!tree) return;
+            const sim = tree.sims.find(s => s.id === simId); if (!sim) return;
 
-.modal-card {
-  background-color: #17181c;
-  color: #ffffff;
-  width: 420px;
-  border-radius: 12px;
-  padding: 20px;
-  position: relative;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-  font-family: 'Segoe UI', sans-serif;
-}
+            editingSimId = simId;
+            tempUploadedImage = sim.image || '';
+            currentRotation = sim.imageTransform?.rotate || 0;
 
-.close-btn {
-  position: absolute;
-  top: 15px; right: 15px;
-  background: none; border: none;
-  color: #717686; font-size: 20px;
-  cursor: pointer;
-}
+            /* Profil adatok feltöltése az új kártyán */
+            document.getElementById('modalName').innerText = `${sim.firstName} ${sim.lastName}`;
+            const statusEl = document.getElementById('modalStatus');
+            statusEl.innerText = sim.isDead ? 'Elhunyt' : 'Életben van';
+            statusEl.className = sim.isDead ? 'status-dead' : 'status-alive';
 
-.modal-header {
-  border-bottom: 1px solid #282a30;
-  padding-bottom: 12px;
-}
+            const modalAvatar = document.getElementById('modalAvatar');
+            const placeholder = document.getElementById('modalAvatarPlaceholder');
+            if (sim.image) {
+                modalAvatar.src = sim.image;
+                modalAvatar.style.display = 'block';
+                placeholder.style.display = 'none';
+            } else {
+                modalAvatar.style.display = 'none';
+                placeholder.style.display = 'flex';
+            }
 
-.modal-title {
-  margin: 0 0 15px 0;
-  font-size: 16px;
-  font-weight: 600;
-}
+            /* Form mezők */
+            document.getElementById('editFirstName').value = sim.firstName || '';
+            document.getElementById('editLastName').value = sim.lastName || '';
+            document.getElementById('editAge').value = sim.age || 'Fiatal felnőtt';
+            document.getElementById('editColor').value = sim.color || '#ff4770';
+            document.getElementById('editTraits').value = sim.traits || '';
 
-.tab-menu { display: flex; gap: 15px; }
+            /* Napló és Galéria betöltés */
+            document.getElementById('modalDiaryText').innerText = sim.traits ? sim.traits : 'Nincs még ehhez a Simhez leírás vagy történet rögzítve.';
+            
+            const galleryGrid = document.getElementById('modalGallery');
+            galleryGrid.innerHTML = '';
+            let avatarCount = sim.image ? 1 : 0;
 
-.tab-btn {
-  background: none; border: none;
-  color: #717686; font-size: 14px;
-  padding-bottom: 5px; cursor: pointer;
-}
+            if (sim.gallery && sim.gallery.length > 0) {
+                avatarCount += sim.gallery.length;
+                sim.gallery.forEach(imgUrl => {
+                    const img = document.createElement('img');
+                    img.src = imgUrl;
+                    galleryGrid.appendChild(img);
+                });
+            } else if (sim.image) {
+                const img = document.createElement('img');
+                img.src = sim.image;
+                galleryGrid.appendChild(img);
+            } else {
+                galleryGrid.innerHTML = '<span style="font-size:12px; color:var(--subtext-color);">Nincsenek feltöltött avatárok.</span>';
+            }
+            document.getElementById('avatarBadgeCount').innerText = avatarCount;
 
-.tab-btn.active {
-  color: #3b82f6;
-  border-bottom: 2px solid #3b82f6;
-}
+            const transform = sim.imageTransform || { scale: 1, rotate: 0, offsetX: 0, offsetY: 0, filter: 'none' };
+            document.getElementById('imgZoomSlider').value = transform.scale || 1;
+            document.getElementById('imgOffsetX').value = transform.offsetX || 0;
+            document.getElementById('imgOffsetY').value = transform.offsetY || 0;
+            document.getElementById('imgFilterSelect').value = transform.filter || 'none';
 
-.badge {
-  background: #10b981; color: #fff;
-  font-size: 10px; padding: 2px 6px;
-  border-radius: 10px;
-}
+            if (tempUploadedImage) {
+                showImageEditor(tempUploadedImage);
+            } else {
+                document.getElementById('imageEditorBox').style.display = 'none';
+            }
 
-/* Profil elemek */
-.profile-section {
-  text-align: center;
-  margin: 25px 0;
-}
-
-.avatar-wrapper img {
-  width: 130px; height: 130px;
-  border-radius: 12px;
-  object-fit: cover;
-}
-
-.profile-section h2 {
-  margin: 12px 0 4px 0;
-  font-size: 20px;
-}
-
-.status-alive {
-  color: #6b7280; font-size: 13px;
-}
-
-/* Galéria */
-.gallery-section h4 {
-  font-size: 14px; margin-bottom: 10px;
-  color: #e5e7eb;
-}
-
-.gallery-grid {
-  display: flex; gap: 10px;
-  overflow-x: auto;
-}
-
-.gallery-grid img {
-  width: 170px; height: 110px;
-  border-radius: 8px;
-  object-fit: cover;
-}
-        // Megnyitó és adatfeltöltő függvény
-function openSimModal(simData) {
-  document.getElementById('modalName').textContent = simData.name;
-  document.getElementById('modalAvatar').src = simData.avatar;
-  document.getElementById('modalStatus').textContent = simData.status || 'Alive';
-  
-  // Galéria képek betöltése
-  const galleryEl = document.getElementById('modalGallery');
-  galleryEl.innerHTML = '';
-  if(simData.gallery) {
-    simData.gallery.forEach(imgUrl => {
-      const img = document.createElement('img');
-      img.src = imgUrl;
-      galleryEl.appendChild(img);
-    });
-  }
-
-  document.getElementById('simModal').style.display = 'flex';
-}
-
-function closeSimModal() {
-  document.getElementById('simModal').style.display = 'none';
-}
-
-// Így hívhatod meg, amikor a Sim fejére / node-jára kattintanak:
-// openSimModal({
-//   name: "Catherine Brownstone",
-//   avatar: "catherine_avatar.jpg",
-//   gallery: ["wedding.jpg", "portrait.jpg"]
-// });
+            switchSimTab('info');
+            simModal.classList.add('active');
+        }
 
         function updateConnections() {
             svgLayer.innerHTML = '';
@@ -2022,36 +2011,6 @@ function closeSimModal() {
         function closeConnectionModal() { 
             connectionModal.classList.remove('active'); 
             document.getElementById('searchResultsList').classList.remove('active');
-        }
-
-        /* --- KÉPSZERKESZTŐ FUNKCIÓK A MODALBAN --- */
-        function openSimModal(simId) {
-            const tree = getCurrentTree(); if (!tree) return;
-            const sim = tree.sims.find(s => s.id === simId); if (!sim) return;
-
-            editingSimId = simId;
-            tempUploadedImage = sim.image || '';
-            currentRotation = sim.imageTransform?.rotate || 0;
-
-            document.getElementById('editFirstName').value = sim.firstName || '';
-            document.getElementById('editLastName').value = sim.lastName || '';
-            document.getElementById('editAge').value = sim.age || 'Fiatal felnőtt';
-            document.getElementById('editColor').value = sim.color || '#ff4770';
-            document.getElementById('editTraits').value = sim.traits || '';
-
-            const transform = sim.imageTransform || { scale: 1, rotate: 0, offsetX: 0, offsetY: 0, filter: 'none' };
-            document.getElementById('imgZoomSlider').value = transform.scale || 1;
-            document.getElementById('imgOffsetX').value = transform.offsetX || 0;
-            document.getElementById('imgOffsetY').value = transform.offsetY || 0;
-            document.getElementById('imgFilterSelect').value = transform.filter || 'none';
-
-            if (tempUploadedImage) {
-                showImageEditor(tempUploadedImage);
-            } else {
-                document.getElementById('imageEditorBox').style.display = 'none';
-            }
-
-            simModal.classList.add('active');
         }
 
         function handleImageUpload(event) {
