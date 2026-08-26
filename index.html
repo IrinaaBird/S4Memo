@@ -580,7 +580,7 @@
                         
                         <div style="margin-top: 8px;" class="style-group">
                             <label>Kép Méretezése</label>
-                            <select onchange="changeBgSize(this.value)">
+                            <select id="bgSizeSelect" onchange="changeBgSize(this.value)">
                                 <option value="cover" selected>Kitöltés (Cover)</option>
                                 <option value="contain">Illesztés (Contain)</option>
                                 <option value="100% 100%">Nyújtás (Stretch)</option>
@@ -589,7 +589,7 @@
                         </div>
                         <div style="margin-top: 6px;" class="style-group">
                             <label>Kép Igazítása</label>
-                            <select onchange="changeBgPosition(this.value)">
+                            <select id="bgPositionSelect" onchange="changeBgPosition(this.value)">
                                 <option value="center" selected>Középre</option>
                                 <option value="top">Fent</option>
                                 <option value="bottom">Lent</option>
@@ -829,7 +829,20 @@
             }
         ];
 
+        // HÁTTÉR BEÁLLÍTÁSOK VÁLTOZÓJA
+        let currentBgSettings = {
+            style: 'dots',
+            customImage: '',
+            size: 'cover',
+            position: 'center',
+            blur: 0,
+            lineStyle: 'style-glow',
+            simShape: 'circle'
+        };
+
         let familyTrees = loadTreesFromStorage();
+        loadBgSettingsFromStorage();
+
         let currentTreeId = familyTrees.length > 0 ? familyTrees[0].id : 'tree_1';
         let editingSimId = null;
         let contextSimId = null;
@@ -857,20 +870,15 @@
         }
 
         function changeBgStyle(style) {
-            const customBgContainer = document.getElementById('customBgContainer');
-            if (style === 'custom') {
-                customBgContainer.style.display = 'block';
-                document.body.className = 'bg-custom';
-            } else {
-                customBgContainer.style.display = 'none';
-                document.body.style.backgroundImage = '';
-                document.body.className = `bg-${style}`;
-            }
+            currentBgSettings.style = style;
+            applyBgSettings();
+            saveTreesToStorage();
         }
 
         function changeBgBlur(val) {
-            document.documentElement.style.setProperty('--bg-blur', `${val}px`);
-            document.getElementById('bgBlurValText').innerText = `${val}px`;
+            currentBgSettings.blur = parseInt(val);
+            applyBgSettings();
+            saveTreesToStorage();
         }
 
         function handleCustomBgUpload(event) {
@@ -878,18 +886,68 @@
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    document.body.className = 'bg-custom';
-                    document.body.style.backgroundImage = `url('${e.target.result}')`;
+                    currentBgSettings.style = 'custom';
+                    currentBgSettings.customImage = e.target.result;
+                    document.getElementById('bgStyleSelect').value = 'custom';
+                    applyBgSettings();
+                    saveTreesToStorage();
                 };
                 reader.readAsDataURL(file);
             }
         }
 
-        function changeBgSize(val) { document.documentElement.style.setProperty('--custom-bg-size', val); }
-        function changeBgPosition(val) { document.documentElement.style.setProperty('--custom-bg-position', val); }
-        function changeLineStyle(styleClass) { treeWorld.className = `tree-canvas-world ${styleClass}`; }
+        function changeBgSize(val) {
+            currentBgSettings.size = val;
+            applyBgSettings();
+            saveTreesToStorage();
+        }
+
+        function changeBgPosition(val) {
+            currentBgSettings.position = val;
+            applyBgSettings();
+            saveTreesToStorage();
+        }
+
+        function changeLineStyle(styleClass) {
+            currentBgSettings.lineStyle = styleClass;
+            applyBgSettings();
+            saveTreesToStorage();
+        }
 
         function changeSimShape(shape) {
+            currentBgSettings.simShape = shape;
+            applyBgSettings();
+            saveTreesToStorage();
+        }
+
+        function applyBgSettings() {
+            const customBgContainer = document.getElementById('customBgContainer');
+            
+            // Stílus és kép érvényesítése
+            if (currentBgSettings.style === 'custom') {
+                customBgContainer.style.display = 'block';
+                document.body.className = 'bg-custom';
+                if (currentBgSettings.customImage) {
+                    document.body.style.backgroundImage = `url('${currentBgSettings.customImage}')`;
+                }
+            } else {
+                customBgContainer.style.display = 'none';
+                document.body.style.backgroundImage = '';
+                document.body.className = `bg-${currentBgSettings.style}`;
+            }
+
+            // CSS Változók frissítése
+            document.documentElement.style.setProperty('--bg-blur', `${currentBgSettings.blur}px`);
+            document.documentElement.style.setProperty('--custom-bg-size', currentBgSettings.size);
+            document.documentElement.style.setProperty('--custom-bg-position', currentBgSettings.position);
+            document.getElementById('bgBlurValText').innerText = `${currentBgSettings.blur}px`;
+            document.getElementById('bgBlurSlider').value = currentBgSettings.blur;
+
+            // Vonal animáció
+            treeWorld.className = `tree-canvas-world ${currentBgSettings.lineStyle}`;
+
+            // Sim keret alakja
+            const shape = currentBgSettings.simShape;
             if (shape === 'circle') {
                 document.documentElement.style.setProperty('--sim-node-radius', '50%');
                 document.documentElement.style.setProperty('--sim-node-clip-path', 'none');
@@ -906,25 +964,54 @@
                 document.documentElement.style.setProperty('--sim-node-radius', '0');
                 document.documentElement.style.setProperty('--sim-node-clip-path', 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)');
             }
+
+            // Inputok szinkronizálása a UI-on
+            document.getElementById('bgStyleSelect').value = currentBgSettings.style;
+            document.getElementById('bgSizeSelect').value = currentBgSettings.size;
+            document.getElementById('bgPositionSelect').value = currentBgSettings.position;
+            document.getElementById('lineStyleSelect').value = currentBgSettings.lineStyle;
+            document.getElementById('simShapeSelect').value = currentBgSettings.simShape;
         }
 
         /* MENTÉSI, EXPORTÁLÁSI ÉS TOAST FUNKCIÓK */
         function saveTreesToStorage() {
             try {
-                localStorage.setItem('s4memo_family_trees', JSON.stringify(familyTrees));
+                const exportObject = {
+                    familyTrees: familyTrees,
+                    bgSettings: currentBgSettings
+                };
+                localStorage.setItem('s4memo_family_trees_data', JSON.stringify(exportObject));
             } catch (e) {
                 console.error("Nem sikerült az elmentés:", e);
             }
         }
 
+        function loadBgSettingsFromStorage() {
+            try {
+                const saved = localStorage.getItem('s4memo_family_trees_data');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (parsed.bgSettings) {
+                        currentBgSettings = Object.assign(currentBgSettings, parsed.bgSettings);
+                    }
+                }
+            } catch (e) {
+                console.error("Hiba a háttér beállítások betöltésekor:", e);
+            }
+        }
+
         function manualSave() {
             saveTreesToStorage();
-            showToast("💾 Módosítások sikeresen elmentve!");
+            showToast("💾 Módosítások és beállítások elmentve!");
         }
 
         function exportTreesToFile() {
             saveTreesToStorage();
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(familyTrees, null, 2));
+            const exportObject = {
+                familyTrees: familyTrees,
+                bgSettings: currentBgSettings
+            };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObject, null, 2));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
             downloadAnchor.setAttribute("download", `s4memo_csaladfak_${Date.now()}.json`);
@@ -946,18 +1033,28 @@
             reader.onload = function(e) {
                 try {
                     const importedData = JSON.parse(e.target.result);
-                    if (Array.isArray(importedData)) {
-                        familyTrees = importedData;
-                        saveTreesToStorage();
-                        if (familyTrees.length > 0) {
-                            currentTreeId = familyTrees[0].id;
+                    
+                    // Új struktúra (Családfák + Háttér) vagy a régi (tömb)
+                    if (importedData.familyTrees && Array.isArray(importedData.familyTrees)) {
+                        familyTrees = importedData.familyTrees;
+                        if (importedData.bgSettings) {
+                            currentBgSettings = Object.assign(currentBgSettings, importedData.bgSettings);
                         }
-                        renderTreeTabs();
-                        loadCurrentTreeCanvas();
-                        showToast("📂 Családfák sikeresen betöltve!");
+                    } else if (Array.isArray(importedData)) {
+                        familyTrees = importedData;
                     } else {
                         alert("Érvénytelen fájlformátum!");
+                        return;
                     }
+
+                    saveTreesToStorage();
+                    if (familyTrees.length > 0) {
+                        currentTreeId = familyTrees[0].id;
+                    }
+                    applyBgSettings();
+                    renderTreeTabs();
+                    loadCurrentTreeCanvas();
+                    showToast("📂 Családfák és háttér sikeresen betöltve!");
                 } catch (err) {
                     alert("Hiba történt a fájl beolvasása során: " + err.message);
                 }
@@ -977,8 +1074,14 @@
 
         function loadTreesFromStorage() {
             try {
-                const saved = localStorage.getItem('s4memo_family_trees');
-                if (saved) return JSON.parse(saved);
+                const saved = localStorage.getItem('s4memo_family_trees_data');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (parsed.familyTrees) return parsed.familyTrees;
+                }
+                // Régi mentés támogatása
+                const oldSaved = localStorage.getItem('s4memo_family_trees');
+                if (oldSaved) return JSON.parse(oldSaved);
             } catch (e) {
                 console.error("Hiba a betöltéskor:", e);
             }
@@ -1001,6 +1104,7 @@
                 document.getElementById('menuTree').classList.add('active');
                 renderTreeTabs();
                 loadCurrentTreeCanvas();
+                applyBgSettings();
             } else if (viewName === 'public') {
                 topNavContainer.style.display = 'block';
                 document.getElementById('publicView').classList.add('active');
@@ -1014,6 +1118,7 @@
             const savedTheme = localStorage.getItem('s4memo_theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
             updateThemeButton(savedTheme);
+            applyBgSettings();
         }
 
         function toggleTheme() {
