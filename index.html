@@ -59,7 +59,6 @@
             --line-green: #2ed573;
         }
 
-        /* DINAMIKUS HÁTTÉR ÉS BLUR RÉTEG */
         #bgBlurOverlay {
             position: fixed;
             top: 0;
@@ -567,7 +566,6 @@
         }
         .modal-overlay.active { display: flex; }
         
-        /* ÚJ MODAL KÁRTYA STÍLUS (EGYESÍTETT DESIGN) */
         .modal-card {
             background-color: var(--card-bg); border: 2px solid var(--border-color);
             border-radius: 28px; width: 460px; max-width: 92%; padding: 24px;
@@ -612,11 +610,60 @@
         .tab-content.active { display: block; }
 
         .profile-section { text-align: center; margin: 15px 0 20px 0; }
+        
+        /* KATTINTHATÓ AVATÁR KÖR */
+        .avatar-wrapper {
+            position: relative;
+            width: 110px;
+            height: 110px;
+            margin: 0 auto;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
         .avatar-wrapper img {
-            width: 110px; height: 110px; border-radius: 50%;
+            width: 100%; height: 100%; border-radius: 50%;
             object-fit: cover; border: 3px solid var(--accent-color);
             box-shadow: 0 4px 15px var(--shadow-color);
+            transition: filter 0.2s ease, opacity 0.2s ease;
         }
+
+        .avatar-placeholder-box {
+            width: 100%; height: 100%; border-radius: 50%;
+            background: var(--nav-bg); display: flex; align-items: center; justify-content: center;
+            font-size: 40px; border: 3px solid var(--accent-color); box-shadow: 0 4px 15px var(--shadow-color);
+            transition: border-color 0.2s ease, background-color 0.2s ease;
+        }
+
+        .avatar-upload-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.45);
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 800;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+        }
+
+        .avatar-wrapper:hover .avatar-upload-overlay {
+            opacity: 1;
+        }
+
+        .avatar-wrapper:hover img {
+            filter: brightness(0.8);
+        }
+
+        .avatar-wrapper:hover .avatar-placeholder-box {
+            background-color: var(--border-color);
+        }
+
         .profile-section h2 { margin: 10px 0 2px 0; font-size: 20px; font-weight: 800; }
         .status-alive { color: #2ed573; font-size: 12px; font-weight: 700; }
         .status-dead { color: #ff5277; font-size: 12px; font-weight: 700; }
@@ -830,7 +877,7 @@
         <div class="context-menu-item" style="color: #d9534f;" onclick="contextAction('delete')">🗑️ Karakter törlése</div>
     </div>
 
-    <!-- SIM CARD & SZERKESZTŐ MODAL (EGYESÍTVE) -->
+    <!-- SIM CARD & SZERKESZTŐ MODAL -->
     <div class="modal-overlay" id="simModal">
         <div class="modal-card">
             <button type="button" class="close-btn" onclick="closeSimModal()">&times;</button>
@@ -848,10 +895,18 @@
             <!-- FÜL 1: Szerkesztő és profil infók -->
             <div class="tab-content active" id="tabContentInfo">
                 <div class="profile-section">
-                    <div class="avatar-wrapper">
+                    <!-- KATTINTHATÓ PROFILKÉP (REJTETT FÁJLVÁLASZTÓVAL) -->
+                    <div class="avatar-wrapper" onclick="triggerFileInput()" title="Kattints a profilkép módosításához">
                         <img id="modalAvatar" src="" alt="Sim Avatar" style="display:none;">
-                        <div id="modalAvatarPlaceholder" style="width:110px; height:110px; border-radius:50%; background:var(--nav-bg); display:flex; align-items:center; justify-content:center; font-size:40px; margin:0 auto; border:3px solid var(--accent-color);">👤</div>
+                        <div id="modalAvatarPlaceholder" class="avatar-placeholder-box">👤</div>
+                        <div class="avatar-upload-overlay">
+                            <span style="font-size:18px;">📷</span>
+                            <span>Módosítás</span>
+                        </div>
                     </div>
+                    <!-- Rejtett fájlválasztó input -->
+                    <input type="file" id="editImageInput" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+
                     <h2 id="modalName">Sim Neve</h2>
                     <span id="modalStatus" class="status-alive">Életben van</span>
                 </div>
@@ -886,11 +941,7 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label>Profilkép kiválasztása</label>
-                        <input type="file" id="editImageInput" accept="image/*" onchange="handleImageUpload(event)">
-                    </div>
-
+                    <!-- KÉPSZERKESZTŐ BOX (Automatán megnyílik kép választáskor) -->
                     <div class="image-editor-box" id="imageEditorBox" style="display: none;">
                         <div class="img-preview-frame" id="imgPreviewFrame">
                             <img id="modalImgPreview" class="img-preview-element" src="" alt="Preview">
@@ -1100,6 +1151,10 @@
         let dragStartMouse = { x: 0, y: 0 };
         let dragStartSimPos = { x: 0, y: 0 };
         let currentDropTargetSim = null;
+
+        function triggerFileInput() {
+            document.getElementById('editImageInput').click();
+        }
 
         function toggleAccordion(groupId) {
             const group = document.getElementById(groupId);
@@ -1699,7 +1754,6 @@
             treeWorld.appendChild(node);
         }
 
-        /* SIM CARD TABS ÉS MODAL NYITÁSA */
         function switchSimTab(tabName) {
             document.querySelectorAll('#simModal .tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('#simModal .tab-content').forEach(c => c.classList.remove('active'));
@@ -1724,7 +1778,6 @@
             tempUploadedImage = sim.image || '';
             currentRotation = sim.imageTransform?.rotate || 0;
 
-            /* Profil adatok feltöltése az új kártyán */
             document.getElementById('modalName').innerText = `${sim.firstName} ${sim.lastName}`;
             const statusEl = document.getElementById('modalStatus');
             statusEl.innerText = sim.isDead ? 'Elhunyt' : 'Életben van';
@@ -1732,6 +1785,7 @@
 
             const modalAvatar = document.getElementById('modalAvatar');
             const placeholder = document.getElementById('modalAvatarPlaceholder');
+            
             if (sim.image) {
                 modalAvatar.src = sim.image;
                 modalAvatar.style.display = 'block';
@@ -1741,14 +1795,12 @@
                 placeholder.style.display = 'flex';
             }
 
-            /* Form mezők */
             document.getElementById('editFirstName').value = sim.firstName || '';
             document.getElementById('editLastName').value = sim.lastName || '';
             document.getElementById('editAge').value = sim.age || 'Fiatal felnőtt';
             document.getElementById('editColor').value = sim.color || '#ff4770';
             document.getElementById('editTraits').value = sim.traits || '';
 
-            /* Napló és Galéria betöltés */
             document.getElementById('modalDiaryText').innerText = sim.traits ? sim.traits : 'Nincs még ehhez a Simhez leírás vagy történet rögzítve.';
             
             const galleryGrid = document.getElementById('modalGallery');
@@ -2020,10 +2072,20 @@
                 reader.onload = function(e) { 
                     tempUploadedImage = e.target.result;
                     currentRotation = 0;
+
+                    /* Előnézet frissítése a felső körben */
+                    const modalAvatar = document.getElementById('modalAvatar');
+                    const placeholder = document.getElementById('modalAvatarPlaceholder');
+                    modalAvatar.src = tempUploadedImage;
+                    modalAvatar.style.display = 'block';
+                    placeholder.style.display = 'none';
+
+                    /* Szerkesztő alaphelyzetbe állítása */
                     document.getElementById('imgZoomSlider').value = 1;
                     document.getElementById('imgOffsetX').value = 0;
                     document.getElementById('imgOffsetY').value = 0;
                     document.getElementById('imgFilterSelect').value = 'none';
+
                     showImageEditor(tempUploadedImage);
                 };
                 reader.readAsDataURL(file);
