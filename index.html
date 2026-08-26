@@ -96,7 +96,7 @@
             padding: 0;
             background-color: var(--bg-color);
             color: var(--text-color);
-            overflow: hidden;
+            overflow-x: hidden;
             min-height: 100vh;
         }
 
@@ -402,6 +402,134 @@
         .journal-btn:hover {
             opacity: 1;
             background-color: var(--nav-bg);
+        }
+
+        /* AKTIVITÁS / TÖRTÉNETEK STÍLUSOK */
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .activity-header-left h1 {
+            margin: 0 0 6px 0;
+            font-size: 28px;
+            font-weight: 800;
+        }
+        .activity-header-left p {
+            margin: 0;
+            color: var(--subtext-color);
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .activity-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .activity-filter-select {
+            padding: 10px 16px;
+            border-radius: 20px;
+            border: 2px solid var(--border-color);
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            font-weight: 700;
+            font-size: 13px;
+            outline: none;
+            cursor: pointer;
+        }
+        .activity-feed {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: relative;
+        }
+        .activity-feed::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            bottom: 15px;
+            left: 28px;
+            width: 3px;
+            background-color: var(--border-color);
+            border-radius: 3px;
+            z-index: 1;
+        }
+        .timeline-card {
+            position: relative;
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 24px;
+            padding: 22px 24px;
+            margin-left: 60px;
+            box-shadow: 0 8px 20px var(--shadow-color);
+            transition: all 0.25s ease;
+        }
+        .timeline-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent-color);
+            box-shadow: 0 12px 28px var(--shadow-color);
+        }
+        .timeline-icon {
+            position: absolute;
+            left: -60px;
+            top: 18px;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background-color: var(--accent-color);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 4px 12px var(--active-glow);
+            z-index: 2;
+            border: 3px solid var(--card-bg);
+        }
+        .timeline-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        .timeline-tree-badge {
+            background-color: var(--nav-bg);
+            color: var(--accent-color);
+            font-size: 11px;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            display: inline-block;
+            margin-bottom: 6px;
+        }
+        .timeline-title {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-color);
+        }
+        .timeline-date {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--subtext-color);
+        }
+        .timeline-body {
+            font-size: 14px;
+            color: var(--text-color);
+            line-height: 1.6;
+            white-space: pre-line;
+        }
+        .timeline-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 14px;
+            padding-top: 10px;
+            border-top: 1.5px dashed var(--border-color);
         }
 
         .add-sim-floating-btn {
@@ -719,6 +847,7 @@
                 <div class="nav-links">
                     <a class="nav-item active" id="navHome" onclick="switchView('home')">Főoldal</a>
                     <a class="nav-item" id="navTree" onclick="switchView('tree')">Családfák</a>
+                    <a class="nav-item" id="navActivity" onclick="switchView('activity')">Aktivitás</a>
                     <a class="nav-item" id="navPublic" onclick="switchView('public')">Publikum</a>
                 </div>
             </div>
@@ -784,7 +913,29 @@
         </div>
     </div>
 
-    <!-- 3. PUBLIKUM -->
+    <!-- 3. AKTIVITÁS / TÖRTÉNETEK NÉZET -->
+    <div class="page-view" id="activityView">
+        <main class="main-card">
+            <div class="activity-header">
+                <div class="activity-header-left">
+                    <h1>Aktivitás & Történetek</h1>
+                    <p>Kövesd nyomon a Sims dinasztiáid történeteit, mérföldköveit és naplóbejegyzéseit egyetlen idővonalon.</p>
+                </div>
+                <div class="activity-controls">
+                    <select class="activity-filter-select" id="activityTreeFilter" onchange="renderActivityFeed()">
+                        <option value="all">Összes családfa</option>
+                    </select>
+                    <button class="btn-primary" onclick="openJournalModal(null, true)">+ Új Történet</button>
+                </div>
+            </div>
+
+            <div class="activity-feed" id="activityFeed">
+                <!-- Dinamikusan generált idővonal kártyák -->
+            </div>
+        </main>
+    </div>
+
+    <!-- 4. PUBLIKUM -->
     <div class="page-view" id="publicView">
         <main class="main-card">
             <h1>Publikum / Közösségi Családfák</h1>
@@ -1009,6 +1160,10 @@
         <div class="modal-card">
             <h2 id="journalModalTitle">Új Naplóbejegyzés</h2>
             <form id="journalForm" onsubmit="saveJournalEntry(event)">
+                <div class="form-group" id="journalTreeSelectGroup" style="display:none;">
+                    <label>Családfa Kiválasztása</label>
+                    <select id="journalTreeSelect"></select>
+                </div>
                 <div class="form-group">
                     <label>Cím</label>
                     <input type="text" id="journalTitleInput" placeholder="Pl.: Bella és Mortimer esküvője" required>
@@ -1072,6 +1227,7 @@
         <ul>
             <li><a onclick="switchView('home')" id="menuHome" class="active">🏠 Főoldal</a></li>
             <li><a onclick="switchView('tree')" id="menuTree">🌳 Családfák</a></li>
+            <li><a onclick="switchView('activity')" id="menuActivity">📜 Aktivitás</a></li>
             <li><a onclick="switchView('public')" id="menuPublic">🌐 Publikum</a></li>
             <li><a href="#">🎮 Kisebb játékok</a></li>
         </ul>
@@ -1100,6 +1256,7 @@
         
         let pageBackgrounds = {
             home: { style: 'dots', customUrl: '', size: 'cover', position: 'center', blur: 0 },
+            activity: { style: 'dots', customUrl: '', size: 'cover', position: 'center', blur: 0 },
             public: { style: 'dots', customUrl: '', size: 'cover', position: 'center', blur: 0 }
         };
 
@@ -1123,6 +1280,7 @@
         let currentTreeId = familyTrees.length > 0 ? familyTrees[0].id : null;
         let editingSimId = null;
         let editingJournalId = null;
+        let editingJournalTreeId = null;
         let contextSimId = null;
         let selectedSimId = null;
         let selectedConnectionTargetId = null;
@@ -1303,6 +1461,11 @@
                 renderTreeTabs();
                 renderJournalEntries();
                 loadCurrentTreeCanvas();
+            } else if (viewName === 'activity') {
+                document.getElementById('activityView').classList.add('active');
+                document.getElementById('navActivity').classList.add('active');
+                document.getElementById('menuActivity').classList.add('active');
+                initActivityView();
             } else if (viewName === 'public') {
                 document.getElementById('publicView').classList.add('active');
                 document.getElementById('navPublic').classList.add('active');
@@ -1493,20 +1656,48 @@
             });
         }
 
-        function openJournalModal(entryId = null) {
-            const tree = getCurrentTree();
-            if (!tree) return alert('Kérlek válassz ki egy családfát!');
-
+        function openJournalModal(entryId = null, forceTreeSelect = false, targetTreeId = null) {
+            let tree = getCurrentTree();
             editingJournalId = entryId;
-            if (!tree.journal) tree.journal = [];
+            editingJournalTreeId = targetTreeId || (tree ? tree.id : null);
+
+            const selectGroup = document.getElementById('journalTreeSelectGroup');
+            const treeSelect = document.getElementById('journalTreeSelect');
+
+            if (forceTreeSelect || !currentTreeId || familyTrees.length > 1) {
+                selectGroup.style.display = 'block';
+                treeSelect.innerHTML = '';
+                familyTrees.forEach(t => {
+                    const opt = document.createElement('option');
+                    opt.value = t.id;
+                    opt.innerText = t.name;
+                    if (t.id === (editingJournalTreeId || currentTreeId)) opt.selected = true;
+                    treeSelect.appendChild(opt);
+                });
+            } else {
+                selectGroup.style.display = 'none';
+            }
 
             if (entryId) {
-                const entry = tree.journal.find(j => j.id === entryId);
-                if (entry) {
+                let foundEntry = null;
+                familyTrees.forEach(t => {
+                    if (t.journal) {
+                        const e = t.journal.find(j => j.id === entryId);
+                        if (e) {
+                            foundEntry = e;
+                            editingJournalTreeId = t.id;
+                        }
+                    }
+                });
+
+                if (foundEntry) {
                     document.getElementById('journalModalTitle').innerText = 'Bejegyzés Szerkesztése';
-                    document.getElementById('journalTitleInput').value = entry.title;
-                    document.getElementById('journalDateInput').value = entry.date;
-                    document.getElementById('journalContentInput').value = entry.content;
+                    document.getElementById('journalTitleInput').value = foundEntry.title;
+                    document.getElementById('journalDateInput').value = foundEntry.date;
+                    document.getElementById('journalContentInput').value = foundEntry.content;
+                    if (selectGroup.style.display !== 'none') {
+                        treeSelect.value = editingJournalTreeId;
+                    }
                 }
             } else {
                 document.getElementById('journalModalTitle').innerText = 'Új Naplóbejegyzés';
@@ -1521,12 +1712,20 @@
         function closeJournalModal() {
             journalModal.classList.remove('active');
             editingJournalId = null;
+            editingJournalTreeId = null;
         }
 
         function saveJournalEntry(event) {
             event.preventDefault();
-            const tree = getCurrentTree();
-            if (!tree) return;
+            
+            const selectGroup = document.getElementById('journalTreeSelectGroup');
+            let targetTreeId = editingJournalTreeId || currentTreeId;
+            if (selectGroup.style.display !== 'none') {
+                targetTreeId = document.getElementById('journalTreeSelect').value;
+            }
+
+            const tree = familyTrees.find(t => t.id === targetTreeId);
+            if (!tree) return alert('Kérlek válassz ki egy létező családfát!');
             if (!tree.journal) tree.journal = [];
 
             const title = document.getElementById('journalTitleInput').value;
@@ -1534,12 +1733,18 @@
             const content = document.getElementById('journalContentInput').value;
 
             if (editingJournalId) {
-                const entry = tree.journal.find(j => j.id === editingJournalId);
-                if (entry) {
-                    entry.title = title;
-                    entry.date = date;
-                    entry.content = content;
-                }
+                familyTrees.forEach(t => {
+                    if (t.journal) {
+                        t.journal = t.journal.filter(j => j.id !== editingJournalId);
+                    }
+                });
+
+                tree.journal.push({
+                    id: editingJournalId,
+                    title: title,
+                    date: date,
+                    content: content
+                });
             } else {
                 tree.journal.push({
                     id: 'j_' + Date.now(),
@@ -1552,16 +1757,91 @@
             saveTreesToStorage();
             closeJournalModal();
             renderJournalEntries();
+            if (currentView === 'activity') renderActivityFeed();
         }
 
         function deleteJournalEntry(entryId) {
-            const tree = getCurrentTree();
-            if (!tree || !tree.journal) return;
             if (confirm('Biztosan törölni szeretnéd ezt a bejegyzést?')) {
-                tree.journal = tree.journal.filter(j => j.id !== entryId);
+                familyTrees.forEach(t => {
+                    if (t.journal) {
+                        t.journal = t.journal.filter(j => j.id !== entryId);
+                    }
+                });
                 saveTreesToStorage();
                 renderJournalEntries();
+                if (currentView === 'activity') renderActivityFeed();
             }
+        }
+
+        /* AKTIVITÁS HÍRFOLYAM RENDERELÉSE */
+        function initActivityView() {
+            const filterSelect = document.getElementById('activityTreeFilter');
+            filterSelect.innerHTML = '<option value="all">Összes családfa</option>';
+            familyTrees.forEach(tree => {
+                const opt = document.createElement('option');
+                opt.value = tree.id;
+                opt.innerText = tree.name;
+                filterSelect.appendChild(opt);
+            });
+            renderActivityFeed();
+        }
+
+        function renderActivityFeed() {
+            const feedContainer = document.getElementById('activityFeed');
+            const selectedTreeId = document.getElementById('activityTreeFilter').value;
+            feedContainer.innerHTML = '';
+
+            let allEntries = [];
+
+            familyTrees.forEach(tree => {
+                if (selectedTreeId === 'all' || tree.id === selectedTreeId) {
+                    if (tree.journal && tree.journal.length > 0) {
+                        tree.journal.forEach(entry => {
+                            allEntries.push({
+                                ...entry,
+                                treeName: tree.name,
+                                treeId: tree.id
+                            });
+                        });
+                    }
+                }
+            });
+
+            allEntries.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+
+            if (allEntries.length === 0) {
+                feedContainer.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: var(--subtext-color);">
+                        <div style="font-size: 48px; margin-bottom: 10px;">📖</div>
+                        <h3>Még nincsenek rögzített történetek!</h3>
+                        <p style="font-size: 13px;">Kattints az "+ Új Történet" gombra egy bejegyzés hozzáadásához.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            allEntries.forEach(entry => {
+                const card = document.createElement('div');
+                card.className = 'timeline-card';
+
+                card.innerHTML = `
+                    <div class="timeline-icon">📖</div>
+                    <div class="timeline-card-header">
+                        <div>
+                            <span class="timeline-tree-badge">🌳 ${entry.treeName}</span>
+                            <h3 class="timeline-title">${entry.title}</h3>
+                        </div>
+                        <span class="timeline-date">🗓️ ${entry.date || 'Nincs dátum'}</span>
+                    </div>
+                    <div class="timeline-body">${entry.content}</div>
+                    <div class="timeline-actions">
+                        <button class="btn-secondary" style="font-size: 11px; padding: 5px 12px;" onclick="openJournalModal('${entry.id}', true, '${entry.treeId}')">✏️ Szerkesztés</button>
+                        <button class="btn-danger" style="font-size: 11px; padding: 5px 12px; margin-right: 0;" onclick="deleteJournalEntry('${entry.id}')">🗑️ Törlés</button>
+                    </div>
+                `;
+
+                feedContainer.appendChild(card);
+            });
         }
 
         function selectTree(treeId) {
