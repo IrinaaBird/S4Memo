@@ -276,9 +276,58 @@
         .tree-left-sidebar {
             position: absolute; top: 20px; left: 20px; width: 270px;
             background-color: var(--nav-bg); border: 2px solid var(--border-color);
-            border-radius: 32px; padding: 22px 16px; box-shadow: 0 10px 30px var(--shadow-color);
+            border-radius: 32px; padding: 18px 16px; box-shadow: 0 10px 30px var(--shadow-color);
             z-index: 1050; display: flex; flex-direction: column; gap: 12px;
             max-height: calc(100vh - 120px); overflow-y: auto;
+        }
+
+        /* ACCORDION (LENYÍLÓ MENÜ) STÍLUSOK */
+        .accordion-group {
+            border-radius: 18px;
+            transition: all 0.2s ease;
+        }
+
+        .accordion-header {
+            width: 100%;
+            background: none;
+            border: none;
+            color: var(--text-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 6px;
+            cursor: pointer;
+            font-weight: 800;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .accordion-header .header-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .accordion-header .chevron {
+            font-size: 10px;
+            transition: transform 0.25s ease;
+            color: var(--subtext-color);
+        }
+
+        .accordion-content {
+            display: none;
+            padding-top: 6px;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .accordion-group.open .accordion-content {
+            display: flex;
+        }
+
+        .accordion-group:not(.open) .chevron {
+            transform: rotate(180deg);
         }
 
         /* Családfa gombok és törlés ikon stílusa */
@@ -301,7 +350,8 @@
 
         .add-tree-btn {
             background-color: transparent; color: var(--accent-color); border: 2px dashed var(--accent-color);
-            padding: 12px 16px; border-radius: 20px; font-weight: 700; font-size: 14px; cursor: pointer; text-align: center;
+            padding: 10px 14px; border-radius: 16px; font-weight: 700; font-size: 13px; cursor: pointer; text-align: center;
+            width: 100%; margin-top: 4px;
         }
         .add-tree-btn:hover { background-color: var(--accent-color); color: #ffffff; transform: scale(1.02); }
 
@@ -553,9 +603,23 @@
     <!-- 2. CSALÁDFÁK NÉZET -->
     <div class="page-view" id="treeView">
         <div class="tree-left-sidebar">
-            <div style="font-size: 13px; font-weight: 800; color: var(--subtext-color); text-transform: uppercase;">Családfák</div>
-            <div id="treeTabsList"></div>
-            <button class="add-tree-btn" onclick="createNewTree()">+ Családfa hozzáadása</button>
+            
+            <!-- ACCORDION CSALÁDFÁK MENÜCSOPORT -->
+            <div class="accordion-group open" id="dynastyAccordion">
+                <button class="accordion-header" onclick="toggleAccordion('dynastyAccordion')">
+                    <div class="header-title">
+                        <span>⋮⋮</span>
+                        <span>Családfák</span>
+                    </div>
+                    <span class="chevron">▲</span>
+                </button>
+
+                <div class="accordion-content">
+                    <div id="treeTabsList"></div>
+                    <button class="add-tree-btn" onclick="createNewTree()">+ Családfa hozzáadása</button>
+                </div>
+            </div>
+
         </div>
 
         <!-- ZOOM VEZÉRLŐPANEL -->
@@ -859,6 +923,14 @@
         let dragStartMouse = { x: 0, y: 0 };
         let dragStartSimPos = { x: 0, y: 0 };
         let currentDropTargetSim = null;
+
+        /* ACCORDION KEZELÉSE */
+        function toggleAccordion(groupId) {
+            const group = document.getElementById(groupId);
+            if (group) {
+                group.classList.toggle('open');
+            }
+        }
 
         function toggleStyleDrawer() {
             styleDrawer.classList.toggle('open');
