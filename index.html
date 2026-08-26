@@ -824,13 +824,15 @@
         // HÁTTÉR BEÁLLÍTÁSOK VÁLTOZÓJA
         let currentBgSettings = {
             style: 'dots',
-            customImage: '',
             size: 'cover',
             position: 'center',
             blur: 0,
             lineStyle: 'style-glow',
             simShape: 'circle'
         };
+
+        // KÜLÖN TÁROLT SÁJÁT HÁTTÉRKÉP BASE64 STRING
+        let loadedCustomBgImage = '';
 
         let familyTrees = loadTreesFromStorage();
         loadBgSettingsFromStorage();
@@ -873,18 +875,58 @@
             saveTreesToStorage();
         }
 
+        // TÖMÖRÍTŐ FUNKCIÓ A HÁTTÉRKÉPHEZ (Max width 1920px, JPEG 0.75 quality)
+        function compressBgImage(file, callback) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    const maxDim = 1920;
+
+                    if (width > maxDim || height > maxDim) {
+                        if (width > height) {
+                            height = Math.round((height * maxDim) / width);
+                            width = maxDim;
+                        } else {
+                            width = Math.round((width * maxDim) / height);
+                            height = maxDim;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // Tömörített JPEG 0.75 minőséggel
+                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.75);
+                    callback(compressedBase64);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
         function handleCustomBgUpload(event) {
             const file = event.target.files[0];
             if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
+                compressBgImage(file, function(compressedData) {
                     currentBgSettings.style = 'custom';
-                    currentBgSettings.customImage = e.target.result;
+                    loadedCustomBgImage = compressedData;
                     document.getElementById('bgStyleSelect').value = 'custom';
+                    
+                    try {
+                        localStorage.setItem('s4memo_custom_bg', loadedCustomBgImage);
+                    } catch (err) {
+                        console.error("Nem fér el a háttérkép a tárhelyen:", err);
+                    }
+
                     applyBgSettings();
                     saveTreesToStorage();
-                };
-                reader.readAsDataURL(file);
+                });
             }
         }
 
@@ -919,8 +961,8 @@
             if (currentBgSettings.style === 'custom') {
                 customBgContainer.style.display = 'block';
                 document.body.className = 'bg-custom';
-                if (currentBgSettings.customImage) {
-                    document.body.style.backgroundImage = `url('${currentBgSettings.customImage}')`;
+                if (loadedCustomBgImage) {
+                    document.body.style.backgroundImage = `url('${loadedCustomBgImage}')`;
                 }
             } else {
                 customBgContainer.style.display = 'none';
@@ -973,6 +1015,9 @@
                     bgSettings: currentBgSettings
                 };
                 localStorage.setItem('s4memo_family_trees_data', JSON.stringify(exportObject));
+                if (loadedCustomBgImage) {
+                    localStorage.setItem('s4memo_custom_bg', loadedCustomBgImage);
+                }
             } catch (e) {
                 console.error("Nem sikerült az elmentés:", e);
             }
@@ -986,6 +1031,10 @@
                     if (parsed.bgSettings) {
                         currentBgSettings = Object.assign(currentBgSettings, parsed.bgSettings);
                     }
+                }
+                const savedBgImage = localStorage.getItem('s4memo_custom_bg');
+                if (savedBgImage) {
+                    loadedCustomBgImage = savedBgImage;
                 }
             } catch (e) {
                 console.error("Hiba a háttér beállítások betöltésekor:", e);
