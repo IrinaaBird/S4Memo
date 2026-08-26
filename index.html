@@ -522,7 +522,6 @@
                 </div>
             </div>
             <div class="nav-right">
-                <button class="save-btn" onclick="manualSave()">💾 Mentés</button>
                 <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeBtn">🌙 Dark</button>
                 <button class="user-profile-btn" onclick="openProfile()">👤 <span>Profilom</span></button>
             </div>
@@ -976,8 +975,8 @@
 
         function updateThemeButton(theme) {
             const label = theme === 'dark' ? '☀️ Light' : '🌙 Dark';
-            themeBtn.innerHTML = label;
-            treeThemeBtn.innerHTML = label;
+            if (themeBtn) themeBtn.innerHTML = label;
+            if (treeThemeBtn) treeThemeBtn.innerHTML = label;
         }
 
         function openProfile() { alert('Profilom megnyitása!'); }
@@ -1093,7 +1092,7 @@
 
                 const btn = document.createElement('button');
                 btn.className = 'tree-tab-btn';
-                btn.style.cssText = 'background:none; border:none; font-weight:700; color:var(--text-color); cursor:pointer; font-size:14px;';
+                btn.style.cssText = 'background:none; border:none; font-weight:700; color:var(--text-color); cursor:pointer; font-size:14px; width:100%; text-align:left; padding:6px 8px; border-radius:12px;';
                 btn.innerText = tree.name;
                 btn.onclick = () => selectTree(tree.id);
 
