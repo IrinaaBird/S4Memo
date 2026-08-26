@@ -19,7 +19,6 @@
             --nav-bg: #f1e2d5;
             --input-bg: #ffffff;
 
-            /* Kapcsolatok és gombok színei */
             --btn-pink: #ff6b8b;
             --btn-pink-hover: #ff4770;
             --btn-green: #2ed573;
@@ -28,6 +27,7 @@
             --line-green: #2ed573;
 
             /* Dinamikus Testreszabási Változók */
+            --sim-node-clip-path: none;
             --sim-node-radius: 50%;
             --line-stroke-width: 3.5px;
         }
@@ -54,12 +54,18 @@
             --line-green: #2ed573;
         }
 
-        /* HÁTTÉR MINTÁK */
+        /* HÁTTÉR STÍLUSOK */
         body.bg-dots { background-image: var(--bg-pattern); background-size: 24px 24px; }
         body.bg-clean { background-image: none !important; }
         body.bg-grid { 
             background-image: linear-gradient(var(--border-color) 1px, transparent 1px), linear-gradient(90deg, var(--border-color) 1px, transparent 1px);
             background-size: 30px 30px; 
+        }
+        body.bg-custom {
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
         }
 
         * {
@@ -78,12 +84,24 @@
         }
 
         /* -------------------------------------------------- */
-        /* VONAL STÍLUSOK (ANIMÁLT ÉS KLASSZIKUS)             */
+        /* BŐVÍTETT VONAL STÍLUSOK ÉS ANIMÁCIÓK             */
         /* -------------------------------------------------- */
         @keyframes pulseGlowPath {
             0% { stroke-dashoffset: 200; opacity: 0.8; }
             50% { opacity: 1; }
             100% { stroke-dashoffset: 0; opacity: 0.8; }
+        }
+
+        @keyframes flickerPath {
+            0%, 100% { opacity: 1; filter: drop-shadow(0 0 10px rgba(255, 71, 112, 0.9)); }
+            25% { opacity: 0.4; filter: drop-shadow(0 0 2px rgba(255, 71, 112, 0.2)); }
+            50% { opacity: 0.9; filter: drop-shadow(0 0 14px rgba(255, 71, 112, 1)); }
+            75% { opacity: 0.6; filter: drop-shadow(0 0 4px rgba(255, 71, 112, 0.4)); }
+        }
+
+        @keyframes flowDots {
+            from { stroke-dashoffset: 40; }
+            to { stroke-dashoffset: 0; }
         }
 
         svg path {
@@ -121,38 +139,64 @@
             stroke: var(--line-green); stroke-width: var(--line-stroke-width); stroke-dasharray: 8 6; animation: none; filter: none;
         }
 
+        /* Villódzó Pulzus */
+        .style-flicker .line-love {
+            stroke: var(--line-pink); stroke-width: var(--line-stroke-width);
+            animation: flickerPath 1.8s infinite ease-in-out;
+        }
+        .style-flicker .line-child {
+            stroke: var(--line-green); stroke-width: var(--line-stroke-width);
+            animation: flickerPath 2.2s infinite ease-in-out;
+        }
+
+        /* Pontozott Áramlás */
+        .style-dots-flow .line-love {
+            stroke: var(--line-pink); stroke-width: var(--line-stroke-width);
+            stroke-dasharray: 6 10; animation: flowDots 1s linear infinite;
+        }
+        .style-dots-flow .line-child {
+            stroke: var(--line-green); stroke-width: var(--line-stroke-width);
+            stroke-dasharray: 6 10; animation: flowDots 1s linear infinite;
+        }
+
         /* -------------------------------------------------- */
-        /* BAL OLDALI KINYITHATÓ TESTRESZABÁSI PANEL         */
+        /* KOMPAKTOBB KINYITHATÓ TESTRESZABÁSI PANEL         */
         /* -------------------------------------------------- */
         .style-panel-drawer {
             position: absolute; bottom: 20px; left: 20px; z-index: 1060;
-            background-color: var(--nav-bg); border: 2px solid var(--border-color);
-            border-radius: 28px; box-shadow: 0 12px 35px var(--shadow-color);
-            width: 270px; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background-color: var(--nav-bg); border: 1.5px solid var(--border-color);
+            border-radius: 18px; box-shadow: 0 8px 24px var(--shadow-color);
+            width: 210px; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             overflow: hidden; backdrop-filter: blur(10px);
         }
 
         .style-panel-header {
-            padding: 14px 20px; font-weight: 800; font-size: 14px;
+            padding: 8px 14px; font-weight: 800; font-size: 12px;
             display: flex; justify-content: space-between; align-items: center;
-            cursor: pointer; background-color: var(--card-bg); border-bottom: 2px solid var(--border-color);
+            cursor: pointer; background-color: var(--card-bg); border-bottom: 1.5px solid var(--border-color);
             user-select: none;
         }
 
         .style-panel-content {
-            padding: 16px; display: flex; flex-direction: column; gap: 14px;
-            max-height: 0; opacity: 0; transition: all 0.3s ease; pointer-events: none;
+            padding: 10px 12px; display: flex; flex-direction: column; gap: 8px;
+            max-height: 0; opacity: 0; transition: all 0.25s ease; pointer-events: none;
         }
 
         .style-panel-drawer.open .style-panel-content {
-            max-height: 400px; opacity: 1; pointer-events: all;
+            max-height: 380px; opacity: 1; pointer-events: all;
         }
 
-        .style-group { display: flex; flex-direction: column; gap: 6px; }
-        .style-group label { font-size: 11px; font-weight: 800; color: var(--subtext-color); text-transform: uppercase; }
-        .style-group select {
-            padding: 8px 12px; border-radius: 14px; border: 2px solid var(--border-color);
-            background-color: var(--input-bg); color: var(--text-color); font-weight: 700; font-size: 13px; outline: none;
+        .style-group { display: flex; flex-direction: column; gap: 3px; }
+        .style-group label { font-size: 10px; font-weight: 800; color: var(--subtext-color); text-transform: uppercase; }
+        .style-group select, .style-group input[type="file"] {
+            padding: 5px 8px; border-radius: 10px; border: 1.5px solid var(--border-color);
+            background-color: var(--input-bg); color: var(--text-color); font-weight: 700; font-size: 11px; outline: none;
+        }
+        .custom-file-upload { display: none; }
+        .custom-file-btn {
+            background-color: var(--card-bg); border: 1.5px dashed var(--accent-color);
+            color: var(--accent-color); padding: 5px 8px; border-radius: 10px;
+            font-size: 10px; font-weight: 800; text-align: center; cursor: pointer; margin-top: 2px;
         }
 
         /* UI ELEMEK ÉS NAVIGÁCIÓ */
@@ -233,9 +277,9 @@
         }
         .add-sim-floating-btn:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 12px 28px rgba(255, 71, 112, 0.6); }
 
-        /* KISEBB KIALAKÍTÁSÚ ZOOM VEZÉRLŐPANEL */
+        /* KOMPAKT ZOOM VEZÉRLŐPANEL */
         .zoom-controls {
-            position: absolute; bottom: 20px; left: 305px; z-index: 1050;
+            position: absolute; bottom: 20px; left: 245px; z-index: 1050;
             display: flex; gap: 4px; background-color: var(--nav-bg);
             padding: 4px 6px; border-radius: 16px; border: 1.5px solid var(--border-color);
             box-shadow: 0 4px 12px var(--shadow-color); align-items: center;
@@ -264,7 +308,7 @@
         }
         .tree-svg-layer { position: absolute; top: 0; left: 0; width: 5000px; height: 5000px; pointer-events: none; z-index: 1; }
 
-        /* ANIMÁLT SIM ELEMEK ÉS KERET STÍLUSOK */
+        /* SIM KERETEK ÉS FORMÁK */
         @keyframes borderRainbow {
             0% { border-color: #ff4770; box-shadow: 0 0 18px rgba(255, 71, 112, 0.6); }
             33% { border-color: #2ed573; box-shadow: 0 0 18px rgba(46, 213, 115, 0.6); }
@@ -280,7 +324,9 @@
 
         .sim-node {
             position: absolute; width: 94px; height: 94px;
-            border-radius: var(--sim-node-radius); background-color: var(--card-bg);
+            border-radius: var(--sim-node-radius); 
+            clip-path: var(--sim-node-clip-path);
+            background-color: var(--card-bg);
             border: 4px solid var(--accent-color); box-shadow: 0 10px 25px var(--shadow-color);
             cursor: pointer; z-index: 2; user-select: none;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -299,7 +345,10 @@
         }
 
         .sim-node-avatar {
-            width: 100%; height: 100%; border-radius: var(--sim-node-radius); overflow: hidden;
+            width: 100%; height: 100%; 
+            border-radius: var(--sim-node-radius);
+            clip-path: var(--sim-node-clip-path);
+            overflow: hidden;
             display: flex; align-items: center; justify-content: center; font-size: 34px;
             background-size: cover; background-position: center; pointer-events: none;
         }
@@ -321,7 +370,7 @@
         }
         .sim-edit-pencil:hover { background-color: var(--accent-color); color: white; transform: rotate(15deg) scale(1.2); }
 
-        /* RÓZSASZÍN ÉS ZÖLD GOMBOK */
+        /* GOMBOK */
         @keyframes pulseGlow {
             0% { transform: scale(1); }
             50% { transform: scale(1.2); }
@@ -486,35 +535,44 @@
             <button class="add-tree-btn" onclick="createNewTree()">+ Családfa hozzáadása</button>
         </div>
 
-        <!-- BAL ALSÓ KINYITHATÓ TESTRESZABÁSI PANEL -->
+        <!-- BAL ALSÓ KOMPAKTOBB TESTRESZABÁSI PANEL -->
         <div class="style-panel-drawer" id="styleDrawer">
             <div class="style-panel-header" onclick="toggleStyleDrawer()">
-                <span>🎨 Stílusok & Testreszabás</span>
+                <span>🎨 Testreszabás</span>
                 <span id="drawerArrow">▲</span>
             </div>
             <div class="style-panel-content">
                 <div class="style-group">
                     <label>Háttér Stílusa</label>
                     <select id="bgStyleSelect" onchange="changeBgStyle(this.value)">
-                        <option value="dots" selected>Pöttyös (Alapértelmezett)</option>
-                        <option value="clean">Letisztult (Sima)</option>
-                        <option value="grid">Rácsos Műszaki</option>
+                        <option value="dots" selected>Pöttyös</option>
+                        <option value="clean">Letisztult</option>
+                        <option value="grid">Rácsos</option>
+                        <option value="custom">Saját kép (Feltöltés)</option>
                     </select>
+                    <div id="customBgContainer" style="display: none;">
+                        <label for="bgFileInput" class="custom-file-btn">📁 Kép tallózása...</label>
+                        <input type="file" id="bgFileInput" class="custom-file-upload" accept="image/*" onchange="handleCustomBgUpload(event)">
+                    </div>
                 </div>
                 <div class="style-group">
-                    <label>Kötél / Vonal Animáció</label>
+                    <label>Vonal Animáció</label>
                     <select id="lineStyleSelect" onchange="changeLineStyle(this.value)">
-                        <option value="style-glow" selected>Glow Stream (Animált)</option>
+                        <option value="style-glow" selected>Glow Stream</option>
                         <option value="style-solid">Folyamatos Neon</option>
-                        <option value="style-dashed">Szaggatott Klasszikus</option>
+                        <option value="style-dashed">Szaggatott</option>
+                        <option value="style-flicker">Villódzó Pulzus</option>
+                        <option value="style-dots-flow">Pontozott Áramlás</option>
                     </select>
                 </div>
                 <div class="style-group">
                     <label>Sim Keret Alakja</label>
                     <select id="simShapeSelect" onchange="changeSimShape(this.value)">
-                        <option value="50%" selected>Kör (Alapértelmezett)</option>
-                        <option value="22px">Lekerekített Négyzet</option>
-                        <option value="4px">Éles Négyzet</option>
+                        <option value="circle" selected>Kör</option>
+                        <option value="rounded">Lekerekített négyzet</option>
+                        <option value="square">Éles négyzet</option>
+                        <option value="plumbob">Plumbob (Gyémánt)</option>
+                        <option value="hexagon">Hatszög (Hexagon)</option>
                     </select>
                 </div>
             </div>
@@ -709,15 +767,50 @@
         }
 
         function changeBgStyle(style) {
-            document.body.className = `bg-${style}`;
+            const customBgContainer = document.getElementById('customBgContainer');
+            if (style === 'custom') {
+                customBgContainer.style.display = 'block';
+                document.body.className = 'bg-custom';
+            } else {
+                customBgContainer.style.display = 'none';
+                document.body.style.backgroundImage = '';
+                document.body.className = `bg-${style}`;
+            }
+        }
+
+        function handleCustomBgUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.body.className = 'bg-custom';
+                    document.body.style.backgroundImage = `url('${e.target.result}')`;
+                };
+                reader.readAsDataURL(file);
+            }
         }
 
         function changeLineStyle(styleClass) {
             treeWorld.className = `tree-canvas-world ${styleClass}`;
         }
 
-        function changeSimShape(radiusValue) {
-            document.documentElement.style.setProperty('--sim-node-radius', radiusValue);
+        function changeSimShape(shape) {
+            if (shape === 'circle') {
+                document.documentElement.style.setProperty('--sim-node-radius', '50%');
+                document.documentElement.style.setProperty('--sim-node-clip-path', 'none');
+            } else if (shape === 'rounded') {
+                document.documentElement.style.setProperty('--sim-node-radius', '20px');
+                document.documentElement.style.setProperty('--sim-node-clip-path', 'none');
+            } else if (shape === 'square') {
+                document.documentElement.style.setProperty('--sim-node-radius', '4px');
+                document.documentElement.style.setProperty('--sim-node-clip-path', 'none');
+            } else if (shape === 'plumbob') {
+                document.documentElement.style.setProperty('--sim-node-radius', '0');
+                document.documentElement.style.setProperty('--sim-node-clip-path', 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)');
+            } else if (shape === 'hexagon') {
+                document.documentElement.style.setProperty('--sim-node-radius', '0');
+                document.documentElement.style.setProperty('--sim-node-clip-path', 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)');
+            }
         }
 
         function saveTreesToStorage() {
