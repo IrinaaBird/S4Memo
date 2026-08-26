@@ -157,7 +157,7 @@
             position: fixed; bottom: 24px; left: 24px; z-index: 1060;
             background-color: var(--nav-bg); border: 1px solid var(--border-color);
             border-radius: 20px; box-shadow: 0 12px 32px var(--shadow-color);
-            width: 240px; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 260px; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             overflow: hidden; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
         }
 
@@ -174,7 +174,7 @@
         }
 
         .style-panel-drawer.open .style-panel-content {
-            max-height: 520px; opacity: 1; pointer-events: all;
+            max-height: 560px; opacity: 1; pointer-events: all;
         }
 
         .style-group { display: flex; flex-direction: column; gap: 4px; text-align: left; }
@@ -353,7 +353,7 @@
         .add-sim-floating-btn:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 12px 30px rgba(0, 255, 135, 0.6); }
 
         .zoom-controls {
-            position: absolute; bottom: 24px; left: 280px; z-index: 1050;
+            position: absolute; bottom: 24px; left: 300px; z-index: 1050;
             display: flex; gap: 4px; background-color: var(--nav-bg);
             padding: 4px; border-radius: 14px; border: 1px solid var(--border-color);
             box-shadow: 0 8px 24px var(--shadow-color); align-items: center;
@@ -668,15 +668,27 @@
             <div class="style-group">
                 <label>Háttér Stílusa</label>
                 <select id="bgStyleSelect" onchange="changeBgStyle(this.value)">
-                    <option value="dots" selected>Pöttyös</option>
-                    <option value="clean">Letisztult</option>
-                    <option value="grid">Rácsos</option>
-                    <option value="custom">Saját kép (Feltöltés)</option>
+                    <optgroup label="Alapértelmezett minták">
+                        <option value="dots" selected>Pöttyös</option>
+                        <option value="clean">Letisztult</option>
+                        <option value="grid">Rácsos</option>
+                    </optgroup>
+                    <optgroup label="Sims 4 Világok">
+                        <option value="sims-willow">Willow Creek</option>
+                        <option value="sims-oasis">Oasis Springs</option>
+                        <option value="sims-sulani">Sulani Tengerpart</option>
+                        <option value="sims-sanmyshuno">San Myshuno</option>
+                    </optgroup>
+                    <optgroup label="Egyéni">
+                        <option value="custom">Saját kép (Feltöltés)</option>
+                    </optgroup>
                 </select>
                 <div id="customBgContainer" style="display: none; margin-top: 4px;">
                     <label for="bgFileInput" class="custom-file-btn">📁 Kép tallózása...</label>
                     <input type="file" id="bgFileInput" class="custom-file-upload" accept="image/*" onchange="handleCustomBgUpload(event)">
-                    <div style="margin-top: 8px;" class="style-group">
+                </div>
+                <div id="imageSettingsContainer" style="display: none; margin-top: 4px;" class="style-group">
+                    <div class="style-group">
                         <label>Kép Méretezése</label>
                         <select id="bgSizeSelect" onchange="changeBgSize(this.value)">
                             <option value="cover" selected>Kitöltés (Cover)</option>
@@ -972,6 +984,13 @@
 
         let currentView = 'home';
         
+        const simsPresets = {
+            'sims-willow': 'https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=1920&q=80',
+            'sims-oasis': 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1920&q=80',
+            'sims-sulani': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=80',
+            'sims-sanmyshuno': 'https://images.unsplash.com/photo-1514565131-fce0801e5785?auto=format&fit=crop&w=1920&q=80'
+        };
+
         let pageBackgrounds = {
             home: { style: 'dots', customUrl: '', size: 'cover', position: 'center', blur: 0 },
             activity: { style: 'dots', customUrl: '', size: 'cover', position: 'center', blur: 0 },
@@ -1054,20 +1073,29 @@
             document.documentElement.style.setProperty('--bg-blur', `${bgConfig.blur || 0}px`);
 
             const customBgContainer = document.getElementById('customBgContainer');
+            const imageSettingsContainer = document.getElementById('imageSettingsContainer');
             
             if (bgConfig.style === 'custom') {
                 customBgContainer.style.display = 'block';
+                imageSettingsContainer.style.display = 'block';
                 document.body.className = currentView === 'tree' ? 'bg-custom tree-view-active' : 'bg-custom';
                 document.body.style.backgroundImage = bgConfig.customUrl ? `url('${bgConfig.customUrl}')` : '';
-                document.getElementById('bgSizeSelect').value = bgConfig.size || 'cover';
-                document.getElementById('bgPosSelect').value = bgConfig.position || 'center';
-                document.documentElement.style.setProperty('--custom-bg-size', bgConfig.size || 'cover');
-                document.documentElement.style.setProperty('--custom-bg-position', bgConfig.position || 'center');
+            } else if (simsPresets[bgConfig.style]) {
+                customBgContainer.style.display = 'none';
+                imageSettingsContainer.style.display = 'block';
+                document.body.className = currentView === 'tree' ? 'bg-custom tree-view-active' : 'bg-custom';
+                document.body.style.backgroundImage = `url('${simsPresets[bgConfig.style]}')`;
             } else {
                 customBgContainer.style.display = 'none';
+                imageSettingsContainer.style.display = 'none';
                 document.body.style.backgroundImage = '';
                 document.body.className = currentView === 'tree' ? `bg-${bgConfig.style} tree-view-active` : `bg-${bgConfig.style}`;
             }
+
+            document.getElementById('bgSizeSelect').value = bgConfig.size || 'cover';
+            document.getElementById('bgPosSelect').value = bgConfig.position || 'center';
+            document.documentElement.style.setProperty('--custom-bg-size', bgConfig.size || 'cover');
+            document.documentElement.style.setProperty('--custom-bg-position', bgConfig.position || 'center');
 
             const isTree = currentView === 'tree';
             document.getElementById('lineStyleGroup').style.display = isTree ? 'flex' : 'none';
