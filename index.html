@@ -92,10 +92,6 @@
             transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        body.tree-view-active #topNavContainer {
-    display: none !important;
-}
-        
         body {
             margin: 0;
             padding: 0;
@@ -235,16 +231,9 @@
         .top-nav a.nav-item:hover { color: var(--text-color); background-color: var(--card-bg); transform: translateY(-2px); }
         .top-nav a.nav-item.active { color: #ffffff; background-color: var(--accent-color); box-shadow: 0 4px 12px var(--active-glow); }
         
-        /* CSALÁDFÁK NÉZETNÉL A FELSŐ MENÜ BAL OLDALA ELTŰNIK */
-        body.tree-view-active .nav-left {
+        /* CSALÁDFÁK NÉZETNÉL A TELJES FELSŐ MENÜ ELTŰNIK */
+        body.tree-view-active #topNavContainer {
             display: none !important;
-        }
-        body.tree-view-active .top-nav {
-            justify-content: flex-end;
-            background-color: transparent;
-            border: none;
-            box-shadow: none;
-            padding: 0;
         }
 
         .user-profile-btn, .theme-toggle-btn {
