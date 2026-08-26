@@ -2154,21 +2154,6 @@
             closeSimModal();
         }
 
-        // --- HIBÁS KÉPJAVÍTÓ FIGYELŐ (DOM Observer) ---
-        const imageFixerObserver = new MutationObserver(() => {
-            const brokenImages = document.querySelectorAll('img[src*="undefined"], img[src=""]');
-            brokenImages.forEach(img => {
-                const parentContainer = img.closest('li, div');
-                if (parentContainer) {
-                    img.style.width = "24px";
-                    img.style.height = "24px";
-                    img.style.borderRadius = "50%";
-                    img.style.objectFit = "cover";
-                }
-            });
-        });
-        imageFixerObserver.observe(document.body, { childList: true, subtree: true });
-
         initTheme();
     </script>
 </body>
