@@ -335,7 +335,7 @@
         }
         .form-row { display: flex; gap: 12px; }
 
-        /* DYNAMICAL AUTOCOMPLETE SEARCH STYLES */
+        /* AUTOCOMPLETE KERESŐ STÍLUSOK */
         .search-results-list {
             position: absolute; top: 100%; left: 0; right: 0;
             background-color: var(--card-bg); border: 2px solid var(--border-color);
@@ -571,7 +571,8 @@
         const connectionModal = document.getElementById('connectionModal');
         const contextMenu = document.getElementById('contextMenu');
 
-        let familyTrees = [
+        // MINTAADAT (csak akkor lép életbe, ha a böngészőben még semmi sincs elmentve)
+        const defaultTrees = [
             {
                 id: 'tree_1',
                 name: 'Goth család',
@@ -582,7 +583,9 @@
                 ]
             }
         ];
-        let currentTreeId = 'tree_1';
+
+        let familyTrees = loadTreesFromStorage();
+        let currentTreeId = familyTrees.length > 0 ? familyTrees[0].id : 'tree_1';
         let editingSimId = null;
         let contextSimId = null;
         let selectedSimId = null;
@@ -602,6 +605,27 @@
         let dragStartMouse = { x: 0, y: 0 };
         let dragStartSimPos = { x: 0, y: 0 };
         let currentDropTargetSim = null;
+
+        // LOCALSTORAGE ADATKEZELÉS (MENTÉS ÉS BETÖLTÉS)
+        function saveTreesToStorage() {
+            try {
+                localStorage.setItem('s4memo_family_trees', JSON.stringify(familyTrees));
+            } catch (e) {
+                console.error("Nem sikerült az elmentés a localStorage tárhelyre:", e);
+            }
+        }
+
+        function loadTreesFromStorage() {
+            try {
+                const saved = localStorage.getItem('s4memo_family_trees');
+                if (saved) {
+                    return JSON.parse(saved);
+                }
+            } catch (e) {
+                console.error("Hiba a mentett adatok betöltésekor:", e);
+            }
+            return defaultTrees;
+        }
 
         function switchView(viewName) {
             document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
@@ -713,6 +737,10 @@
         });
 
         window.addEventListener('mouseup', () => {
+            if (activeDrag) {
+                saveTreesToStorage(); // Pozíció mo mozgatása után azonnali elmentés
+            }
+
             if (activeDrag && currentDropTargetSim) {
                 const sourceSimId = activeDrag.id;
                 const targetSimId = currentDropTargetSim.id;
@@ -781,6 +809,7 @@
             const newTree = { id: 'tree_' + Date.now(), name: name.trim(), sims: [] };
             familyTrees.push(newTree);
             currentTreeId = newTree.id;
+            saveTreesToStorage();
             renderTreeTabs();
             loadCurrentTreeCanvas();
         }
@@ -823,6 +852,7 @@
             };
 
             tree.sims.push(newSim);
+            saveTreesToStorage();
             renderSimNode(newSim);
             updateConnections();
             setSelectedSim(newSim.id);
@@ -969,7 +999,11 @@
 
             if (action === 'edit') openSimModal(sim.id);
             else if (action === 'connect') openConnectionPicker(sim.id);
-            else if (action === 'lock') { sim.locked = !sim.locked; loadCurrentTreeCanvas(); }
+            else if (action === 'lock') { 
+                sim.locked = !sim.locked; 
+                saveTreesToStorage();
+                loadCurrentTreeCanvas(); 
+            }
             else if (action === 'delete') deleteSim(sim.id);
             closeContextMenu();
         }
@@ -983,6 +1017,7 @@
                     if (s.partnerId === simId) s.partnerId = null;
                 });
                 if (selectedSimId === simId) setSelectedSim(null);
+                saveTreesToStorage();
                 loadCurrentTreeCanvas();
             }
         }
@@ -1093,6 +1128,7 @@
                 }
             }
 
+            saveTreesToStorage();
             closeConnectionModal();
             loadCurrentTreeCanvas();
         }
@@ -1109,11 +1145,13 @@
             } else if (relationType === 'Szülő') {
                 const parent = addNewSim("Szülő", sourceSim.lastName, sourceSim.x, sourceSim.y - 160, null, null, null);
                 sourceSim.parentId = parent.id;
+                saveTreesToStorage();
                 loadCurrentTreeCanvas();
             } else {
                 const newSim = addNewSim("Partner", "", sourceSim.x + 160, sourceSim.y, null, sourceSim.id, relationType);
                 sourceSim.partnerId = newSim.id;
                 sourceSim.relationType = relationType;
+                saveTreesToStorage();
                 loadCurrentTreeCanvas();
             }
         }
@@ -1162,6 +1200,7 @@
             sim.traits = document.getElementById('editTraits').value;
             sim.image = tempUploadedImage;
 
+            saveTreesToStorage();
             closeSimModal();
             loadCurrentTreeCanvas();
         }
