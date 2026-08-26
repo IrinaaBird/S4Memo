@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>S4Memo - Sims 4 Memorable</title>
+    <!-- Supabase JS Client Client CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --bg-color: #f7ebe1;
@@ -811,6 +813,11 @@
     <button class="toggle-btn" id="toggleBtn"><span class="arrow-icon">◀</span></button>
 
     <script>
+        // Supabase Inicializálása
+        const SUPABASE_URL = 'https://atksrtsmsvujyljhyedz.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0a3NydHNtc3Z1amlseWh5ZWR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAzNjYwNTIsImV4cCI6MjA1NTk0MjA1Mn0.S2L0qO7E_o0AWRd1i1m83Y0eJ1pYx_c0YkQ_q4Yx_c0';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
         const sidebar = document.getElementById('sidebar');
         const toggleBtn = document.getElementById('toggleBtn');
         const themeBtn = document.getElementById('themeBtn');
@@ -838,8 +845,8 @@
             }
         ];
 
-        let familyTrees = loadTreesFromStorage();
-        let currentTreeId = familyTrees.length > 0 ? familyTrees[0].id : 'tree_1';
+        let familyTrees = [];
+        let currentTreeId = 'tree_1';
         let currentViewName = 'home';
 
         let editingSimId = null;
@@ -863,6 +870,60 @@
         let dragStartSimPos = { x: 0, y: 0 };
         let currentDropTargetSim = null;
 
+        /* --- SUPABASE PERSISTENCE --- */
+        async function loadTreesFromStorage() {
+            try {
+                const { data, error } = await _supabase.from('family_trees').select('*');
+                if (error) {
+                    console.error("Supabase hiba betöltéskor:", error);
+                    return defaultTrees;
+                }
+                if (data && data.length > 0) {
+                    return data.map(row => ({
+                        id: row.id,
+                        name: row.name,
+                        bgSettings: row.bg_settings,
+                        sims: row.sims ? row.sims.map(s => ({
+                            ...s,
+                            parentIds: s.parentIds || (s.parentId ? [s.parentId] : [])
+                        })) : []
+                    }));
+                }
+            } catch (e) {
+                console.error("Nem sikerült a Supabase betöltés:", e);
+            }
+            return defaultTrees;
+        }
+
+        async function saveTreesToStorage() {
+            try {
+                for (const tree of familyTrees) {
+                    const { error } = await _supabase.from('family_trees').upsert({
+                        id: tree.id,
+                        name: tree.name,
+                        sims: tree.sims,
+                        bg_settings: tree.bgSettings || null
+                    });
+                    if (error) console.error("Supabase mentési hiba (upsert):", error);
+                }
+            } catch (e) {
+                console.error("Nem sikerült a Supabase mentés:", e);
+            }
+        }
+
+        async function initApp() {
+            familyTrees = await loadTreesFromStorage();
+            if (familyTrees.length > 0) {
+                currentTreeId = familyTrees[0].id;
+            }
+            initTheme();
+            applyCurrentBgSettings();
+            if (currentViewName === 'tree') {
+                renderTreeTabs();
+                loadCurrentTreeCanvas();
+            }
+        }
+
         function toggleStyleDrawer() {
             styleDrawer.classList.toggle('open');
             document.getElementById('drawerArrow').innerText = styleDrawer.classList.contains('open') ? '▼' : '▲';
@@ -870,7 +931,6 @@
 
         /* --- DINAMIKUS DUAL-HÁTTÉR KEZELÉS (FŐOLDAL vs DINAMIKUS HÁZTARTÁSOK) --- */
 
-        // Visszaadja a jelenleg aktív háttér beállításait
         function getCurrentBgSettings() {
             if (currentViewName === 'home' || currentViewName === 'public') {
                 const savedHome = localStorage.getItem('s4memo_bg_home');
@@ -884,7 +944,6 @@
             }
         }
 
-        // Elmenti az aktuális háttér beállításait
         function saveBgSettings(settings) {
             if (currentViewName === 'home' || currentViewName === 'public') {
                 localStorage.setItem('s4memo_bg_home', JSON.stringify(settings));
@@ -897,11 +956,9 @@
             }
         }
 
-        // Alkalmazza a hátteret a DOM-ra és frissíti a vezérlőket
         function applyCurrentBgSettings() {
             const settings = getCurrentBgSettings();
             
-            // Panel elemek szinkronizálása
             document.getElementById('bgStyleSelect').value = settings.style || 'dots';
             document.getElementById('bgBlurSlider').value = settings.blur || '0';
             document.getElementById('bgBlurValText').innerText = `${settings.blur || '0'}px`;
@@ -990,34 +1047,6 @@
             }
         }
 
-        function saveTreesToStorage() {
-            try {
-                localStorage.setItem('s4memo_family_trees', JSON.stringify(familyTrees));
-            } catch (e) {
-                console.error("Nem sikerült az elmentés:", e);
-            }
-        }
-
-        function loadTreesFromStorage() {
-            try {
-                const saved = localStorage.getItem('s4memo_family_trees');
-                if (saved) {
-                    const parsed = JSON.parse(saved);
-                    parsed.forEach(t => {
-                        t.sims.forEach(s => {
-                            if (!s.parentIds) {
-                                s.parentIds = s.parentId ? [s.parentId] : [];
-                            }
-                        });
-                    });
-                    if (parsed.length > 0) return parsed;
-                }
-            } catch (e) {
-                console.error("Hiba a betöltéskor:", e);
-            }
-            return defaultTrees;
-        }
-
         function switchView(viewName) {
             currentViewName = viewName;
             document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
@@ -1043,7 +1072,6 @@
             sidebar.classList.remove('open');
             toggleBtn.classList.remove('open');
 
-            // Oldalváltáskor betölti az ahhoz tartozó hátteret
             applyCurrentBgSettings();
         }
 
@@ -1206,7 +1234,6 @@
             setSelectedSim(null);
             renderTreeTabs();
             loadCurrentTreeCanvas();
-            // Háztartás váltásakor az adott fához tartozó háttér betöltése
             applyCurrentBgSettings();
         }
 
@@ -1223,7 +1250,7 @@
         }
 
         /* CSALÁDFÁK TÖRLÉSE FUNKCIÓ */
-        function deleteTree(treeId) {
+        async function deleteTree(treeId) {
             if (familyTrees.length <= 1) {
                 alert("Legalább egy családfának maradnia kell!");
                 return;
@@ -1237,6 +1264,13 @@
 
                 if (currentTreeId === treeId) {
                     currentTreeId = familyTrees[0].id;
+                }
+
+                try {
+                    const { error } = await _supabase.from('family_trees').delete().eq('id', treeId);
+                    if (error) console.error("Supabase törlési hiba:", error);
+                } catch (e) {
+                    console.error("Nem sikerült törölni a Supabase-ből:", e);
                 }
 
                 saveTreesToStorage();
@@ -1725,8 +1759,7 @@
         }
 
         /* KEZDŐ ÁLLAPOTOK BETÖLTÉSE */
-        initTheme();
-        applyCurrentBgSettings();
+        initApp();
     </script>
 </body>
 </html>
