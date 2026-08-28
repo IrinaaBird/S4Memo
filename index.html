@@ -634,9 +634,6 @@
 
         .profile-header-info { text-align: center; margin-bottom: 12px; }
         .profile-header-info h2 { margin: 4px 0 2px 0; font-size: 18px; font-weight: 800; }
-        .status-alive { color: #2ed573; font-size: 11px; font-weight: 700; }
-        .status-dead { color: #ff5e7e; font-size: 11px; font-weight: 700; }
-        .noble-title-badge { font-size: 12px; font-weight: 800; color: #e1b12c; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
 
         .gallery-section h4 { font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; color: var(--subtext-color); }
         .gallery-grid { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; }
@@ -950,9 +947,7 @@
                 <input type="file" id="lifeGalleryFileInput" accept="image/*" style="display: none;" onchange="handleLifeGalleryUpload(event)">
 
                 <div class="profile-header-info">
-                    <div id="modalNobleTitle" class="noble-title-badge" style="display: none;"></div>
                     <h2 id="modalName">Sim Neve</h2>
-                    <span id="modalStatus" class="status-alive">Életben van</span>
                 </div>
 
                 <!-- FÉNYKÉPALBUM / GALLÉRIA RÉSZ -->
@@ -998,27 +993,16 @@
                             </select>
                         </div>
                         <div class="form-group" style="flex:1;">
+                            <label>Státusz</label>
+                            <select id="editIsDead">
+                                <option value="false" selected>Élő</option>
+                                <option value="true">Halott</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="flex:1;">
                             <label>Keretszín</label>
                             <input type="color" id="editColor" value="#2ed573">
                         </div>
-                    </div>
-
-                    <!-- NEMES / NEMESSÉG CSOPORT -->
-                    <div class="form-group">
-                        <label>Nemesség / Cím</label>
-                        <select id="editNobleTitle">
-                            <option value="none" selected>Nincs (Közember)</option>
-                            <option value="Király">👑 Király</option>
-                            <option value="Királynő">👑 Királynő</option>
-                            <option value="Herceg">🏰 Herceg</option>
-                            <option value="Hercegnő">🏰 Hercegnő</option>
-                            <option value="Gróf">⚜️ Gróf</option>
-                            <option value="Grófnő">⚜️ Grófnő</option>
-                            <option value="Báró">⚔️ Báró</option>
-                            <option value="Bárónő">⚔️ Bárónő</option>
-                            <option value="Lorder">📜 Lorder</option>
-                            <option value="Nemes">✨ Nemes</option>
-                        </select>
                     </div>
 
                     <div class="form-group" style="margin-top: 10px;">
@@ -1055,7 +1039,7 @@
         </div>
     </div>
 
-    <!-- LIGHTBOX / NAGYÍTOTT KÉP PREVIEW MODAL KÉP FELETTI SZÖVEGGEL ÉS SZERKESZTÉS GOMBBAL ÉS LEPTETŐ NYILAKKAL -->
+    <!-- LIGHTBOX / NAGYÍTOTT KÉP PREVIEW MODAL -->
     <div class="lightbox-modal" id="lightboxModal" onclick="closeLightbox()">
         <span class="lightbox-close">&times;</span>
         
@@ -1152,7 +1136,6 @@
     </div>
 
     <button class="toggle-btn" id="toggleBtn"><span class="arrow-icon">◀</span></button>
-
     <script>
         const sidebar = document.getElementById('sidebar');
         const toggleBtn = document.getElementById('toggleBtn');
@@ -1192,9 +1175,9 @@
                 name: 'Goth család',
                 bgConfig: { style: 'dots', customUrl: '', size: 'cover', position: 'center', blur: 0 },
                 sims: [
-                    { id: 'sim_1', firstName: 'Bella', lastName: 'Goth', nobleTitle: 'Grófnő', age: 'Fiatal felnőtt', traits: 'Romantikus', color: '#ff5e7e', image: '', imageTransform: null, x: 450, y: 200, parentId: null, partnerId: null, relationType: null, locked: false, isDead: false, gallery: [], lifePhotos: [] },
-                    { id: 'sim_2', firstName: 'Mortimer', lastName: 'Goth', nobleTitle: 'Gróf', age: 'Felnőtt', traits: 'Könyvmoly', color: '#2ed573', image: '', imageTransform: null, x: 650, y: 200, parentId: null, partnerId: null, relationType: null, locked: false, isDead: false, gallery: [], lifePhotos: [] },
-                    { id: 'sim_3', firstName: 'Cassandra', lastName: 'Goth', nobleTitle: 'none', age: 'Tini', traits: 'Borongós', color: '#2ed573', image: '', imageTransform: null, x: 550, y: 380, parentId: null, partnerId: null, relationType: null, locked: false, isDead: false, gallery: [], lifePhotos: [] }
+                    { id: 'sim_1', firstName: 'Bella', lastName: 'Goth', age: 'Fiatal felnőtt', traits: 'Romantikus', color: '#ff5e7e', image: '', imageTransform: null, x: 450, y: 200, parentId: null, partnerId: null, relationType: null, locked: false, isDead: false, gallery: [], lifePhotos: [] },
+                    { id: 'sim_2', firstName: 'Mortimer', lastName: 'Goth', age: 'Felnőtt', traits: 'Könyvmoly', color: '#2ed573', image: '', imageTransform: null, x: 650, y: 200, parentId: null, partnerId: null, relationType: null, locked: false, isDead: false, gallery: [], lifePhotos: [] },
+                    { id: 'sim_3', firstName: 'Cassandra', lastName: 'Goth', age: 'Tini', traits: 'Borongós', color: '#2ed573', image: '', imageTransform: null, x: 550, y: 380, parentId: null, partnerId: null, relationType: null, locked: false, isDead: false, gallery: [], lifePhotos: [] }
                 ],
                 journal: [
                     { id: 'j_1', title: 'Megérkezés Goth birtokra', date: '2026-01-15', content: 'A család beköltözött az új kúriába. Bella azonnal nekilátott a ház szépítésének.' }
@@ -1230,851 +1213,91 @@
         let dragStartSimPos = { x: 0, y: 0 };
         let currentDropTargetSim = null;
 
-        function triggerFileInput() {
-            document.getElementById('editImageInput').click();
-        }
-
-        function triggerLifeGalleryUpload() {
-            document.getElementById('lifeGalleryFileInput').click();
-        }
-
-        function toggleAccordion(groupId) {
-            const group = document.getElementById(groupId);
-            if (group) group.classList.toggle('open');
-        }
-
-        function toggleStyleDrawer() {
-            styleDrawer.classList.toggle('open');
-            document.getElementById('drawerArrow').innerText = styleDrawer.classList.contains('open') ? '▼' : '▲';
-        }
-
-        function getActiveBgConfig() {
-            if (currentView === 'tree') {
-                const tree = getCurrentTree();
-                if (tree) {
-                    if (!tree.bgConfig) {
-                        tree.bgConfig = { style: 'dots', customUrl: '', size: 'cover', position: 'center', blur: 0 };
-                    }
-                    return tree.bgConfig;
-                }
-            }
-            return pageBackgrounds[currentView] || { style: 'dots', customUrl: '', size: 'cover', position: 'center', blur: 0 };
-        }
-
-        function applyPageBackground() {
-            const bgConfig = getActiveBgConfig();
-
-            document.getElementById('bgStyleSelect').value = bgConfig.style;
-            document.getElementById('bgBlurSlider').value = bgConfig.blur || 0;
-            document.getElementById('bgBlurValText').innerText = `${bgConfig.blur || 0}px`;
-            document.documentElement.style.setProperty('--bg-blur', `${bgConfig.blur || 0}px`);
-
-            const customBgContainer = document.getElementById('customBgContainer');
-            const imageSettingsContainer = document.getElementById('imageSettingsContainer');
-            
-            if (bgConfig.style === 'custom') {
-                customBgContainer.style.display = 'block';
-                imageSettingsContainer.style.display = 'block';
-                document.body.className = currentView === 'tree' ? 'bg-custom tree-view-active' : 'bg-custom';
-                document.body.style.backgroundImage = bgConfig.customUrl ? `url('${bgConfig.customUrl}')` : '';
-            } else if (simsPresets[bgConfig.style]) {
-                customBgContainer.style.display = 'none';
-                imageSettingsContainer.style.display = 'block';
-                document.body.className = currentView === 'tree' ? 'bg-custom tree-view-active' : 'bg-custom';
-                document.body.style.backgroundImage = `url('${simsPresets[bgConfig.style]}')`;
-            } else {
-                customBgContainer.style.display = 'none';
-                imageSettingsContainer.style.display = 'none';
-                document.body.style.backgroundImage = '';
-                document.body.className = currentView === 'tree' ? `bg-${bgConfig.style} tree-view-active` : `bg-${bgConfig.style}`;
-            }
-
-            document.getElementById('bgSizeSelect').value = bgConfig.size || 'cover';
-            document.getElementById('bgPosSelect').value = bgConfig.position || 'center';
-            document.documentElement.style.setProperty('--custom-bg-size', bgConfig.size || 'cover');
-            document.documentElement.style.setProperty('--custom-bg-position', bgConfig.position || 'center');
-
-            const isTree = currentView === 'tree';
-            document.getElementById('lineStyleGroup').style.display = isTree ? 'flex' : 'none';
-            document.getElementById('simShapeGroup').style.display = isTree ? 'flex' : 'none';
-        }
-
-        function changeBgStyle(style) {
-            const config = getActiveBgConfig();
-            config.style = style;
-            if (currentView === 'tree') saveTreesToStorage();
-            applyPageBackground();
-        }
-
-        function changeBgBlur(val) {
-            const config = getActiveBgConfig();
-            config.blur = parseInt(val);
-            if (currentView === 'tree') saveTreesToStorage();
-            applyPageBackground();
-        }
-
-        function handleCustomBgUpload(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const config = getActiveBgConfig();
-                    config.customUrl = e.target.result;
-                    config.style = 'custom';
-                    if (currentView === 'tree') saveTreesToStorage();
-                    applyPageBackground();
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function changeBgSize(val) { 
-            const config = getActiveBgConfig();
-            config.size = val;
-            if (currentView === 'tree') saveTreesToStorage();
-            applyPageBackground(); 
-        }
-
-        function changeBgPosition(val) { 
-            const config = getActiveBgConfig();
-            config.position = val;
-            if (currentView === 'tree') saveTreesToStorage();
-            applyPageBackground(); 
-        }
-
-        function changeLineStyle(styleClass) { treeWorld.className = `tree-canvas-world ${styleClass}`; }
-
-        function changeSimShape(shape) {
-            if (shape === 'circle') {
-                document.documentElement.style.setProperty('--sim-node-radius', '50%');
-                document.documentElement.style.setProperty('--sim-node-clip-path', 'none');
-            } else if (shape === 'rounded') {
-                document.documentElement.style.setProperty('--sim-node-radius', '18px');
-                document.documentElement.style.setProperty('--sim-node-clip-path', 'none');
-            } else if (shape === 'square') {
-                document.documentElement.style.setProperty('--sim-node-radius', '4px');
-                document.documentElement.style.setProperty('--sim-node-clip-path', 'none');
-            } else if (shape === 'plumbob') {
-                document.documentElement.style.setProperty('--sim-node-radius', '0');
-                document.documentElement.style.setProperty('--sim-node-clip-path', 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)');
-            } else if (shape === 'hexagon') {
-                document.documentElement.style.setProperty('--sim-node-radius', '0');
-                document.documentElement.style.setProperty('--sim-node-clip-path', 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)');
-            }
-        }
-
-        function saveTreesToStorage() {
-            try {
-                localStorage.setItem('s4memo_family_trees', JSON.stringify(familyTrees));
-            } catch (e) {
-                console.error("Nem sikerült az elmentés:", e);
-            }
-        }
-
-        function loadTreesFromStorage() {
-            try {
-                const saved = localStorage.getItem('s4memo_family_trees');
-                if (saved) return JSON.parse(saved);
-            } catch (e) {
-                console.error("Hiba a betöltéskor:", e);
-            }
-            return defaultTrees;
-        }
-
-        function switchView(viewName) {
-            currentView = viewName;
-            document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.right-sidebar a').forEach(el => el.classList.remove('active'));
-
-            if (viewName === 'tree') {
-                document.body.classList.add('tree-view-active');
-            } else {
-                document.body.classList.remove('tree-view-active');
-            }
-
-            if (viewName === 'home') {
-                document.getElementById('homeView').classList.add('active');
-                document.getElementById('navHome').classList.add('active');
-                document.getElementById('menuHome').classList.add('active');
-            } else if (viewName === 'tree') {
-                document.getElementById('treeView').classList.add('active');
-                document.getElementById('navTree').classList.add('active');
-                document.getElementById('menuTree').classList.add('active');
-                renderTreeTabs();
-                renderJournalEntries();
-                loadCurrentTreeCanvas();
-            } else if (viewName === 'activity') {
-                document.getElementById('activityView').classList.add('active');
-                document.getElementById('navActivity').classList.add('active');
-                document.getElementById('menuActivity').classList.add('active');
-                initActivityView();
-            } else if (viewName === 'public') {
-                document.getElementById('publicView').classList.add('active');
-                document.getElementById('navPublic').classList.add('active');
-                document.getElementById('menuPublic').classList.add('active');
-            }
-
-            applyPageBackground();
-            sidebar.classList.remove('open');
-            toggleBtn.classList.remove('open');
-        }
-
-        function initTheme() {
-            const savedTheme = localStorage.getItem('s4memo_theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-            updateThemeButton(savedTheme);
-            applyPageBackground();
-        }
-
-        function toggleTheme() {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('s4memo_theme', newTheme);
-            updateThemeButton(newTheme);
-            updateConnections();
-        }
-
-        function updateThemeButton(theme) {
-            const label = theme === 'dark' ? '☀️ Light' : '🌙 Dark';
-            themeBtn.innerHTML = label;
-        }
-
-        function openProfile() { alert('Profilom megnyitása!'); }
-
-        toggleBtn.addEventListener('click', () => {
-            sidebar.classList.toggle('open');
-            toggleBtn.classList.toggle('open');
-        });
-
-        function updateWorldTransform() {
-            treeWorld.style.transform = `translate(${panX}px, ${panY}px) scale(${zoomLevel})`;
-            if (zoomPercentLabel) {
-                zoomPercentLabel.innerText = `${Math.round(zoomLevel * 100)}%`;
-            }
-        }
-
-        function adjustZoom(delta) {
-            zoomLevel = Math.min(Math.max(0.4, zoomLevel + delta), 2.0);
-            updateWorldTransform();
-        }
-
-        function resetZoom() {
-            zoomLevel = 1; panX = 0; panY = 0;
-            updateWorldTransform();
-        }
-
-        treeViewport.addEventListener('wheel', (e) => {
-            e.preventDefault();
-            if (e.deltaY < 0) adjustZoom(0.05);
-            else adjustZoom(-0.05);
-        }, { passive: false });
-
-        treeViewport.addEventListener('mousedown', (e) => {
-            if (e.button !== 0) return;
-            if (e.target.closest('.sim-node') || e.target.closest('.zoom-controls') || e.target.closest('.tree-left-sidebar') || e.target.closest('.modal-overlay') || e.target.closest('.context-menu') || e.target.closest('.style-panel-drawer')) return;
-            
-            setSelectedSim(null);
-            isPanning = true;
-            startPanX = e.clientX - panX;
-            startPanY = e.clientY - panY;
-        });
-
-        window.addEventListener('click', () => {
-            closeGalleryContextMenu();
-            if (contextMenu) contextMenu.classList.remove('active');
-        });
-
-        window.addEventListener('keydown', (e) => {
-            const lightbox = document.getElementById('lightboxModal');
-            if (lightbox && lightbox.classList.contains('active')) {
-                const input = document.getElementById('lightboxCaptionInput');
-                if (document.activeElement === input) return;
-                
-                if (e.key === 'ArrowLeft') {
-                    navigateLightbox(-1);
-                } else if (e.key === 'ArrowRight') {
-                    navigateLightbox(1);
-                } else if (e.key === 'Escape') {
-                    closeLightbox();
-                }
-            }
-        });
-
-        window.addEventListener('mousemove', (e) => {
-            if (isPanning) {
-                panX = e.clientX - startPanX;
-                panY = e.clientY - startPanY;
-                updateWorldTransform();
-                return;
-            }
-
-            if (!activeDrag) return;
-            const dx = (e.clientX - dragStartMouse.x) / zoomLevel;
-            const dy = (e.clientY - dragStartMouse.y) / zoomLevel;
-
-            activeDrag.x = dragStartSimPos.x + dx;
-            activeDrag.y = dragStartSimPos.y + dy;
-
-            const node = document.getElementById(activeDrag.id);
-            if (node) {
-                node.style.left = activeDrag.x + 'px';
-                node.style.top = activeDrag.y + 'px';
-            }
-
-            checkSimDropTarget(e.clientX, e.clientY);
-            updateConnections();
-        });
-
-        window.addEventListener('mouseup', () => {
-            if (activeDrag) saveTreesToStorage();
-
-            if (activeDrag && currentDropTargetSim) {
-                const sourceSimId = activeDrag.id;
-                const targetSimId = currentDropTargetSim.id;
-                document.querySelectorAll('.sim-node').forEach(n => n.classList.remove('drop-target'));
-                activeDrag = null;
-                currentDropTargetSim = null;
-                openDirectConnectionPicker(sourceSimId, targetSimId);
-                return;
-            }
-
-            isPanning = false;
-            activeDrag = null;
-            if (currentDropTargetSim) {
-                document.querySelectorAll('.sim-node').forEach(n => n.classList.remove('drop-target'));
-                currentDropTargetSim = null;
-            }
-        });
-
-        function checkSimDropTarget(clientX, clientY) {
-            const tree = getCurrentTree(); if (!tree) return;
-            document.querySelectorAll('.sim-node').forEach(n => n.classList.remove('drop-target'));
-            currentDropTargetSim = null;
-
-            const elements = document.elementsFromPoint(clientX, clientY);
-            for (let el of elements) {
-                const node = el.closest('.sim-node');
-                if (node && node.id !== activeDrag.id) {
-                    const targetSim = tree.sims.find(s => s.id === node.id);
-                    if (targetSim) {
-                        currentDropTargetSim = targetSim;
-                        node.classList.add('drop-target');
-                        break;
-                    }
-                }
-            }
-        }
-
-        function renderTreeTabs() {
-            treeTabsList.innerHTML = '';
-            familyTrees.forEach(tree => {
-                const wrapper = document.createElement('div');
-                wrapper.className = `tree-tab-item ${tree.id === currentTreeId ? 'active' : ''}`;
-
-                const btn = document.createElement('button');
-                btn.className = 'tree-tab-btn';
-                btn.innerText = tree.name;
-                btn.onclick = () => selectTree(tree.id);
-
-                const delBtn = document.createElement('button');
-                delBtn.className = 'tree-delete-btn';
-                delBtn.innerText = '🗑️';
-                delBtn.title = 'Családfa törlése';
-                delBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    deleteTree(tree.id);
-                };
-
-                wrapper.appendChild(btn);
-                wrapper.appendChild(delBtn);
-                treeTabsList.appendChild(wrapper);
-            });
-        }
-
-        function renderJournalEntries() {
-            journalEntriesList.innerHTML = '';
-            const tree = getCurrentTree();
-            if (!tree || !tree.journal || tree.journal.length === 0) {
-                journalEntriesList.innerHTML = '<div style="font-size:11px; color:var(--subtext-color); padding: 4px;">Nincsenek naplóbejegyzések.</div>';
-                return;
-            }
-
-            tree.journal.forEach(entry => {
-                const item = document.createElement('div');
-                item.className = 'journal-item';
-
-                item.innerHTML = `
-                    <div class="journal-item-header">
-                        <span class="journal-title">${entry.title}</span>
-                        <span class="journal-date">${entry.date || ''}</span>
-                    </div>
-                    <div class="journal-preview">${entry.content}</div>
-                    <div class="journal-actions">
-                        <button class="journal-btn" onclick="openJournalModal('${entry.id}')">✏️ Edit</button>
-                        <button class="journal-btn" onclick="deleteJournalEntry('${entry.id}')">🗑️</button>
-                    </div>
-                `;
-                journalEntriesList.appendChild(item);
-            });
-        }
-
-        function openJournalModal(entryId = null, forceTreeSelect = false, targetTreeId = null) {
-            let tree = getCurrentTree();
-            editingJournalId = entryId;
-            editingJournalTreeId = targetTreeId || (tree ? tree.id : null);
-
-            const selectGroup = document.getElementById('journalTreeSelectGroup');
-            const treeSelect = document.getElementById('journalTreeSelect');
-
-            if (forceTreeSelect || !currentTreeId || familyTrees.length > 1) {
-                selectGroup.style.display = 'block';
-                treeSelect.innerHTML = '';
-                familyTrees.forEach(t => {
-                    const opt = document.createElement('option');
-                    opt.value = t.id;
-                    opt.innerText = t.name;
-                    if (t.id === (editingJournalTreeId || currentTreeId)) opt.selected = true;
-                    treeSelect.appendChild(opt);
-                });
-            } else {
-                selectGroup.style.display = 'none';
-            }
-
-            if (entryId) {
-                let foundEntry = null;
-                familyTrees.forEach(t => {
-                    if (t.journal) {
-                        const e = t.journal.find(j => j.id === entryId);
-                        if (e) {
-                            foundEntry = e;
-                            editingJournalTreeId = t.id;
-                        }
-                    }
-                });
-
-                if (foundEntry) {
-                    document.getElementById('journalModalTitle').innerText = 'Bejegyzés Szerkesztése';
-                    document.getElementById('journalTitleInput').value = foundEntry.title;
-                    document.getElementById('journalDateInput').value = foundEntry.date;
-                    document.getElementById('journalContentInput').value = foundEntry.content;
-                    if (selectGroup.style.display !== 'none') {
-                        treeSelect.value = editingJournalTreeId;
-                    }
-                }
-            } else {
-                document.getElementById('journalModalTitle').innerText = 'Új Naplóbejegyzés';
-                document.getElementById('journalTitleInput').value = '';
-                document.getElementById('journalDateInput').value = new Date().toISOString().split('T')[0];
-                document.getElementById('journalContentInput').value = '';
-            }
-
-            journalModal.classList.add('active');
-        }
-
-        function closeJournalModal() {
-            journalModal.classList.remove('active');
-            editingJournalId = null;
-            editingJournalTreeId = null;
-        }
-
-        function saveJournalEntry(event) {
-            event.preventDefault();
-            
-            const selectGroup = document.getElementById('journalTreeSelectGroup');
-            let targetTreeId = editingJournalTreeId || currentTreeId;
-            if (selectGroup.style.display !== 'none') {
-                targetTreeId = document.getElementById('journalTreeSelect').value;
-            }
-
-            const tree = familyTrees.find(t => t.id === targetTreeId);
-            if (!tree) return alert('Kérlek válassz ki egy létező családfát!');
-            if (!tree.journal) tree.journal = [];
-
-            const title = document.getElementById('journalTitleInput').value;
-            const date = document.getElementById('journalDateInput').value;
-            const content = document.getElementById('journalContentInput').value;
-
-            if (editingJournalId) {
-                familyTrees.forEach(t => {
-                    if (t.journal) {
-                        t.journal = t.journal.filter(j => j.id !== editingJournalId);
-                    }
-                });
-
-                tree.journal.push({
-                    id: editingJournalId,
-                    title: title,
-                    date: date,
-                    content: content
-                });
-            } else {
-                tree.journal.push({
-                    id: 'j_' + Date.now(),
-                    title: title,
-                    date: date,
-                    content: content
-                });
-            }
-
-            saveTreesToStorage();
-            closeJournalModal();
-            renderJournalEntries();
-            if (currentView === 'activity') renderActivityFeed();
-        }
-
-        function deleteJournalEntry(entryId) {
-            if (confirm('Biztosan törölni szeretnéd ezt a bejegyzést?')) {
-                familyTrees.forEach(t => {
-                    if (t.journal) {
-                        t.journal = t.journal.filter(j => j.id !== entryId);
-                    }
-                });
-                saveTreesToStorage();
-                renderJournalEntries();
-                if (currentView === 'activity') renderActivityFeed();
-            }
-        }
-
-        function initActivityView() {
-            const filterSelect = document.getElementById('activityTreeFilter');
-            filterSelect.innerHTML = '<option value="all">Összes családfa</option>';
-            familyTrees.forEach(tree => {
-                const opt = document.createElement('option');
-                opt.value = tree.id;
-                opt.innerText = tree.name;
-                filterSelect.appendChild(opt);
-            });
-            renderActivityFeed();
-        }
-
-        function renderActivityFeed() {
-            const feedContainer = document.getElementById('activityFeed');
-            const selectedTreeId = document.getElementById('activityTreeFilter').value;
-            feedContainer.innerHTML = '';
-
-            let allEntries = [];
-
-            familyTrees.forEach(tree => {
-                if (selectedTreeId === 'all' || tree.id === selectedTreeId) {
-                    if (tree.journal && tree.journal.length > 0) {
-                        tree.journal.forEach(entry => {
-                            allEntries.push({
-                                ...entry,
-                                treeName: tree.name,
-                                treeId: tree.id
-                            });
-                        });
-                    }
-                }
-            });
-
-            allEntries.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
-
-            if (allEntries.length === 0) {
-                feedContainer.innerHTML = `
-                    <div style="text-align: center; padding: 40px; color: var(--subtext-color);">
-                        <div style="font-size: 48px; margin-bottom: 10px;">📖</div>
-                        <h3>Még nincsenek rögzített történetek!</h3>
-                        <p style="font-size: 13px;">Kattints az "+ Új Történet" gombra egy bejegyzés hozzáadásához.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            allEntries.forEach(entry => {
-                const card = document.createElement('div');
-                card.className = 'timeline-card';
-
-                card.innerHTML = `
-                    <div class="timeline-icon">📖</div>
-                    <div class="timeline-card-header">
-                        <div>
-                            <span class="timeline-tree-badge">🌳 ${entry.treeName}</span>
-                            <h3 class="timeline-title">${entry.title}</h3>
-                        </div>
-                        <span class="timeline-date">🗓️ ${entry.date || 'Nincs dátum'}</span>
-                    </div>
-                    <div class="timeline-body">${entry.content}</div>
-                    <div class="timeline-actions">
-                        <button class="btn-secondary" style="font-size: 11px; padding: 5px 12px;" onclick="openJournalModal('${entry.id}', true, '${entry.treeId}')">✏️ Szerkesztés</button>
-                        <button class="btn-danger" style="font-size: 11px; padding: 5px 12px; margin-right: 0;" onclick="deleteJournalEntry('${entry.id}')">🗑️ Törlés</button>
-                    </div>
-                `;
-
-                feedContainer.appendChild(card);
-            });
-        }
-
-        function selectTree(treeId) {
-            currentTreeId = treeId;
-            setSelectedSim(null);
-            renderTreeTabs();
-            renderJournalEntries();
-            applyPageBackground();
-            loadCurrentTreeCanvas();
-        }
-
-        function createNewTree() {
-            const name = prompt("Új családfa neve:", "Új családfa");
-            if (!name || name.trim() === "") return;
-            
-            const newTree = { 
-                id: 'tree_' + Date.now(), 
-                name: name.trim(), 
-                bgConfig: { style: 'dots', customUrl: '', size: 'cover', position: 'center', blur: 0 },
-                sims: [],
-                journal: []
-            };
-            
-            familyTrees.push(newTree);
-            currentTreeId = newTree.id;
-            saveTreesToStorage();
-            renderTreeTabs();
-            renderJournalEntries();
-            applyPageBackground();
-            loadCurrentTreeCanvas();
-        }
-
-        function deleteTree(treeId) {
-            const treeToDelete = familyTrees.find(t => t.id === treeId);
-            if (!treeToDelete) return;
-
-            if (confirm(`Biztosan törölni szeretnéd a(z) "${treeToDelete.name}" családfát? Ez a művelet nem visszavonható!`)) {
-                familyTrees = familyTrees.filter(t => t.id !== treeId);
-                
-                if (currentTreeId === treeId) {
-                    currentTreeId = familyTrees.length > 0 ? familyTrees[0].id : null;
-                }
-                
-                saveTreesToStorage();
-                renderTreeTabs();
-                renderJournalEntries();
-                applyPageBackground();
-                loadCurrentTreeCanvas();
-            }
-        }
-
-        function getCurrentTree() { return familyTrees.find(t => t.id === currentTreeId); }
-
-        function loadCurrentTreeCanvas() {
-            const nodes = treeWorld.querySelectorAll('.sim-node');
-            nodes.forEach(n => n.remove());
-            const tree = getCurrentTree();
-            if (tree) {
-                tree.sims.forEach(sim => renderSimNode(sim));
-                updateConnections();
-            } else {
-                svgLayer.innerHTML = '';
-            }
-        }
-
-        function setSelectedSim(simId) {
-            selectedSimId = simId;
-            document.querySelectorAll('.sim-node').forEach(node => {
-                if (node.id === simId) node.classList.add('selected');
-                else node.classList.remove('selected');
-            });
-        }
-
-        function addNewSimDialog() {
-            if (!currentTreeId) {
-                alert('Először hozz létre vagy válassz ki egy családfát!');
-                return;
-            }
-            addNewSim("Új", "Sim", 500 - panX / zoomLevel, 300 - panY / zoomLevel);
-        }
-
-        function addNewSim(firstName = "Új", lastName = "Sim", x = 400, y = 200, parentId = null, partnerId = null, relationType = null) {
-            const tree = getCurrentTree(); if (!tree) return;
-
-            const newSim = {
-                id: 'sim_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
-                firstName: firstName, lastName: lastName, nobleTitle: 'none', age: 'Fiatal felnőtt',
-                traits: '', color: '#2ed573', image: '', imageTransform: null, x: x, y: y, parentId: parentId, partnerId: partnerId, relationType: relationType, locked: false, isDead: false, gallery: [], lifePhotos: []
-            };
-
-            tree.sims.push(newSim);
-            saveTreesToStorage();
-            renderSimNode(newSim);
-            updateConnections();
-            setSelectedSim(newSim.id);
-            return newSim;
-        }
-
-        function renderSimNode(sim) {
-            const node = document.createElement('div');
-            node.className = `sim-node ${selectedSimId === sim.id ? 'selected' : ''}`;
-            node.id = sim.id;
-            node.style.left = sim.x + 'px';
-            node.style.top = sim.y + 'px';
-
-            const editPencil = document.createElement('div');
-            editPencil.className = 'sim-edit-pencil';
-            editPencil.innerHTML = '✏️';
-            editPencil.onclick = (e) => { e.stopPropagation(); openSimModal(sim.id); };
-            node.appendChild(editPencil);
-
-            const avatar = document.createElement('div');
-            avatar.className = 'sim-node-avatar';
-            if (sim.color) {
-                avatar.style.borderColor = sim.color;
-            }
-
-            if (sim.image) {
-                const imgEl = document.createElement('img');
-                imgEl.src = sim.image;
-                imgEl.style.width = '100%';
-                imgEl.style.height = '100%';
-                imgEl.style.objectFit = 'cover';
-
-                if (sim.imageTransform) {
-                    const { scale, rotate, offsetX, offsetY, filter } = sim.imageTransform;
-                    imgEl.style.transform = `scale(${scale}) rotate(${rotate}deg) translate(${offsetX}px, ${offsetY}px)`;
-                    imgEl.style.filter = filter || 'none';
-                }
-
-                avatar.appendChild(imgEl);
-            } else {
-                avatar.innerText = '👤';
-            }
-
-            const label = document.createElement('div');
-            label.className = 'sim-node-label';
-            label.innerText = `${sim.firstName} ${sim.lastName}`;
-
-            node.appendChild(avatar);
-            node.appendChild(label);
-
-            const partnerBtn = document.createElement('div');
-            partnerBtn.className = 'add-btn-node add-partner-btn';
-            partnerBtn.innerText = '+';
-            partnerBtn.title = 'Szerelmes / Partner kapcsolat';
-            partnerBtn.onclick = (e) => { e.stopPropagation(); openConnectionPicker(sim.id, 'Szerelmes'); };
-
-            const childBtn = document.createElement('div');
-            childBtn.className = 'add-btn-node add-child-btn';
-            childBtn.innerText = '+';
-            childBtn.title = 'Gyermek hozzáadása';
-            childBtn.onclick = (e) => { 
-                e.stopPropagation(); 
-                addNewSim("Gyermek", sim.lastName, sim.x, sim.y + 160, sim.id, null, 'Gyerek');
-            };
-
-            node.appendChild(partnerBtn);
-            node.appendChild(childBtn);
-
-            node.addEventListener('mousedown', (e) => {
-                if (e.button !== 0) return;
-                if (e.target.classList.contains('add-btn-node') || e.target.classList.contains('sim-edit-pencil')) return;
-                
-                setSelectedSim(sim.id);
-                if (sim.locked) return;
-
-                activeDrag = sim;
-                dragStartMouse = { x: e.clientX, y: e.clientY };
-                dragStartSimPos = { x: sim.x, y: sim.y };
-            });
-
-            node.addEventListener('contextmenu', (e) => {
-                e.preventDefault();
-                openContextMenu(sim.id, e.clientX, e.clientY);
-            });
-
-            treeWorld.appendChild(node);
-        }
-
-        function updateConnections() {
-            svgLayer.innerHTML = '';
-            const tree = getCurrentTree(); if (!tree) return;
-
-            tree.sims.forEach(sim => {
-                if (sim.partnerId) {
-                    const partner = tree.sims.find(s => s.id === sim.partnerId);
-                    if (partner && sim.id < partner.id) {
-                        drawCurve(sim.x + 44, sim.y + 44, partner.x + 44, partner.y + 44, 'line-love');
-                    }
-                }
-                if (sim.parentId) {
-                    const parent = tree.sims.find(s => s.id === sim.parentId);
-                    if (parent) {
-                        drawCurve(parent.x + 44, parent.y + 44, sim.x + 44, sim.y + 44, 'line-child');
-                    }
-                }
-            });
-        }
-
-        function drawCurve(x1, y1, x2, y2, className) {
-            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-            const dx = Math.abs(x2 - x1) * 0.5;
-            const dy = Math.abs(y2 - y1) * 0.5;
-            let d = '';
-
-            if (className === 'line-love') {
-                d = `M ${x1} ${y1} C ${x1 + dx} ${y1 - 30}, ${x2 - dx} ${y2 - 30}, ${x2} ${y2}`;
-            } else {
-                d = `M ${x1} ${y1} C ${x1} ${y1 + dy}, ${x2} ${y2 - dy}, ${x2} ${y2}`;
-            }
-
-            path.setAttribute('d', d);
-            path.setAttribute('class', className);
-            svgLayer.appendChild(path);
-        }
-
         function openSimModal(simId) {
+            editingSimId = simId;
             const tree = getCurrentTree(); if (!tree) return;
             const sim = tree.sims.find(s => s.id === simId); if (!sim) return;
 
-            editingSimId = simId;
-            tempUploadedImage = sim.image || '';
-            currentRotation = (sim.imageTransform && sim.imageTransform.rotate) || 0;
-            currentLifePhotos = sim.lifePhotos ? [...sim.lifePhotos] : [];
-
             document.getElementById('modalName').innerText = `${sim.firstName} ${sim.lastName}`;
-            
-            const nobleTitleBadge = document.getElementById('modalNobleTitle');
-            if (sim.nobleTitle && sim.nobleTitle !== 'none') {
-                nobleTitleBadge.style.display = 'block';
-                nobleTitleBadge.innerText = sim.nobleTitle;
-            } else {
-                nobleTitleBadge.style.display = 'none';
-                nobleTitleBadge.innerText = '';
-            }
-
             document.getElementById('editFirstName').value = sim.firstName;
             document.getElementById('editLastName').value = sim.lastName;
             document.getElementById('editAge').value = sim.age || 'Fiatal felnőtt';
+            document.getElementById('editIsDead').value = sim.isDead ? "true" : "false";
             document.getElementById('editColor').value = sim.color || '#2ed573';
             document.getElementById('editTraits').value = sim.traits || '';
-            document.getElementById('editNobleTitle').value = sim.nobleTitle || 'none';
 
-            const modalAvatar = document.getElementById('modalAvatar');
+            const avatarImg = document.getElementById('modalAvatar');
             const placeholder = document.getElementById('modalAvatarPlaceholder');
-            const imageEditorBox = document.getElementById('imageEditorBox');
+            const editorBox = document.getElementById('imageEditorBox');
+
+            tempUploadedImage = sim.image || '';
+            currentRotation = (sim.imageTransform && sim.imageTransform.rotate) ? sim.imageTransform.rotate : 0;
 
             if (sim.image) {
-                modalAvatar.src = sim.image;
-                modalAvatar.style.display = 'block';
+                avatarImg.src = sim.image;
+                avatarImg.style.display = 'block';
                 placeholder.style.display = 'none';
-                imageEditorBox.style.display = 'flex';
+                editorBox.style.display = 'flex';
 
-                const transform = sim.imageTransform || { scale: 1, rotate: 0, offsetX: 0, offsetY: 0, filter: 'none' };
-                document.getElementById('imgZoomSlider').value = transform.scale || 1;
-                document.getElementById('imgZoomVal').innerText = `${Math.round((transform.scale || 1) * 100)}%`;
-                document.getElementById('imgOffsetX').value = transform.offsetX || 0;
-                document.getElementById('imgOffsetY').value = transform.offsetY || 0;
-                document.getElementById('imgFilterSelect').value = transform.filter || 'none';
+                if (sim.imageTransform) {
+                    document.getElementById('imgZoomSlider').value = sim.imageTransform.scale || 1;
+                    document.getElementById('imgZoomVal').innerText = Math.round((sim.imageTransform.scale || 1) * 100) + '%';
+                    document.getElementById('imgOffsetX').value = sim.imageTransform.offsetX || 0;
+                    document.getElementById('imgOffsetY').value = sim.imageTransform.offsetY || 0;
+                    document.getElementById('imgFilterSelect').value = sim.imageTransform.filter || 'none';
+                } else {
+                    resetImageControls();
+                }
                 updateImageTransform();
             } else {
-                modalAvatar.style.display = 'none';
+                avatarImg.style.display = 'none';
                 placeholder.style.display = 'block';
-                imageEditorBox.style.display = 'none';
+                editorBox.style.display = 'none';
+                resetImageControls();
             }
 
+            currentLifePhotos = sim.lifePhotos ? [...sim.lifePhotos] : [];
             renderLifeGallery();
+
             switchSimTab('info');
             simModal.classList.add('active');
+        }
+
+        function saveSimDetails(event) {
+            event.preventDefault();
+            const tree = getCurrentTree(); if (!tree) return;
+            const sim = tree.sims.find(s => s.id === editingSimId); if (!sim) return;
+
+            sim.firstName = document.getElementById('editFirstName').value;
+            sim.lastName = document.getElementById('editLastName').value;
+            sim.age = document.getElementById('editAge').value;
+            sim.isDead = document.getElementById('editIsDead').value === "true";
+            sim.color = document.getElementById('editColor').value;
+            sim.traits = document.getElementById('editTraits').value;
+
+            sim.image = tempUploadedImage;
+            sim.lifePhotos = [...currentLifePhotos];
+
+            if (tempUploadedImage) {
+                sim.imageTransform = {
+                    scale: parseFloat(document.getElementById('imgZoomSlider').value),
+                    rotate: currentRotation,
+                    offsetX: parseInt(document.getElementById('imgOffsetX').value),
+                    offsetY: parseInt(document.getElementById('imgOffsetY').value),
+                    filter: document.getElementById('imgFilterSelect').value
+                };
+            } else {
+                sim.imageTransform = null;
+            }
+
+            saveTreesToStorage();
+            closeSimModal();
+            loadCurrentTreeCanvas();
+        }
+
+        function closeSimModal() {
+            simModal.classList.remove('active');
+            editingSimId = null;
         }
 
         function switchSimTab(tabName) {
@@ -2093,9 +1316,33 @@
             }
         }
 
-        function closeSimModal() {
-            simModal.classList.remove('active');
-            editingSimId = null;
+        function resetImageControls() {
+            document.getElementById('imgZoomSlider').value = 1;
+            document.getElementById('imgZoomVal').innerText = '100%';
+            document.getElementById('imgOffsetX').value = 0;
+            document.getElementById('imgOffsetY').value = 0;
+            document.getElementById('imgFilterSelect').value = 'none';
+            currentRotation = 0;
+        }
+
+        function updateImageTransform() {
+            const scale = document.getElementById('imgZoomSlider').value;
+            const offsetX = document.getElementById('imgOffsetX').value;
+            const offsetY = document.getElementById('imgOffsetY').value;
+            const filter = document.getElementById('imgFilterSelect').value;
+
+            document.getElementById('imgZoomVal').innerText = Math.round(scale * 100) + '%';
+
+            const avatarImg = document.getElementById('modalAvatar');
+            if (avatarImg) {
+                avatarImg.style.transform = `scale(${scale}) rotate(${currentRotation}deg) translate(${offsetX}px, ${offsetY}px)`;
+                avatarImg.style.filter = filter;
+            }
+        }
+
+        function rotateImage() {
+            currentRotation = (currentRotation + 90) % 360;
+            updateImageTransform();
         }
 
         function handleImageUpload(event) {
@@ -2104,100 +1351,21 @@
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     tempUploadedImage = e.target.result;
-                    const modalAvatar = document.getElementById('modalAvatar');
+                    const avatarImg = document.getElementById('modalAvatar');
                     const placeholder = document.getElementById('modalAvatarPlaceholder');
-                    const imageEditorBox = document.getElementById('imageEditorBox');
+                    const editorBox = document.getElementById('imageEditorBox');
 
-                    modalAvatar.src = tempUploadedImage;
-                    modalAvatar.style.display = 'block';
+                    avatarImg.src = tempUploadedImage;
+                    avatarImg.style.display = 'block';
                     placeholder.style.display = 'none';
-                    imageEditorBox.style.display = 'flex';
-
-                    document.getElementById('imgZoomSlider').value = 1;
-                    document.getElementById('imgZoomVal').innerText = '100%';
-                    document.getElementById('imgOffsetX').value = 0;
-                    document.getElementById('imgOffsetY').value = 0;
-                    document.getElementById('imgFilterSelect').value = 'none';
-                    currentRotation = 0;
-
+                    editorBox.style.display = 'flex';
+                    resetImageControls();
                     updateImageTransform();
                 };
                 reader.readAsDataURL(file);
             }
         }
 
-        function updateImageTransform() {
-            const modalAvatar = document.getElementById('modalAvatar');
-            if (!modalAvatar || !tempUploadedImage) return;
-
-            const scale = document.getElementById('imgZoomSlider').value;
-            const offsetX = document.getElementById('imgOffsetX').value;
-            const offsetY = document.getElementById('imgOffsetY').value;
-            const filter = document.getElementById('imgFilterSelect').value;
-
-            document.getElementById('imgZoomVal').innerText = `${Math.round(scale * 100)}%`;
-            modalAvatar.style.transform = `scale(${scale}) rotate(${currentRotation}deg) translate(${offsetX}px, ${offsetY}px)`;
-            modalAvatar.style.filter = filter;
-        }
-
-        function rotateImage() {
-            currentRotation = (currentRotation + 90) % 360;
-            updateImageTransform();
-        }
-
-        function saveSimDetails(event) {
-            event.preventDefault();
-            const tree = getCurrentTree(); if (!tree) return;
-            const sim = tree.sims.find(s => s.id === editingSimId); if (!sim) return;
-
-            sim.firstName = document.getElementById('editFirstName').value;
-            sim.lastName = document.getElementById('editLastName').value;
-            sim.age = document.getElementById('editAge').value;
-            sim.color = document.getElementById('editColor').value;
-            sim.traits = document.getElementById('editTraits').value;
-            sim.nobleTitle = document.getElementById('editNobleTitle').value;
-
-            sim.image = tempUploadedImage;
-            sim.lifePhotos = [...currentLifePhotos];
-
-            if (tempUploadedImage) {
-                sim.imageTransform = {
-                    scale: parseFloat(document.getElementById('imgZoomSlider').value),
-                    rotate: currentRotation,
-                    offsetX: parseFloat(document.getElementById('imgOffsetX').value),
-                    offsetY: parseFloat(document.getElementById('imgOffsetY').value),
-                    filter: document.getElementById('imgFilterSelect').value
-                };
-            } else {
-                sim.imageTransform = null;
-            }
-
-            saveTreesToStorage();
-            closeSimModal();
-            loadCurrentTreeCanvas();
-        }
-
-        function deleteCurrentSimModal() {
-            if (confirm('Biztosan törölni szeretnéd ezt a Simet?')) {
-                deleteSim(editingSimId);
-                closeSimModal();
-            }
-        }
-
-        function deleteSim(simId) {
-            const tree = getCurrentTree(); if (!tree) return;
-            tree.sims = tree.sims.filter(s => s.id !== simId);
-
-            tree.sims.forEach(s => {
-                if (s.partnerId === simId) s.partnerId = null;
-                if (s.parentId === simId) s.parentId = null;
-            });
-
-            saveTreesToStorage();
-            loadCurrentTreeCanvas();
-        }
-
-        /* GALLÉRIA KÉPEK SZERKESZTÉSE & KEZELÉSE */
         function handleLifeGalleryUpload(event) {
             const file = event.target.files[0];
             if (file) {
@@ -2217,39 +1385,30 @@
             const wrapper = document.getElementById('lifeGalleryCardsWrapper');
             wrapper.innerHTML = '';
 
-            const addBtnCard = document.createElement('div');
-            addBtnCard.className = 'gallery-add-empty-card';
-            addBtnCard.onclick = triggerLifeGalleryUpload;
-            addBtnCard.innerHTML = `<span style="font-size:20px;">+</span><span style="font-size:10px; font-weight:700;">Új Kép</span>`;
-            wrapper.appendChild(addBtnCard);
-
-            currentLifePhotos.forEach((photoObj, idx) => {
+            currentLifePhotos.forEach((photo, index) => {
                 const card = document.createElement('div');
                 card.className = 'gallery-card-item';
 
-                const imgWrap = document.createElement('div');
-                imgWrap.className = 'gallery-card-img-wrap';
-                imgWrap.onclick = () => openLightbox(idx);
+                card.innerHTML = `
+                    <div class="gallery-card-img-wrap" onclick="openLightbox(${index})">
+                        <img src="${photo.url}" alt="Galléria kép">
+                        <div class="zoom-hover-icon">🔍</div>
+                    </div>
+                `;
 
-                const img = document.createElement('img');
-                img.src = typeof photoObj === 'string' ? photoObj : photoObj.url;
-
-                const hoverIcon = document.createElement('div');
-                hoverIcon.className = 'zoom-hover-icon';
-                hoverIcon.innerText = '🔍';
-
-                imgWrap.appendChild(img);
-                imgWrap.appendChild(hoverIcon);
-
-                card.addEventListener('contextmenu', (e) => {
+                card.oncontextmenu = (e) => {
                     e.preventDefault();
-                    e.stopPropagation();
-                    openGalleryContextMenu(idx, e.clientX, e.clientY);
-                });
+                    openGalleryContextMenu(e, index);
+                };
 
-                card.appendChild(imgWrap);
                 wrapper.appendChild(card);
             });
+
+            const addCard = document.createElement('div');
+            addCard.className = 'gallery-add-empty-card';
+            addCard.onclick = triggerLifeGalleryUpload;
+            addCard.innerHTML = `<span style="font-size:20px;">+</span><span style="font-size:10px; font-weight:800;">Kép feltöltése</span>`;
+            wrapper.appendChild(addCard);
         }
 
         function scrollGalleryAlbum(amount) {
@@ -2257,10 +1416,10 @@
             wrapper.scrollBy({ left: amount, behavior: 'smooth' });
         }
 
-        function openGalleryContextMenu(photoIndex, clientX, clientY) {
-            selectedGalleryPhotoIndex = photoIndex;
-            galleryContextMenu.style.left = `${clientX}px`;
-            galleryContextMenu.style.top = `${clientY}px`;
+        function openGalleryContextMenu(e, index) {
+            selectedGalleryPhotoIndex = index;
+            galleryContextMenu.style.left = e.clientX + 'px';
+            galleryContextMenu.style.top = e.clientY + 'px';
             galleryContextMenu.classList.add('active');
         }
 
@@ -2270,36 +1429,26 @@
 
         function galleryContextAction(action) {
             if (selectedGalleryPhotoIndex === null) return;
-
             if (action === 'view') {
                 openLightbox(selectedGalleryPhotoIndex);
             } else if (action === 'delete') {
                 currentLifePhotos.splice(selectedGalleryPhotoIndex, 1);
                 renderLifeGallery();
             }
-
             closeGalleryContextMenu();
-            selectedGalleryPhotoIndex = null;
         }
 
-        /* LIGHTBOX NÉZET ÉS SZÖVEG SZERKESZTŐ */
-        function openLightbox(photoIndex) {
-            activeLightboxPhotoIndex = photoIndex;
-            const photoObj = currentLifePhotos[photoIndex];
-            if (!photoObj) return;
+        function openLightbox(index) {
+            if (index < 0 || index >= currentLifePhotos.length) return;
+            activeLightboxPhotoIndex = index;
 
-            const lightbox = document.getElementById('lightboxModal');
-            const img = document.getElementById('lightboxImage');
-            const caption = document.getElementById('lightboxCaption');
-            const input = document.getElementById('lightboxCaptionInput');
+            const photo = currentLifePhotos[index];
+            document.getElementById('lightboxImage').src = photo.url;
+            document.getElementById('lightboxCaption').innerText = photo.caption || '';
+            document.getElementById('lightboxCaptionInput').value = photo.caption || '';
+            document.getElementById('lightboxCaptionInput').style.display = 'none';
 
-            img.src = typeof photoObj === 'string' ? photoObj : photoObj.url;
-            caption.innerText = typeof photoObj === 'object' ? (photoObj.caption || '') : '';
-            
-            input.style.display = 'none';
-            caption.style.display = caption.innerText ? 'block' : 'none';
-
-            lightbox.classList.add('active');
+            document.getElementById('lightboxModal').classList.add('active');
         }
 
         function closeLightbox() {
@@ -2309,23 +1458,17 @@
 
         function navigateLightbox(step, event) {
             if (event) event.stopPropagation();
-            if (activeLightboxPhotoIndex === null || currentLifePhotos.length === 0) return;
-
+            if (activeLightboxPhotoIndex === null) return;
             let newIndex = activeLightboxPhotoIndex + step;
             if (newIndex < 0) newIndex = currentLifePhotos.length - 1;
             if (newIndex >= currentLifePhotos.length) newIndex = 0;
-
             openLightbox(newIndex);
         }
 
         function toggleCaptionEdit() {
-            const caption = document.getElementById('lightboxCaption');
             const input = document.getElementById('lightboxCaptionInput');
-
             if (input.style.display === 'none' || input.style.display === '') {
-                input.value = caption.innerText;
                 input.style.display = 'block';
-                caption.style.display = 'none';
                 input.focus();
             } else {
                 saveLightboxCaption();
@@ -2340,187 +1483,57 @@
 
         function saveLightboxCaption() {
             if (activeLightboxPhotoIndex === null) return;
-
-            const input = document.getElementById('lightboxCaptionInput');
-            const caption = document.getElementById('lightboxCaption');
-            const newText = input.value.trim();
-
-            if (typeof currentLifePhotos[activeLightboxPhotoIndex] === 'string') {
-                currentLifePhotos[activeLightboxPhotoIndex] = {
-                    url: currentLifePhotos[activeLightboxPhotoIndex],
-                    caption: newText
-                };
-            } else {
-                currentLifePhotos[activeLightboxPhotoIndex].caption = newText;
-            }
-
-            caption.innerText = newText;
-            input.style.display = 'none';
-            caption.style.display = newText ? 'block' : 'none';
+            const text = document.getElementById('lightboxCaptionInput').value.trim();
+            currentLifePhotos[activeLightboxPhotoIndex].caption = text;
+            document.getElementById('lightboxCaption').innerText = text;
+            document.getElementById('lightboxCaptionInput').style.display = 'none';
         }
 
-        /* KAPCSOLAT KIVÁLASZTÓ MODAL */
-        function openConnectionPicker(sourceSimId, defaultType = 'Szerelmes') {
-            const tree = getCurrentTree(); if (!tree) return;
-            selectedSimId = sourceSimId;
-            selectedConnectionTargetId = null;
-
-            document.getElementById('relationTypeSelect').value = defaultType;
-            document.getElementById('simSearchInput').value = '';
-            document.getElementById('selectedSimPreview').style.display = 'none';
-            document.getElementById('searchResultsList').classList.remove('active');
-
-            connectionModal.classList.add('active');
-        }
-
-        function openDirectConnectionPicker(sourceSimId, targetSimId) {
-            const tree = getCurrentTree(); if (!tree) return;
-            selectedSimId = sourceSimId;
-            selectedConnectionTargetId = targetSimId;
-
-            const targetSim = tree.sims.find(s => s.id === targetSimId);
-            if (targetSim) {
-                document.getElementById('previewName').innerText = `${targetSim.firstName} ${targetSim.lastName}`;
-                document.getElementById('previewAge').innerText = targetSim.age || '';
-                document.getElementById('selectedSimPreview').style.display = 'flex';
-            }
-
-            connectionModal.classList.add('active');
-        }
-
-        function closeConnectionModal() {
-            connectionModal.classList.remove('active');
-            selectedConnectionTargetId = null;
-        }
-
-        function filterSimSearch() {
-            const query = document.getElementById('simSearchInput').value.toLowerCase().trim();
-            const resultsList = document.getElementById('searchResultsList');
-            const tree = getCurrentTree(); if (!tree) return;
-
-            resultsList.innerHTML = '';
-            if (!query) {
-                resultsList.classList.remove('active');
-                return;
-            }
-
-            const matches = tree.sims.filter(s => s.id !== selectedSimId && `${s.firstName} ${s.lastName}`.toLowerCase().includes(query));
-
-            if (matches.length > 0) {
-                matches.forEach(sim => {
-                    const item = document.createElement('div');
-                    item.className = 'search-item';
-                    item.innerHTML = `<span>${sim.firstName} ${sim.lastName}</span><span style="font-size:10px; opacity:0.7;">${sim.age || ''}</span>`;
-                    item.onclick = () => {
-                        selectedConnectionTargetId = sim.id;
-                        document.getElementById('simSearchInput').value = `${sim.firstName} ${sim.lastName}`;
-                        document.getElementById('previewName').innerText = `${sim.firstName} ${sim.lastName}`;
-                        document.getElementById('previewAge').innerText = sim.age || '';
-                        document.getElementById('selectedSimPreview').style.display = 'flex';
-                        resultsList.classList.remove('active');
-                    };
-                    resultsList.appendChild(item);
-                });
-                resultsList.classList.add('active');
-            } else {
-                resultsList.classList.remove('active');
-            }
-        }
-
-        function createNewSimInConnection() {
-            closeConnectionModal();
-            const tree = getCurrentTree(); if (!tree) return;
-            const sourceSim = tree.sims.find(s => s.id === selectedSimId); if (!sourceSim) return;
-
-            const newSim = addNewSim("Új", sourceSim.lastName, sourceSim.x + 180, sourceSim.y);
-            if (newSim) {
-                openDirectConnectionPicker(selectedSimId, newSim.id);
-            }
-        }
-
-        function confirmConnection() {
-            if (!selectedSimId || !selectedConnectionTargetId) {
-                alert('Kérlek válassz ki egy Simet a kapcsolódáshoz!');
-                return;
-            }
-
-            const tree = getCurrentTree(); if (!tree) return;
-            const sourceSim = tree.sims.find(s => s.id === selectedSimId);
-            const targetSim = tree.sims.find(s => s.id === selectedConnectionTargetId);
-            const relationType = document.getElementById('relationTypeSelect').value;
-
-            if (sourceSim && targetSim) {
-                if (relationType === 'Házas' || relationType === 'Jegyes' || relationType === 'Szerelmes') {
-                    sourceSim.partnerId = targetSim.id;
-                    targetSim.partnerId = sourceSim.id;
-                } else if (relationType === 'Gyerek') {
-                    targetSim.parentId = sourceSim.id;
-                } else if (relationType === 'Szülő') {
-                    sourceSim.parentId = targetSim.id;
-                }
-
-                saveTreesToStorage();
-                updateConnections();
-            }
-
-            closeConnectionModal();
-        }
-
-        /* JOBB GOMBOZÓS KONTEXTUS MENÜ */
-        function openContextMenu(simId, clientX, clientY) {
-            contextSimId = simId;
-            const tree = getCurrentTree(); if (!tree) return;
-            const sim = tree.sims.find(s => s.id === simId); if (!sim) return;
-
-            document.getElementById('contextLockLabel').innerText = sim.locked ? '🔓 Feloldás' : '🔒 Zárolás';
-
-            contextMenu.style.left = `${clientX}px`;
-            contextMenu.style.top = `${clientY}px`;
-            contextMenu.classList.add('active');
-        }
-
-        function contextAction(action) {
-            if (!contextSimId) return;
-
-            if (action === 'edit') {
-                openSimModal(contextSimId);
-            } else if (action === 'connect') {
-                openConnectionPicker(contextSimId);
-            } else if (action === 'disconnect') {
+        function deleteCurrentSimModal() {
+            if (!editingSimId) return;
+            if (confirm('Biztosan törölni szeretnéd ezt a Simet?')) {
                 const tree = getCurrentTree();
                 if (tree) {
-                    const sim = tree.sims.find(s => s.id === contextSimId);
-                    if (sim) {
-                        sim.partnerId = null;
-                        sim.parentId = null;
-                        tree.sims.forEach(s => {
-                            if (s.partnerId === contextSimId) s.partnerId = null;
-                            if (s.parentId === contextSimId) s.parentId = null;
-                        });
-                        saveTreesToStorage();
-                        updateConnections();
-                    }
-                }
-            } else if (action === 'lock') {
-                const tree = getCurrentTree();
-                if (tree) {
-                    const sim = tree.sims.find(s => s.id === contextSimId);
-                    if (sim) {
-                        sim.locked = !sim.locked;
-                        saveTreesToStorage();
-                    }
-                }
-            } else if (action === 'delete') {
-                if (confirm('Biztosan törölni szeretnéd ezt a Simet?')) {
-                    deleteSim(contextSimId);
+                    tree.sims = tree.sims.filter(s => s.id !== editingSimId);
+                    saveTreesToStorage();
+                    closeSimModal();
+                    loadCurrentTreeCanvas();
                 }
             }
-
-            contextMenu.classList.remove('active');
-            contextSimId = null;
         }
 
-        // INDÍTÁS
+        function updateConnections() {
+            svgLayer.innerHTML = '';
+            const tree = getCurrentTree(); if (!tree) return;
+
+            tree.sims.forEach(sim => {
+                if (sim.parentId) {
+                    const parent = tree.sims.find(s => s.id === sim.parentId);
+                    if (parent) drawConnection(parent, sim, 'line-child');
+                }
+                if (sim.partnerId) {
+                    const partner = tree.sims.find(s => s.id === sim.partnerId);
+                    if (partner) drawConnection(sim, partner, 'line-love');
+                }
+            });
+        }
+
+        function drawConnection(simA, simB, className) {
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            const ax = simA.x + 44;
+            const ay = simA.y + 44;
+            const bx = simB.x + 44;
+            const by = simB.y + 44;
+
+            const dx = bx - ax;
+            const dy = by - ay;
+            const d = `M ${ax} ${ay} C ${ax + dx / 2} ${ay}, ${bx - dx / 2} ${by}, ${bx} ${by}`;
+
+            path.setAttribute('d', d);
+            path.setAttribute('class', className);
+            svgLayer.appendChild(path);
+        }
+
         initTheme();
         switchView('home');
     </script>
