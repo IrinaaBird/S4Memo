@@ -1003,39 +1003,39 @@
                         </div>
                     </div>
 
-                    <!-- SZÜLŐK GOMB -->
-<div class="field-group" style="margin-bottom: 15px;">
-  <button type="button" class="btn-parents" style="
-    width: 100%;
-    padding: 10px;
-    background-color: #2b2625;
-    color: #e6d5c3;
-    border: 1px solid #443c3a;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    text-align: center;
-  ">
-    Szülők
-  </button>
-</div>
-                    
-                    <!-- NEMES / NEMESSÉG CSOPORT -->
-                    <div class="form-group">
-                        <label>Nemesség / Cím</label>
-                        <select id="editNobleTitle">
-                            <option value="none" selected>Nincs (Közember)</option>
-                            <option value="Király">👑 Király</option>
-                            <option value="Királynő">👑 Királynő</option>
-                            <option value="Herceg">🏰 Herceg</option>
-                            <option value="Hercegnő">🏰 Hercegnő</option>
-                            <option value="Gróf">⚜️ Gróf</option>
-                            <option value="Grófnő">⚜️ Grófnő</option>
-                            <option value="Báró">⚔️ Báró</option>
-                            <option value="Bárónő">⚔️ Bárónő</option>
-                            <option value="Lorder">📜 Lorder</option>
-                            <option value="Nemes">✨ Nemes</option>
-                        </select>
+                   <!-- NEMES ÉS SZÜLŐ RÉSZ EGYMÁS MELLETT -->
+                    <div class="form-row" style="align-items: flex-end;">
+                        <div class="form-group" style="flex:1;">
+                            <label>Nemesség / Cím</label>
+                            <select id="editNobleTitle">
+                                <option value="none" selected>Nincs (Közember)</option>
+                                <option value="Király">👑 Király</option>
+                                <option value="Királynő">👑 Királynő</option>
+                                <option value="Herceg">🏰 Herceg</option>
+                                <option value="Hercegnő">🏰 Hercegnő</option>
+                                <option value="Gróf">⚜️ Gróf</option>
+                                <option value="Grófnő">⚜️ Grófnő</option>
+                                <option value="Báró">⚔️ Báró</option>
+                                <option value="Bárónő">⚔️ Bárónő</option>
+                                <option value="Nemes">✨ Nemes</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="flex:1;">
+                            <button type="button" class="btn-parents" style="
+                                width: 100%;
+                                padding: 8px 12px;
+                                background-color: var(--card-solid);
+                                color: var(--text-color);
+                                border: 1px solid var(--border-color);
+                                border-radius: 12px;
+                                font-weight: 700;
+                                font-size: 12px;
+                                cursor: pointer;
+                                text-align: center;
+                            ">
+                                Szülők
+                            </button>
+                        </div>
                     </div>
 
                     <div class="form-group" style="margin-top: 10px;">
