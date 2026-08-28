@@ -6,23 +6,6 @@
     <title>S4Memo - Sims 4 Memorable</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
     <style>
-        /* Kapocs ikon stílusa a kötélen */
-.line-connector-handle {
-    cursor: grab;
-    pointer-events: all !important;
-    transition: transform 0.15s ease, filter 0.15s ease;
-}
-
-.line-connector-handle:hover {
-    transform: scale(1.3);
-    filter: drop-shadow(0 0 8px var(--accent-color));
-}
-
-.line-connector-handle:active {
-    cursor: grabbing;
-    transform: scale(1.1);
-}
-        
         :root {
             --bg-color: #f4ede6;
             --bg-pattern: radial-gradient(#d5c4b3 1.5px, transparent 1.5px);
@@ -798,17 +781,11 @@
 
         <div class="tree-canvas-viewport" id="treeViewport">
             <div class="tree-canvas-world style-glow" id="treeWorld">
-                <svg class="tree-svg-layer" id="svgLayer" viewBox="-10000 -10000 20000 20000">
-    <defs>
-        <!-- Kapocs / Csatlakozó ikon -->
-        <g id="lineConnectorIcon">
-            <circle cx="0" cy="0" r="14" fill="var(--card-solid)" stroke="var(--border-color)" stroke-width="2.5" filter="drop-shadow(0 2px 6px rgba(0,0,0,0.2))" />
-            <!-- Kapocs belső szimbóluma (kis láncszem) -->
-            <path d="M-5 -2 L-2 -5 A3 3 0 0 1 2 -1 L-1 2 M-2 1 L1 4 A3 3 0 0 0 5 0 L2 -3" 
-                  fill="none" stroke="var(--accent-color)" stroke-width="2.5" stroke-linecap="round"/>
-        </g>
-    </defs>
-</svg>
+                <svg class="tree-svg-layer" id="svgLayer" viewBox="-10000 -10000 20000 20000"></svg>
+            </div>
+        </div>
+    </div>
+
     <!-- 3. AKTIVITÁS / TÖRTÉNETEK NÉZET -->
     <div class="page-view" id="activityView">
         <main class="main-card">
@@ -1603,90 +1580,50 @@
         });
 
         window.addEventListener('mousemove', (e) => {
-    // 1. Kapocs húzásának kezelése szülők között
-    if (activeConnectorDrag) {
-        const tree = getCurrentTree();
-        if (!tree) return;
+            if (isPanning) {
+                panX = e.clientX - startPanX;
+                panY = e.clientY - startPanY;
+                updateWorldTransform();
+                return;
+            }
 
-        // Megkeressük, hogy a cursor melyik Sim felett áll
-        const elements = document.elementsFromPoint(e.clientX, e.clientY);
-        let hoveredSimNode = null;
-        for (let el of elements) {
-            const node = el.closest('.sim-node');
+            if (!activeDrag) return;
+            const dx = (e.clientX - dragStartMouse.x) / zoomLevel;
+            const dy = (e.clientY - dragStartMouse.y) / zoomLevel;
+
+            activeDrag.x = dragStartSimPos.x + dx;
+            activeDrag.y = dragStartSimPos.y + dy;
+
+            const node = document.getElementById(activeDrag.id);
             if (node) {
-                hoveredSimNode = tree.sims.find(s => s.id === node.id);
-                break;
+                node.style.left = activeDrag.x + 'px';
+                node.style.top = activeDrag.y + 'px';
             }
-        }
 
-        // Ha egy Sim fölé húztuk a kapcsot
-        if (hoveredSimNode) {
-            const childSim = tree.sims.find(s => s.id === activeConnectorDrag.childId);
-            if (childSim && childSim.id !== hoveredSimNode.id) {
-                // Ha a kiválasztott Sim még nem szülője, átállítjuk rá
-                if (!childSim.parentIds.includes(hoveredSimNode.id)) {
-                    // Ha 1 szülőhöz akarjuk kapcsolni, lecseréljük
-                    childSim.parentIds = [hoveredSimNode.id];
-                    childSim.parentId = hoveredSimNode.id;
-                    updateConnections();
-                }
+            checkSimDropTarget(e.clientX, e.clientY);
+            updateConnections();
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (activeDrag) saveTreesToStorage();
+
+            if (activeDrag && currentDropTargetSim) {
+                const sourceSimId = activeDrag.id;
+                const targetSimId = currentDropTargetSim.id;
+                document.querySelectorAll('.sim-node').forEach(n => n.classList.remove('drop-target'));
+                activeDrag = null;
+                currentDropTargetSim = null;
+                openDirectConnectionPicker(sourceSimId, targetSimId);
+                return;
             }
-        }
-        return;
-    }
 
-    // 2. Eredeti Canvas Pan és Sim Node Drag kód változatlanul folytatódik...
-    if (isPanning) {
-        panX = e.clientX - startPanX;
-        panY = e.clientY - startPanY;
-        updateWorldTransform();
-        return;
-    }
-
-    if (!activeDrag) return;
-    const dx = (e.clientX - dragStartMouse.x) / zoomLevel;
-    const dy = (e.clientY - dragStartMouse.y) / zoomLevel;
-
-    activeDrag.x = dragStartSimPos.x + dx;
-    activeDrag.y = dragStartSimPos.y + dy;
-
-    const node = document.getElementById(activeDrag.id);
-    if (node) {
-        node.style.left = activeDrag.x + 'px';
-        node.style.top = activeDrag.y + 'px';
-    }
-
-    checkSimDropTarget(e.clientX, e.clientY);
-    updateConnections();
-});
-
-window.addEventListener('mouseup', () => {
-    // Kapocs húzás befejezése
-    if (activeConnectorDrag) {
-        activeConnectorDrag = null;
-        saveTreesToStorage();
-        return;
-    }
-
-    if (activeDrag) saveTreesToStorage();
-
-    if (activeDrag && currentDropTargetSim) {
-        const sourceSimId = activeDrag.id;
-        const targetSimId = currentDropTargetSim.id;
-        document.querySelectorAll('.sim-node').forEach(n => n.classList.remove('drop-target'));
-        activeDrag = null;
-        currentDropTargetSim = null;
-        openDirectConnectionPicker(sourceSimId, targetSimId);
-        return;
-    }
-
-    isPanning = false;
-    activeDrag = null;
-    if (currentDropTargetSim) {
-        document.querySelectorAll('.sim-node').forEach(n => n.classList.remove('drop-target'));
-        currentDropTargetSim = null;
-    }
-});
+            isPanning = false;
+            activeDrag = null;
+            if (currentDropTargetSim) {
+                document.querySelectorAll('.sim-node').forEach(n => n.classList.remove('drop-target'));
+                currentDropTargetSim = null;
+            }
+        });
 
         function checkSimDropTarget(clientX, clientY) {
             const tree = getCurrentTree(); if (!tree) return;
@@ -2127,110 +2064,45 @@ window.addEventListener('mouseup', () => {
             treeWorld.appendChild(node);
         }
 
-        let activeConnectorDrag = null; // Kapocs húzásának állapota
+        function updateConnections() {
+            const tree = getCurrentTree();
+            if (!tree) return;
 
-function updateConnections() {
-    const tree = getCurrentTree();
-    if (!tree || !svgLayer) return;
+            let svgContent = '';
 
-    // Megtartjuk a defs elemet, a többi korábbi vonalat/kapcsot töröljük
-    const defs = svgLayer.querySelector('defs');
-    svgLayer.innerHTML = '';
-    if (defs) svgLayer.appendChild(defs);
+            tree.sims.forEach(sim => {
+                // Partner kapcsolatok
+                if (sim.partnerId) {
+                    const partner = tree.sims.find(s => s.id === sim.partnerId);
+                    if (partner && sim.id < partner.id) {
+                        const x1 = sim.x + 44;
+                        const y1 = sim.y + 44;
+                        const x2 = partner.x + 44;
+                        const y2 = partner.y + 44;
+                        const pathData = `M ${x1} ${y1} L ${x2} ${y2}`;
+                        svgContent += `<path d="${pathData}" class="line-love" />`;
+                    }
+                }
 
-    const nodeWidth = 88;
-    const nodeHeight = 88;
-    const halfW = nodeWidth / 2;
-    const halfH = nodeHeight / 2;
+                // Szülő-gyerek kapcsolatok (több szülő támogatásával)
+                const parentIds = sim.parentIds || (sim.parentId ? [sim.parentId] : []);
+                parentIds.forEach(pId => {
+                    const parent = tree.sims.find(s => s.id === pId);
+                    if (parent) {
+                        const x1 = parent.x + 44;
+                        const y1 = parent.y + 44;
+                        const x2 = sim.x + 44;
+                        const y2 = sim.y + 44;
 
-    // 1. PÁRKAPCSOLATI VONALAK (Házas / Szerelmes / Jegyes)
-    tree.sims.forEach(sim => {
-        if (sim.partnerId) {
-            const partner = tree.sims.find(s => s.id === sim.partnerId);
-            if (partner && sim.id < partner.id) { // Duplázás elkerülése
-                const x1 = sim.x + halfW;
-                const y1 = sim.y + halfH;
-                const x2 = partner.x + halfW;
-                const y2 = partner.y + halfH;
+                        const midY = y1 + (y2 - y1) / 2;
+                        const pathData = `M ${x1} ${y1} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${y2}`;
+                        svgContent += `<path d="${pathData}" class="line-child" />`;
+                    }
+                });
+            });
 
-                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                path.setAttribute('d', `M ${x1} ${y1} L ${x2} ${y2}`);
-                path.setAttribute('class', 'line-love');
-                svgLayer.appendChild(path);
-            }
+            svgLayer.innerHTML = svgContent;
         }
-    });
-
-    // 2. GYERMEK-SZÜLŐ VONALAK ÉS HÚZHATÓ KAPCSOK
-    tree.sims.forEach(childSim => {
-        const parentIds = childSim.parentIds || [];
-        if (childSim.parentId && !parentIds.includes(childSim.parentId)) {
-            parentIds.push(childSim.parentId);
-        }
-
-        if (parentIds.length === 0) return;
-
-        const parents = parentIds.map(id => tree.sims.find(s => s.id === id)).filter(Boolean);
-        if (parents.length === 0) return;
-
-        const childX = childSim.x + halfW;
-        const childY = childSim.y + halfH;
-
-        let connectorX, connectorY;
-
-        if (parents.length === 2) {
-            // KÉT SZÜLŐ ESETÉN: A kapocs pontosan a két szülő közti szakasz közepére kerül
-            const p1X = parents[0].x + halfW;
-            const p1Y = parents[0].y + halfH;
-            const p2X = parents[1].x + halfW;
-            const p2Y = parents[1].y + halfH;
-
-            // Szülők közötti összekötő segédvonal (halvány rózsaszín/szürke)
-            const parentConnectPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            parentConnectPath.setAttribute('d', `M ${p1X} ${p1Y} L ${p2X} ${p2Y}`);
-            parentConnectPath.setAttribute('style', 'stroke: var(--border-color); stroke-width: 2px; stroke-dasharray: 4 4;');
-            svgLayer.appendChild(parentConnectPath);
-
-            connectorX = (p1X + p2X) / 2;
-            connectorY = (p1Y + p2Y) / 2;
-        } else {
-            // EGY SZÜLŐ ESETÉN: A kapocs a szülő pozíciójára kerül
-            connectorX = parents[0].x + halfW;
-            connectorY = parents[0].y + halfH;
-        }
-
-        // Csatlakozó ZÖLD KÖTÉL a kapocstól a gyermekig (csak 1 vonal!)
-        const childPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        
-        // Íves vonal (Bézier-görbe) a szebb megjelenésért
-        const deltaY = Math.abs(childY - connectorY) / 2;
-        const cp1Y = connectorY + Math.max(deltaY, 30);
-        const cp2Y = childY - Math.max(deltaY, 30);
-        
-        childPath.setAttribute('d', `M ${connectorX} ${connectorY} C ${connectorX} ${cp1Y}, ${childX} ${cp2Y}, ${childX} ${childY}`);
-        childPath.setAttribute('class', 'line-child');
-        svgLayer.appendChild(childPath);
-
-        // HÚZHATÓ KAPCOS IKON
-        const useTag = document.createElementNS('http://www.w3.org/2000/svg', 'use');
-        useTag.setAttributeNS('http://www.w3.org/1999/xlink', 'href', '#lineConnectorIcon');
-        useTag.setAttribute('x', connectorX);
-        useTag.setAttribute('y', connectorY);
-        useTag.setAttribute('class', 'line-connector-handle');
-        useTag.setAttribute('data-child-id', childSim.id);
-
-        // Eseménykezelő a kapocs áthúzásához (Drag start)
-        useTag.addEventListener('mousedown', (e) => {
-            e.stopPropagation();
-            activeConnectorDrag = {
-                childId: childSim.id,
-                parents: parents
-            };
-        });
-
-        svgLayer.appendChild(useTag);
-    });
-}
 
         /* PARENTS MODAL HANDLERS */
         function openParentsModal() {
@@ -2665,6 +2537,5 @@ function updateConnections() {
         initTheme();
         switchView('home');
     </script>
-                
 </body>
 </html>
