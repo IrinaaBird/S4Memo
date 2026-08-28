@@ -887,7 +887,18 @@
     <div class="modal-overlay" id="simModal">
         <div class="modal-card">
             <button type="button" class="close-btn" onclick="closeSimModal()">&times;</button>
-
+            <!-- Cím és Státusz Gomb Részlet -->
+<div class="text-center mb-4">
+  <h2 id="editSimNameDisplay" class="text-2xl font-bold text-white">Mortimer Goth</h2>
+  
+  <button type="button" 
+          id="toggleStatusBtn" 
+          onclick="toggleSimStatus()" 
+          class="mt-1 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium transition-colors cursor-pointer bg-green-500/20 text-green-400 hover:bg-green-500/30">
+    <span id="statusIcon">✨</span>
+    <span id="statusText">Életben van</span>
+  </button>
+</div>
             <div class="modal-header">
                 <h3 class="modal-title">Sim Card</h3>
                 <div class="tab-menu">
@@ -1239,6 +1250,25 @@
                 placeholder.style.display = 'none';
                 editorBox.style.display = 'flex';
 
+                let currentSimStatus = 'alive'; // alapértelmezett érték
+
+function toggleSimStatus() {
+  const btn = document.getElementById('toggleStatusBtn');
+  const icon = document.getElementById('statusIcon');
+  const text = document.getElementById('statusText');
+
+  if (currentSimStatus === 'alive') {
+    currentSimStatus = 'dead';
+    text.textContent = 'Halott';
+    icon.textContent = '💀';
+    btn.className = 'mt-1 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium transition-colors cursor-pointer bg-red-500/20 text-red-400 hover:bg-red-500/30';
+  } else {
+    currentSimStatus = 'alive';
+    text.textContent = 'Életben van';
+    icon.textContent = '✨';
+    btn.className = 'mt-1 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium transition-colors cursor-pointer bg-green-500/20 text-green-400 hover:bg-green-500/30';
+  }
+}
                 if (sim.imageTransform) {
                     document.getElementById('imgZoomSlider').value = sim.imageTransform.scale || 1;
                     document.getElementById('imgZoomVal').innerText = Math.round((sim.imageTransform.scale || 1) * 100) + '%';
