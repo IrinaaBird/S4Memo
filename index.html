@@ -1736,42 +1736,74 @@
             themeBtn.innerHTML = theme === 'dark' ? '☀️ Light' : '🌙 Dark';
         }
 
-        function attachSimHoverEvents(simNode, simData) {
-            simNode.addEventListener('mouseenter', () => {
-                const parentIds = (simData.parentIds || [simData.parentId]).filter(Boolean);
+        function initActivityView() {
+            renderActivityFeed();
+        }
 
-                parentIds.forEach(pId => {
-                    const parentEl = document.querySelector(`.sim-node[data-id="${pId}"]`);
-                    if (parentEl) {
-                        parentEl.classList.add('is-parent');
-                    }
-                });
+        function addNewSimDialog() {
+            const tree = getCurrentTree();
+            if (!tree) return;
+            
+            const newSim = {
+                id: 'sim_' + Date.now(),
+                firstName: 'Új',
+                lastName: 'Sim',
+                nobleTitle: 'none',
+                age: 'Fiatal felnőtt',
+                traits: '',
+                color: '#2ed573',
+                image: '',
+                imageTransform: null,
+                x: 300 + Math.random() * 100,
+                y: 300 + Math.random() * 100,
+                parentId: null,
+                parentIds: [],
+                partnerId: null,
+                customRelations: [],
+                relationType: null,
+                locked: false,
+                isDead: false,
+                gallery: [],
+                lifePhotos: []
+            };
 
-                document.querySelectorAll('svg path').forEach(path => {
-                    const from = path.getAttribute('data-from');
-                    const to = path.getAttribute('data-to');
-                    if (to === simData.id && parentIds.includes(from)) {
-                        path.classList.add('highlighted-line');
-                    }
-                });
-            });
+            tree.sims.push(newSim);
+            saveTreesToStorage();
+            loadCurrentTreeCanvas();
+            openSimModal(newSim.id);
+        }
 
-            simNode.addEventListener('mouseleave', () => {
-                document.querySelectorAll('.sim-node.is-parent').forEach(el => {
-                    el.classList.remove('is-parent');
-                });
-                document.querySelectorAll('svg path.highlighted-line').forEach(path => {
-                    path.classList.remove('highlighted-line');
-                });
+        function renderActivityFeed() {
+            const feed = document.getElementById('activityFeed');
+            if (!feed) return;
+            feed.innerHTML = '';
+            
+            familyTrees.forEach(tree => {
+                if (tree.journal) {
+                    tree.journal.forEach(entry => {
+                        const card = document.createElement('div');
+                        card.className = 'timeline-card';
+                        card.innerHTML = `
+                            <div class="timeline-icon">📖</div>
+                            <div class="timeline-card-header">
+                                <div>
+                                    <span class="timeline-tree-badge">${tree.name}</span>
+                                    <h3 class="timeline-title">${entry.title}</h3>
+                                </div>
+                                <span class="timeline-date">${entry.date}</span>
+                            </div>
+                            <div class="timeline-body">${entry.content}</div>
+                        `;
+                        feed.appendChild(card);
+                    });
+                }
             });
         }
 
-        toggleBtn.addEventListener('click', () => {
-            sidebar.classList.toggle('open');
-            toggleBtn.classList.toggle('open');
+        // Kezdő inicializálás
+        window.addEventListener('DOMContentLoaded', () => {
+            applyPageBackground();
         });
-
-        initTheme();
     </script>
 </body>
 </html>
