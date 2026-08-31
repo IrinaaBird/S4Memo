@@ -414,6 +414,23 @@
             pointer-events: none; z-index: 15; letter-spacing: -0.2px;
         }
 
+        /* Ha a vásznon lévő valamelyik Simre rávisszük az egeret, elhomályosítjuk az összes Simet és vonalat */
+.tree-canvas-world:has(.sim-node:hover) .sim-node,
+.tree-canvas-world:has(.sim-node:hover) svg path {
+    opacity: 0.25;
+    filter: blur(2px);
+    transition: opacity 0.3s ease, filter 0.3s ease;
+}
+
+/* A kijelölt/felette lévő Sim kiemelése (visszaállítása normál állapotra) */
+.tree-canvas-world .sim-node:hover,
+.tree-canvas-world .sim-node.is-parent,
+.tree-canvas-world svg path.highlighted-line {
+    opacity: 1 !important;
+    filter: none !important;
+    z-index: 100 !important;
+}
+        
         .sim-edit-pencil {
             position: absolute; top: -2px; right: -2px; width: 24px; height: 24px;
             background-color: var(--card-solid); border: 1px solid var(--border-color);
