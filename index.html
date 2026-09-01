@@ -2692,6 +2692,46 @@
             closeConnectionModal();
         }
 
+        function showDeleteConnectionModal(connection) {
+  const personA = getPersonById(connection.fromId);
+  const personB = getPersonById(connection.toId);
+
+  // A modális ablak tartalmának frissítése
+  modalTitle.textContent = "Kapcsolat törlése";
+  modalBody.innerHTML = `
+    <p>Melyik személyt szeretnéd eltávolítani a kapcsolatból?</p>
+    <button onclick="deleteConnectionFromPerson('${connection.id}', '${personA.id}')">
+      Csak ${personA.name} eltávolítása
+    </button>
+    <button onclick="deleteConnectionFromPerson('${connection.id}', '${personB.id}')">
+      Csak ${personB.name} eltávolítása
+    </button>
+    <button onclick="deleteFullConnection('${connection.id}')" class="danger">
+      Teljes kapcsolat törlése (mindkét oldalról)
+    </button>
+  `;
+  
+  openModal();
+}
+
+        // Egy adott személy törlése a kapcsolatból
+function deleteConnectionFromPerson(connectionId, personId) {
+  // 1. Frissítsd a személy adatait (pl. Supabase / helyi state)
+  removePersonFromConnection(connectionId, personId);
+  
+  // 2. Grafikus felület frissítése
+  redrawCanvas();
+  closeModal();
+}
+
+// Teljes kapcsolat megszüntetése
+function deleteFullConnection(connectionId) {
+  connections = connections.filter(conn => conn.id !== connectionId);
+  
+  redrawCanvas();
+  closeModal();
+}
+
         function createNewSimInConnection() {
             closeConnectionModal();
             addNewSimDialog();
