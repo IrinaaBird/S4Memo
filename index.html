@@ -1545,17 +1545,28 @@
         </div>
     </div>
 
-    <!-- ELŐUGRÓ JOBB MENÜ -->
-    <div class="right-sidebar" id="sidebar">
-        <ul>
-            <li><a onclick="switchView('home')" id="menuHome" class="active">🏠 Főoldal</a></li>
-            <li><a onclick="switchView('tree')" id="menuTree">🌳 Családfák</a></li>
-            <li><a onclick="switchView('sims')" id="navSims" >👤 Simek</a></li>
-            <li><a onclick="switchView('activity')" id="menuActivity">📜 Aktivitás</a></li>
-            <li><a onclick="switchView('public')" id="menuPublic">🌐 Publikum</a></li>
-            <li><a href="#">🎮 Kisebb játékok</a></li>
-        </ul>
-    </div>
+   <!-- ELŐUGRÓ JOBB MENÜ -->
+<div class="right-sidebar" id="sidebar">
+    <ul>
+        <li><a onclick="switchView('home')" id="menuHome" class="active">🏠 Főoldal</a></li>
+        
+        <!-- ITT A VÁLTOZÁS: A Családfák egy lenyíló listaelem lesz -->
+        <li class="nav-dropdown-wrapper" id="treeDropdownWrapper">
+            <a onclick="toggleTreeDropdown()" id="menuTree" style="cursor: pointer;">
+                🌳 Családfák <span class="dropdown-arrow">▼</span>
+            </a>
+            <!-- A lenyíló almenü listája -->
+            <ul class="sub-menu" id="treeSubMenu" style="display: none; list-style: none; padding-left: 15px; margin-top: 5px;">
+                <li><a onclick="switchView('tree')" style="cursor: pointer;">📁 Minden családfa</a></li>
+                <li><a onclick="switchView('sims')" id="navSims" style="cursor: pointer;">👤 Simek</a></li>
+            </ul>
+        </li>
+
+        <li><a onclick="switchView('activity')" id="menuActivity">📜 Aktivitás</a></li>
+        <li><a onclick="switchView('public')" id="menuPublic">🌐 Publikum</a></li>
+        <li><a href="#">🎮 Kisebb játékok</a></li>
+    </ul>
+</div>
 
     <button class="toggle-btn" id="toggleBtn"><span class="arrow-icon">◀</span></button>
 
