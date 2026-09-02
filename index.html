@@ -1549,19 +1549,15 @@
 <div class="right-sidebar" id="sidebar">
     <ul>
         <li><a onclick="switchView('home')" id="menuHome" class="active">🏠 Főoldal</a></li>
-        
         <!-- ITT A VÁLTOZÁS: A Családfák egy lenyíló listaelem lesz -->
         <li class="nav-dropdown-wrapper" id="treeDropdownWrapper">
             <a onclick="toggleTreeDropdown()" id="menuTree" style="cursor: pointer;">
-                🌳 Családfák <span class="dropdown-arrow">▼</span>
-            </a>
+                🌳 Családfák <span class="dropdown-arrow">▼</span></a>
             <!-- A lenyíló almenü listája -->
             <ul class="sub-menu" id="treeSubMenu" style="display: none; list-style: none; padding-left: 15px; margin-top: 5px;">
                 <li><a onclick="switchView('tree')" style="cursor: pointer;">📁 Minden családfa</a></li>
-                <li><a onclick="switchView('sims')" id="navSims" style="cursor: pointer;">👤 Simek</a></li>
-            </ul>
+                <li><a onclick="switchView('sims')" id="navSims" style="cursor: pointer;">👤 Simek</a></li></ul>
         </li>
-
         <li><a onclick="switchView('activity')" id="menuActivity">📜 Aktivitás</a></li>
         <li><a onclick="switchView('public')" id="menuPublic">🌐 Publikum</a></li>
         <li><a href="#">🎮 Kisebb játékok</a></li>
@@ -3512,6 +3508,18 @@ function openAddSimModalFromView() {
         if (typeof renderSimsDirectory === 'function') {
             renderSimsDirectory();
         }
+    }
+}
+        function toggleTreeDropdown() {
+    const wrapper = document.getElementById('treeDropdownWrapper');
+    const subMenu = document.getElementById('treeSubMenu');
+    
+    if (subMenu.style.display === 'none' || subMenu.style.display === '') {
+        subMenu.style.display = 'block';
+        wrapper.classList.add('open');
+    } else {
+        subMenu.style.display = 'none';
+        wrapper.classList.remove('open');
     }
 }
     </script>
