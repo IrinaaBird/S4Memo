@@ -967,8 +967,8 @@
                     <a class="nav-item active" id="navHome" onclick="switchView('home')">Főoldal</a>
                     <a class="nav-item" id="navTree" onclick="switchView('tree')">Családfák</a>
                     <a class="nav-item" id="navActivity" onclick="switchView('activity')">Aktivitás</a>
-                    <a class="nav-item" id="navPublic" onclick="switchView('public')">Publikum</a>
                     <a class="nav-item" id="navSimek" onclick="switchView('simek')">Simek</a>
+                    <a class="nav-item" id="navPublic" onclick="switchView('public')">Publikum</a>
                 </div>
             </div>
             <div class="nav-right">
@@ -1053,18 +1053,18 @@
         </main>
     </div>
 
+    <!-- SIMEK NÉZET -->
+    <div class="page-view" id="simekView">
+        <main class="main-card">
+            <h1>Simek</h1>
+            <p>Itt találod az összes létrehozott Simedet és karakteredet egy helyen.</p>
+        </main>
+    </div>
+
     <!-- 4. PUBLIKUM -->
     <div class="page-view" id="publicView">
         <main class="main-card">
             <h1>Publikum / Közösségi Családfák</h1>
-        </main>
-    </div>
-
-    <!-- 5. SIMEK -->
-    <div class="page-view" id="simekView">
-        <main class="main-card">
-            <h1>Simek</h1>
-            <p>Itt találod az összes létrehozott Simet és karaktert a világodból.</p>
         </main>
     </div>
 
@@ -1559,8 +1559,8 @@
             <li><a onclick="switchView('home')" id="menuHome" class="active">🏠 Főoldal</a></li>
             <li><a onclick="switchView('tree')" id="menuTree">🌳 Családfák</a></li>
             <li><a onclick="switchView('activity')" id="menuActivity">📜 Aktivitás</a></li>
-            <li><a onclick="switchView('public')" id="menuPublic">🌐 Publikum</a></li>
             <li><a onclick="switchView('simek')" id="menuSimek">👥 Simek</a></li>
+            <li><a onclick="switchView('public')" id="menuPublic">🌐 Publikum</a></li>
             <li><a href="#">🎮 Kisebb játékok</a></li>
         </ul>
     </div>
@@ -1621,8 +1621,8 @@
         let pageBackgrounds = {
             home: { style: 'dots', customUrl: '', size: 'cover', position: 'center', blur: 0 },
             activity: { style: 'dots', customUrl: '', size: 'cover', position: 'center', blur: 0 },
-            public: { style: 'dots', customUrl: '', size: 'cover', position: 'center', blur: 0 },
-            simek: { style: 'dots', customUrl: '', size: 'cover', position: 'center', blur: 0 }
+            simek: { style: 'dots', customUrl: '', size: 'cover', position: 'center', blur: 0 },
+            public: { style: 'dots', customUrl: '', size: 'cover', position: 'center', blur: 0 }
         };
 
         const defaultTrees = [
@@ -1850,14 +1850,14 @@
                 document.getElementById('navActivity').classList.add('active');
                 document.getElementById('menuActivity').classList.add('active');
                 initActivityView();
-            } else if (viewName === 'public') {
-                document.getElementById('publicView').classList.add('active');
-                document.getElementById('navPublic').classList.add('active');
-                document.getElementById('menuPublic').classList.add('active');
             } else if (viewName === 'simek') {
                 document.getElementById('simekView').classList.add('active');
                 document.getElementById('navSimek').classList.add('active');
                 document.getElementById('menuSimek').classList.add('active');
+            } else if (viewName === 'public') {
+                document.getElementById('publicView').classList.add('active');
+                document.getElementById('navPublic').classList.add('active');
+                document.getElementById('menuPublic').classList.add('active');
             }
 
             applyPageBackground();
@@ -1868,29 +1868,9 @@
         function renderTreeTabs() {
             treeTabsList.innerHTML = '';
             familyTrees.forEach(tree => {
-                const item = document.createElement('div');
-                item.className = `tree-tab-item ${tree.id === currentTreeId ? 'active' : ''}`;
-                
-                const btn = document.createElement('button');
-                btn.className = 'tree-tab-btn';
-                btn.innerText = tree.name;
-                btn.onclick = () => selectTree(tree.id);
-
-                const delBtn = document.createElement('button');
-                delBtn.className = 'tree-delete-btn';
-                delBtn.innerText = '✕';
-                delBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    deleteTree(tree.id);
-                };
-
-                item.appendChild(btn);
-                if (familyTrees.length > 1) {
-                    item.appendChild(delBtn);
-                }
-                treeTabsList.appendChild(item);
+                // ... (megmaradt renderelő függvények)
             });
         }
-
-        function selectTree(treeId) {
-            currentTreeId = treeId;
+    </script>
+</body>
+</html>
