@@ -3492,6 +3492,44 @@
             renderJournalEntries();
             applyPageBackground();
         };
+
+        // Frissített vagy kiegészítő oldalváltó logika a Simek oldalhoz
+function switchPageView(pageName, element) {
+    // Minden nézet elrejtése
+    document.querySelectorAll('.page-view').forEach(view => {
+        view.classList.remove('active');
+    });
+
+    // Aktív menüpont stílusok resetelése
+    document.querySelectorAll('.top-nav a.nav-item, .nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+
+    // Kiválasztott nézet megjelenítése
+    if (pageName === 'sims') {
+        const simsView = document.getElementById('simsView');
+        if (simsView) simsView.classList.add('active');
+        if (element) element.classList.add('active');
+        
+        // Opcionális: itt frissítheted a Simek listáját is, ha van adatbázisod/tárolód
+        renderSimsDirectory();
+    }
+    // (A többi meglévő oldalváltási feltétel maradhat alatta...)
+}
+
+function renderSimsDirectory() {
+    // Ide jöhet a logika, ami feltölti a simeket a tárolóból (pl. localStorage-ból)
+    const grid = document.getElementById('simsDirectoryGrid');
+    if (!grid) return;
+    
+    // Példa: Ha léteznek simek a családfákban, itt listázhatod őket
+    // grid.innerHTML = ...
+}
+
+function openAddSimModalFromView() {
+    // Ha van meglévő Sim hozzáadó modalod, itt meghívhatod (pl. openAddSimModal())
+    alert("Sim hozzáadás funkció!");
+}
     </script>
 </body>
 </html>
