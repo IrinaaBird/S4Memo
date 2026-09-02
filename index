@@ -256,6 +256,15 @@
         }
         .page-view#treeView.active { display: block; }
 
+        <!-- SIMEK NÉZET -->
+<div class="page-view" id="simsView">
+  <main class="main-card">
+    <h1>Simek</h1>
+    <p>Itt jelennek meg a sim karakterek — itt lehet majd listázni, keresni és szerkeszteni őket.</p>
+    <!-- Ide pakolhatod később a sim-kártyákat / keresőt / szűrőket -->
+  </main>
+</div>
+
         /* ÚJ MODERN CSALÁDFÁK FLOATING BAR */
         .tree-left-sidebar {
             position: absolute; top: 20px; left: 24px; width: 310px;
@@ -1549,6 +1558,7 @@
         <ul>
             <li><a onclick="switchView('home')" id="menuHome" class="active">🏠 Főoldal</a></li>
             <li><a onclick="switchView('tree')" id="menuTree">🌳 Családfák</a></li>
+            <li><a class="nav-item-sidebar" id="navSims" onclick="switchView('sims')">🎭 Simek</a></li>
             <li><a onclick="switchView('activity')" id="menuActivity">📜 Aktivitás</a></li>
             <li><a onclick="switchView('public')" id="menuPublic">🌐 Publikum</a></li>
             <li><a href="#">🎮 Kisebb játékok</a></li>
