@@ -1870,8 +1870,10 @@ let selectedConnectionTargetId = null;
                 }
             ], { onConflict: 'id' });
 
-if (error) {
+        if (error) {
             console.error("Hiba a sim mentése során:", error);
+        } else {
+            console.log("Sim sikeresen elmentve a Supabase-be!");
         }
     }
 }
