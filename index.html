@@ -1923,6 +1923,7 @@ let selectedConnectionTargetId = null;
         }
 
         function switchView(viewName) {
+            if (!Array.isArray(familyTrees)) familyTrees = [];
             currentView = viewName;
             document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
