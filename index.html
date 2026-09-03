@@ -3606,6 +3606,21 @@ function openAddSimModalFromView() {
    async function handleAuthSubmit(event, type) {
     event.preventDefault();
 
+       async function loadUserTrees() {
+    // A Supabase a bejelentkezett fiók alapján automatikusan csak azokat adja vissza, amik a user_id-hoz tartoznak!
+    const { data: trees, error } = await supabaseClient
+        .from('trees') // vagy a te táblád neve
+        .select('*');
+
+    if (error) {
+        console.error('Hiba a fák betöltésekor:', error.message);
+        return;
+    }
+
+    // Itt rajzolod ki a fákat a képernyőre (ezt a saját kódod írja, ami megjeleníti az elemeket)
+    renderTreesOnScreen(trees);
+}
+
     if (type === 'login') {
         const email = document.getElementById('loginEmail').value;
         const password = document.getElementById('loginPassword').value;
