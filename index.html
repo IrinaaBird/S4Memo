@@ -3603,17 +3603,48 @@ function openAddSimModalFromView() {
         }
     }
 
-    function handleAuthSubmit(event, type) {
-        event.preventDefault();
-        if (type === 'login') {
-            const email = document.getElementById('loginEmail').value;
-            alert(`Sikeres bejelentkezés: ${email} 🌿`);
+   async function handleAuthSubmit(event, type) {
+    event.preventDefault();
+
+    if (type === 'login') {
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
+            email: email,
+            password: password,
+        });
+
+        if (error) {
+            alert('Hiba a bejelentkezés során: ' + error.message);
         } else {
-            const username = document.getElementById('regUsername').value;
-            alert(`Sikeres regisztráció. Üdv a családban, ${username}! ✨`);
+            alert('Sikeres bejelentkezés! 🌿');
+            document.getElementById('authModal').style.display = 'none';
+            location.reload(); // Oldal újratöltése, hogy érvénybe lépjen a munkamenet
         }
-        document.getElementById('authModal').style.display = 'none';
+    } else {
+        const username = document.getElementById('regUsername').value;
+        const email = document.getElementById('regEmail').value;
+        const password = document.getElementById('regPassword').value;
+
+        const { data, error } = await supabaseClient.auth.signUp({
+            email: email,
+            password: password,
+            options: {
+                data: {
+                    username: username // Elmentjük a felhasználónevet a metaadatok közé
+                }
+            }
+        });
+
+        if (error) {
+            alert('Hiba a regisztráció során: ' + error.message);
+        } else {
+            alert('Sikeres regisztráció! Üdv a családban, ' + username + '! ✨');
+            document.getElementById('authModal').style.display = 'none';
+        }
     }
+}
 </script>
 
 </body>
