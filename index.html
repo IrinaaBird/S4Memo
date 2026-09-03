@@ -1836,7 +1836,6 @@ let selectedConnectionTargetId = null;
     }
 }
 
-        // Cseréld le a régi loadTreesFromStorage függvényt erre:
         async function loadTreesFromStorage() {
     const { data: { user } } = await supabaseClient.auth.getUser();
     if (!user) return [];
@@ -3593,11 +3592,21 @@ function openAddSimModalFromView() {
             }
         };
 
-        window.onload = () => {
-            renderTreeTabs();
-            renderJournalEntries();
-            applyPageBackground();
-        };
+        window.onload = async () => {
+    const loadedTrees = await loadTreesFromStorage();
+    if (loadedTrees && loadedTrees.length > 0) {
+        familyTrees = loadedTrees;
+    }
+
+    const loadedSims = await loadSimsFromStorage();
+    if (loadedSims && loadedSims.length > 0) {
+        simsArray = loadedSims;
+    }
+
+    renderTreeTabs();
+    renderJournalEntries();
+    applyPageBackground();
+};
 
         function switchPageView(pageName, element) {
     // ... a meglévő kódod (ami elrejti a többi nézetet és leszedi az active classt) ...
