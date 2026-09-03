@@ -1645,14 +1645,14 @@
             }
         ];
 
-        let familyTrees = await loadTreesFromStorage();
-        let currentTreeId = familyTrees.length > 0 ? familyTrees[0].id : null;
-        let editingSimId = null;
-        let editingJournalId = null;
-        let editingJournalTreeId = null;
-        let contextSimId = null;
-        let selectedSimId = null;
-        let selectedConnectionTargetId = null;
+        let familyTrees = [];
+let currentTreeId = null;
+let editingSimId = null;
+let editingJournalId = null;
+let editingJournalTreeId = null;
+let contextSimId = null;
+let selectedSimId = null;
+let selectedConnectionTargetId = null;
 
         let selectedParent1Id = null;
         let selectedParent2Id = null;
