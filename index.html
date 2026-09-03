@@ -1862,7 +1862,7 @@ let selectedConnectionTargetId = null;
             const mapped = trees.map(t => t.data || t);
             return Array.isArray(mapped) ? mapped : [mapped];
         }
-    } (e) {
+    } catch (e) {
         console.error("Hiba a betöltéskor:", e);
     }
     return Array.isArray(defaultTrees) ? defaultTrees : [];
