@@ -2041,22 +2041,22 @@ async function loadSimsFromStorage() {
             }
         }
 
-        function deleteTree(treeId) {
-            if (confirm("Biztosan törölni szeretnéd ezt a családfát?")) {
-                familyTrees = familyTrees.filter(t => t.id !== treeId);
-                await deleteTreeFromSupabase(treeId);
-                if (familyTrees.length > 0) {
-                    currentTreeId = familyTrees[0].id;
-                } else {
-                    currentTreeId = null;
-                }
-                saveTreesToStorage();
-                renderTreeTabs();
-                renderJournalEntries();
-                loadCurrentTreeCanvas();
-                applyPageBackground();
-            }
+        async function deleteTree(treeId) {
+    if (confirm("Biztosan törölni szeretnéd ezt a családfát?")) {
+        familyTrees = familyTrees.filter(t => t.id !== treeId);
+        await deleteTreeFromSupabase(treeId);
+        if (familyTrees.length > 0) {
+            currentTreeId = familyTrees[0].id;
+        } else {
+            currentTreeId = null;
         }
+        saveTreesToStorage();
+        renderTreeTabs();
+        renderJournalEntries();
+        loadCurrentTreeCanvas();
+        applyPageBackground();
+    }
+}
 
         function renderJournalEntries() {
             journalEntriesList.innerHTML = '';
