@@ -1645,7 +1645,7 @@
             }
         ];
 
-        let familyTrees = loadTreesFromStorage();
+        let familyTrees = await loadTreesFromStorage();
         let currentTreeId = familyTrees.length > 0 ? familyTrees[0].id : null;
         let editingSimId = null;
         let editingJournalId = null;
@@ -1846,27 +1846,26 @@
 
         // Cseréld le a régi loadTreesFromStorage függvényt erre:
         async function loadTreesFromStorage() {
-            try {
-                // Lekérdezzük a Supabase-ből az aktuális user fát/fáit
-                const { data: trees, error } = await supabaseClient
-                    .from('trees')
-                    .select('*');
+    try {
+        const { data: trees, error } = await supabaseClient
+            .from('trees')
+            .select('*');
 
-                if (error) {
-                    console.error("Hiba a fák betöltésekor:", error.message);
-                    return defaultTrees;
-                }
-
-                // Ha találtunk fát az adatbázisban, visszaadjuk, különben az alapértelmezettet
-                if (trees && trees.length > 0) {
-                    // Ha a trees táblában a 'data' oszlopban tárolod a fa tartalmát:
-                    return trees.map(t => t.data || t); 
-                }
-            } catch (e) {
-                console.error("Hiba a betöltéskor:", e);
-            }
-            return defaultTrees;
+        if (error) {
+            console.error("Hiba a fák betöltésekor:", error.message);
+            return Array.isArray(defaultTrees) ? defaultTrees : [];
         }
+
+        if (trees && trees.length > 0) {
+            // Biztosítjuk, hogy tömböt adjunk vissza
+            const mapped = trees.map(t => t.data || t);
+            return Array.isArray(mapped) ? mapped : [mapped];
+        }
+    } (e) {
+        console.error("Hiba a betöltéskor:", e);
+    }
+    return Array.isArray(defaultTrees) ? defaultTrees : [];
+}
 
         // Simusok mentése a Supabase-be (localStorage helyett)
         async function saveSimsToStorage() {
