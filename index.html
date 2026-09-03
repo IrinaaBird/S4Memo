@@ -2043,13 +2043,33 @@ async function loadSimsFromStorage() {
 
         async function deleteTree(treeId) {
     if (confirm("Biztosan törölni szeretnéd ezt a családfát?")) {
+        // 1. Kiveszi a családfát a helyi tömbből
         familyTrees = familyTrees.filter(t => t.id !== treeId);
-        await deleteTreeFromSupabase(treeId);
+
+        // 2. Törli a Supabase adatbázisból is közvetlenül itt
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        if (!user) return;
+
+        const { error } = await supabaseClient
+            .from('trees')
+            .delete()
+            .eq('id', treeId)
+            .eq('user_id', user.id);
+
+        if (error) {
+            console.error("Hiba a fa törlésekor a Supabase-ből:", error);
+            return; // Ha hiba van, ne lépjünk tovább
+        } else {
+            console.log("Családfa sikeresen törölve a Supabase-ből is!");
+        }
+
+        // 3. UI frissítések
         if (familyTrees.length > 0) {
             currentTreeId = familyTrees[0].id;
         } else {
             currentTreeId = null;
         }
+        
         saveTreesToStorage();
         renderTreeTabs();
         renderJournalEntries();
