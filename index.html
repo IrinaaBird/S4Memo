@@ -1835,7 +1835,7 @@ let selectedConnectionTargetId = null;
         }
     }
 }
-
+        
         async function loadTreesFromStorage() {
     const { data: { user } } = await supabaseClient.auth.getUser();
     if (!user) return [];
@@ -1853,6 +1853,30 @@ let selectedConnectionTargetId = null;
     return data ? data.map(row => row.data) : [];
 }
 
+        async function deleteTree(treeId) {
+    // 1. Kiveszi a családfát a helyi tömbből, hogy a képernyőről azonnal eltűnjön
+    familyTrees = familyTrees.filter(t => t.id !== treeId);
+
+    // 2. Törli a Supabase adatbázisból is
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    if (!user) return;
+
+    const { error } = await supabaseClient
+        .from('trees')
+        .delete()
+        .eq('id', treeId)
+        .eq('user_id', user.id);
+
+    if (error) {
+        console.error("Hiba a fa törlésekor a Supabase-ből:", error);
+    } else {
+        console.log("Családfa sikeresen törölve a Supabase-ből is!");
+    }
+
+    // 3. Frissíti a felületet/füleket
+    renderTreeTabs();
+}
+        
         // Simusok mentése a Supabase-be (localStorage helyett)
         async function saveSimsToStorage() {
     const { data: { user } } = await supabaseClient.auth.getUser();
@@ -1895,21 +1919,21 @@ async function loadSimsFromStorage() {
     return data ? data.map(row => row.data) : [];
 }
 
-        async function loadSimsFromStorage() {
+    async function deleteSimFromSupabase(simId) {
     const { data: { user } } = await supabaseClient.auth.getUser();
-    if (!user) return [];
+    if (!user) return;
 
-    const { data, error } = await supabaseClient
+    const { error } = await supabaseClient
         .from('sims')
-        .select('*')
+        .delete()
+        .eq('id', simId)
         .eq('user_id', user.id);
 
     if (error) {
-        console.error("Hiba a simek betöltésekor:", error);
-        return [];
+        console.error("Hiba a sim törlésekor a Supabase-ből:", error);
+    } else {
+        console.log("Sim sikeresen törölve a Supabase-ből is!");
     }
-
-    return data ? data.map(row => row.data) : [];
 }
         
         window.switchView = function(viewName) {
@@ -2020,6 +2044,7 @@ async function loadSimsFromStorage() {
         function deleteTree(treeId) {
             if (confirm("Biztosan törölni szeretnéd ezt a családfát?")) {
                 familyTrees = familyTrees.filter(t => t.id !== treeId);
+                await deleteTreeFromSupabase(treeId);
                 if (familyTrees.length > 0) {
                     currentTreeId = familyTrees[0].id;
                 } else {
