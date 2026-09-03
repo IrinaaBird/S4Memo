@@ -3603,69 +3603,82 @@ function openAddSimModalFromView() {
         }
     }
 
-   async function handleAuthSubmit(event, type) {
-    event.preventDefault();
+    // Bejelentkezés és Regisztráció kezelése
+    async function handleAuthSubmit(event, type) {
+        event.preventDefault();
 
-       async function loadUserTrees() {
-    // A Supabase a bejelentkezett fiók alapján automatikusan csak azokat adja vissza, amik a user_id-hoz tartoznak!
-    const { data: trees, error } = await supabaseClient
-        .from('trees') // vagy a te táblád neve
-        .select('*');
+        if (type === 'login') {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
 
-    if (error) {
-        console.error('Hiba a fák betöltésekor:', error.message);
-        return;
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
+                email: email,
+                password: password,
+            });
+
+            if (error) {
+                alert('Hiba a bejelentkezés során: ' + error.message);
+            } else {
+                alert('Sikeres bejelentkezés! 🌿');
+                document.getElementById('authModal').style.display = 'none';
+                // Bejelentkezés után betöltjük a felhasználó fát/fáit:
+                loadUserTrees();
+            }
+        } else {
+            const username = document.getElementById('regUsername').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+
+            // Ellenőrizzük, hogy létezik-e már ez a felhasználónév a profiles táblában
+            const { data: existingUser, error: checkError } = await supabaseClient
+                .from('profiles')
+                .select('username')
+                .eq('username', username)
+                .maybeSingle();
+
+            if (existingUser) {
+                alert('Ez a felhasználónév már foglalt! Kérlek, válassz másikat. 🌿');
+                return;
+            }
+
+            // Regisztráció indítása a Supabase-nek
+            const { data, error } = await supabaseClient.auth.signUp({
+                email: email,
+                password: password,
+                options: {
+                    data: {
+                        username: username
+                    }
+                }
+            });
+
+            if (error) {
+                alert('Hiba a regisztráció során: ' + error.message);
+                return;
+            }
+
+            alert('Sikeres regisztráció! Üdv a családban, ' + username + '! ✨');
+            document.getElementById('authModal').style.display = 'none';
+            loadUserTrees();
+        }
     }
 
-    // Itt rajzolod ki a fákat a képernyőre (ezt a saját kódod írja, ami megjeleníti az elemeket)
-    renderTreesOnScreen(trees);
-}
-
-    if (type === 'login') {
-        const email = document.getElementById('loginEmail').value;
-        const password = document.getElementById('loginPassword').value;
-
-        const { data, error } = await supabaseClient.auth.signInWithPassword({
-            email: email,
-            password: password,
-        });
+    // Családfák betöltése a bejelentkezett felhasználóhoz
+    async function loadUserTrees() {
+        const { data: trees, error } = await supabaseClient
+            .from('trees') // A családfák táblád neve
+            .select('*');
 
         if (error) {
-            alert('Hiba a bejelentkezés során: ' + error.message);
-        } else {
-            alert('Sikeres bejelentkezés! 🌿');
-            document.getElementById('authModal').style.display = 'none';
+            console.error('Hiba a fák betöltésekor:', error.message);
+            return;
         }
-    } else {
-        const username = document.getElementById('regUsername').value.trim();
-        const email = document.getElementById('regEmail').value.trim();
-        const password = document.getElementById('regPassword').value;
 
-        // Előre ellenőrizzük, hogy létezik-e már ez a felhasználónév
-        const { data: { user } } = await supabaseClient.auth.getUser();
-
-if (!user) {
-    alert('Kérlek jelentkezz be a családfa mentéséhez!');
-    return;
-}
-
-// Beszúrás az adatbázisba úgy, hogy rögzítjük a user_id-t is
-const { data, error } = await supabaseClient
-    .from('trees') // vagy a te táblád neve
-    .insert([
-        { 
-            name: faNev, // a fa neve (vagy amilyen mezőid vannak)
-            user_id: user.id // ITT KÖTJÜK HOZZÁ A FIÓKHOZ!
+        // Itt hívod meg azt a függvényt, ami kirajzolja a fákat a képernyőre
+        if (typeof renderTreesOnScreen === 'function') {
+            renderTreesOnScreen(trees);
         }
-    ]);
-
-if (error) {
-    console.error('Hiba a fa mentésekor:', error.message);
-} else {
-    alert('Sikeresen létrehoztál egy új családfát! 🌳');
-    loadUserTrees(); // Frissítjük a listát a képernyőn
-}
-}
+    }
 </script>
 
 </body>
