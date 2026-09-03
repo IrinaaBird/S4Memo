@@ -1894,15 +1894,22 @@ async function loadSimsFromStorage() {
     return data ? data.map(row => row.data) : [];
 }
 
-                // Ha vannak mentett simek az adatbázisban a bejelentkezett fiókhoz
-                if (simsData && simsData.length > 0) {
-                    return simsData.map(s => s.data || s);
-                }
-            } catch (e) {
-                console.error("Hiba a simek betöltésekor:", e);
-            }
-            return []; // Alapértelmezett üres tömb, ha nincsenek még simek
-        }
+        async function loadSimsFromStorage() {
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    if (!user) return [];
+
+    const { data, error } = await supabaseClient
+        .from('sims')
+        .select('*')
+        .eq('user_id', user.id);
+
+    if (error) {
+        console.error("Hiba a simek betöltésekor:", error);
+        return [];
+    }
+
+    return data ? data.map(row => row.data) : [];
+}
         
         window.switchView = function(viewName) {
     if (!Array.isArray(familyTrees)) familyTrees = [];
