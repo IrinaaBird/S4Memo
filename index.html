@@ -1810,36 +1810,31 @@ let selectedConnectionTargetId = null;
         }
 
         async function saveTreesToStorage() {
-            try {
-                // 1. Megszerezzük a bejelentkezett felhasználót
-                const { data: { user } } = await supabaseClient.auth.getUser();
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    if (!user) {
+        console.warn("Nincs bejelentkezett felhasználó, nem menthető a Supabase-be.");
+        return;
+    }
 
-                if (!user) {
-                    console.warn("Nincs bejelentkezett felhasználó, nem menthető a Supabase-be.");
-                    return;
+    for (const tree of familyTrees) {
+        const { error } = await supabaseClient
+            .from('trees')
+            .upsert([
+                {
+                    id: tree.id,
+                    name: tree.name || 'Családfa',
+                    user_id: user.id,
+                    data: tree
                 }
+            ], { onConflict: 'id' });
 
-                // 2. Mivel a trees tábládban 'name' és 'user_id' (vagy JSON adatok) vannak, 
-                // ide mentjük a családfákat. (Ha a familyTrees egy tömb, végigmehetünk rajta, 
-                // vagy elmenthetjük egyben is, ha a szerkezet úgy kívánja).
-                // Példaként feltételezve, hogy a familyTrees tömb elemeit mentjük:
-                for (const tree of familyTrees) {
-                    // Megnézzük, hogy létezik-e már, vagyupsert-tel frissítjük
-                    const { error } = await supabaseClient
-                        .from('trees')
-                        .upsert([
-                            { 
-                                id: tree.id, // ha van egyedi ID-ja a fának
-                                name: tree.name || 'Családfa', 
-                                user_id: user.id,
-                                data: tree // Ha van egy jsonb oszlopod is a fához
-                            }
-                        ], { onConflict: 'id' });
-
-                    if (error) {
-                        console.error("Hiba egy fa mentésekor:", error.message);
-                    }
-                }
+        if (error) {
+            console.error("Hiba a fa mentése során:", error);
+        } else {
+            console.log("Családfa sikeresen elmentve a Supabase-be!");
+        }
+    }
+}
             } catch (e) {
                 console.error("Nem sikerült az elmentés a Supabase-be:", e);
             }
@@ -1847,54 +1842,43 @@ let selectedConnectionTargetId = null;
 
         // Cseréld le a régi loadTreesFromStorage függvényt erre:
         async function loadTreesFromStorage() {
-    try {
-        const { data: trees, error } = await supabaseClient
-            .from('trees')
-            .select('*');
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    if (!user) return [];
 
-        if (error) {
-            console.error("Hiba a fák betöltésekor:", error.message);
-            return Array.isArray(defaultTrees) ? defaultTrees : [];
-        }
+    const { data, error } = await supabaseClient
+        .from('trees')
+        .select('*')
+        .eq('user_id', user.id);
 
-        if (trees && trees.length > 0) {
-            // Biztosítjuk, hogy tömböt adjunk vissza
-            const mapped = trees.map(t => t.data || t);
-            return Array.isArray(mapped) ? mapped : [mapped];
-        }
-    } catch (e) {
-        console.error("Hiba a betöltéskor:", e);
+    if (error) {
+        console.error("Hiba a fák betöltésekor:", error);
+        return [];
     }
-    return Array.isArray(defaultTrees) ? defaultTrees : [];
+
+    return data ? data.map(row => row.data) : [];
 }
 
         // Simusok mentése a Supabase-be (localStorage helyett)
         async function saveSimsToStorage() {
-            try {
-                const { data: { user } } = await supabaseClient.auth.getUser();
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    if (!user) return;
 
-                if (!user) {
-                    console.warn("Nincs bejelentkezett felhasználó, a simek mentése kihagyva.");
-                    return;
+    for (const sim of simsArray) {
+        const { error } = await supabaseClient
+            .from('sims')
+            .upsert([
+                {
+                    id: sim.id,
+                    user_id: user.id,
+                    data: sim
                 }
+            ], { onConflict: 'id' });
 
-                // Feltételezve, hogy a kódban a simeket egy 'sims' nevű tömb tárolja
-                for (const sim of sims) {
-                    const { error } = await supabaseClient
-                        .from('sims')
-                        .upsert([
-                            { 
-                                id: sim.id, // Ha van egyedi ID-ja a simnek
-                                name: sim.name || 'Névtelen Sim',
-                                user_id: user.id,
-                                data: sim // Az egész Sim objektum mentése a jsonb oszlopba
-                            }
-                        ], { onConflict: 'id' });
-
-                    if (error) {
-                        console.error("Hiba egy Sim mentésekor:", error.message);
-                    }
-                }
+        if (error) {
+            console.error("Hiba a sim mentése során:", error);
+        }
+    }
+}
             } catch (e) {
                 console.error("Nem sikerült a simek mentése a Supabase-be:", e);
             }
@@ -1902,15 +1886,21 @@ let selectedConnectionTargetId = null;
 
         // Simusok betöltése a Supabase-ből
         async function loadSimsFromStorage() {
-            try {
-                const { data: simsData, error } = await supabaseClient
-                    .from('sims')
-                    .select('*');
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    if (!user) return [];
 
-                if (error) {
-                    console.error("Hiba a simek betöltésekor:", error.message);
-                    return [];
-                }
+    const { data, error } = await supabaseClient
+        .from('sims')
+        .select('*')
+        .eq('user_id', user.id);
+
+    if (error) {
+        console.error("Hiba a simek betöltésekor:", error);
+        return [];
+    }
+
+    return data ? data.map(row => row.data) : [];
+}
 
                 // Ha vannak mentett simek az adatbázisban a bejelentkezett fiókhoz
                 if (simsData && simsData.length > 0) {
