@@ -3626,28 +3626,20 @@ function openAddSimModalFromView() {
         const email = document.getElementById('regEmail').value;
         const password = document.getElementById('regPassword').value;
 
-        // 1. Regisztráció a Supabase Auth-ban
+        // Regisztráció a felhasználónév átadásával a metaadatokban
         const { data, error } = await supabaseClient.auth.signUp({
             email: email,
             password: password,
+            options: {
+                data: {
+                    username: username
+                }
+            }
         });
 
         if (error) {
             alert('Hiba a regisztráció során: ' + error.message);
             return;
-        }
-
-        // 2. Felhasználónév mentése a saját 'profiles' táblánkba
-        if (data.user) {
-            const { error: profileError } = await supabaseClient
-                .from('profiles')
-                .insert([
-                    { id: data.user.id, username: username, email: email }
-                ]);
-
-            if (profileError) {
-                console.error('Hiba a profil mentésekor:', profileError.message);
-            }
         }
 
         alert('Sikeres regisztráció! Üdv a családban, ' + username + '! ✨');
