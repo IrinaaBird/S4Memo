@@ -1808,22 +1808,118 @@
             }
         }
 
-        function saveTreesToStorage() {
+        async function saveTreesToStorage() {
             try {
-                localStorage.setItem('s4memo_family_trees', JSON.stringify(familyTrees));
+                // 1. Megszerezzük a bejelentkezett felhasználót
+                const { data: { user } } = await supabaseClient.auth.getUser();
+
+                if (!user) {
+                    console.warn("Nincs bejelentkezett felhasználó, nem menthető a Supabase-be.");
+                    return;
+                }
+
+                // 2. Mivel a trees tábládban 'name' és 'user_id' (vagy JSON adatok) vannak, 
+                // ide mentjük a családfákat. (Ha a familyTrees egy tömb, végigmehetünk rajta, 
+                // vagy elmenthetjük egyben is, ha a szerkezet úgy kívánja).
+                // Példaként feltételezve, hogy a familyTrees tömb elemeit mentjük:
+                for (const tree of familyTrees) {
+                    // Megnézzük, hogy létezik-e már, vagyupsert-tel frissítjük
+                    const { error } = await supabaseClient
+                        .from('trees')
+                        .upsert([
+                            { 
+                                id: tree.id, // ha van egyedi ID-ja a fának
+                                name: tree.name || 'Családfa', 
+                                user_id: user.id,
+                                data: tree // Ha van egy jsonb oszlopod is a fához
+                            }
+                        ], { onConflict: 'id' });
+
+                    if (error) {
+                        console.error("Hiba egy fa mentésekor:", error.message);
+                    }
+                }
             } catch (e) {
-                console.error("Nem sikerült az elmentés:", e);
+                console.error("Nem sikerült az elmentés a Supabase-be:", e);
             }
         }
 
-        function loadTreesFromStorage() {
+        // Cseréld le a régi loadTreesFromStorage függvényt erre:
+        async function loadTreesFromStorage() {
             try {
-                const saved = localStorage.getItem('s4memo_family_trees');
-                if (saved) return JSON.parse(saved);
+                // Lekérdezzük a Supabase-ből az aktuális user fát/fáit
+                const { data: trees, error } = await supabaseClient
+                    .from('trees')
+                    .select('*');
+
+                if (error) {
+                    console.error("Hiba a fák betöltésekor:", error.message);
+                    return defaultTrees;
+                }
+
+                // Ha találtunk fát az adatbázisban, visszaadjuk, különben az alapértelmezettet
+                if (trees && trees.length > 0) {
+                    // Ha a trees táblában a 'data' oszlopban tárolod a fa tartalmát:
+                    return trees.map(t => t.data || t); 
+                }
             } catch (e) {
                 console.error("Hiba a betöltéskor:", e);
             }
             return defaultTrees;
+        }
+
+        // Simusok mentése a Supabase-be (localStorage helyett)
+        async function saveSimsToStorage() {
+            try {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+
+                if (!user) {
+                    console.warn("Nincs bejelentkezett felhasználó, a simek mentése kihagyva.");
+                    return;
+                }
+
+                // Feltételezve, hogy a kódban a simeket egy 'sims' nevű tömb tárolja
+                for (const sim of sims) {
+                    const { error } = await supabaseClient
+                        .from('sims')
+                        .upsert([
+                            { 
+                                id: sim.id, // Ha van egyedi ID-ja a simnek
+                                name: sim.name || 'Névtelen Sim',
+                                user_id: user.id,
+                                data: sim // Az egész Sim objektum mentése a jsonb oszlopba
+                            }
+                        ], { onConflict: 'id' });
+
+                    if (error) {
+                        console.error("Hiba egy Sim mentésekor:", error.message);
+                    }
+                }
+            } catch (e) {
+                console.error("Nem sikerült a simek mentése a Supabase-be:", e);
+            }
+        }
+
+        // Simusok betöltése a Supabase-ből
+        async function loadSimsFromStorage() {
+            try {
+                const { data: simsData, error } = await supabaseClient
+                    .from('sims')
+                    .select('*');
+
+                if (error) {
+                    console.error("Hiba a simek betöltésekor:", error.message);
+                    return [];
+                }
+
+                // Ha vannak mentett simek az adatbázisban a bejelentkezett fiókhoz
+                if (simsData && simsData.length > 0) {
+                    return simsData.map(s => s.data || s);
+                }
+            } catch (e) {
+                console.error("Hiba a simek betöltésekor:", e);
+            }
+            return []; // Alapértelmezett üres tömb, ha nincsenek még simek
         }
 
         function switchView(viewName) {
