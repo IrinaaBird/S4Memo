@@ -3627,36 +3627,29 @@ function openAddSimModalFromView() {
         const password = document.getElementById('regPassword').value;
 
         // Előre ellenőrizzük, hogy létezik-e már ez a felhasználónév
-        const { data: existingUser, error: checkError } = await supabaseClient
-            .from('profiles')
-            .select('username')
-            .eq('username', username)
-            .maybeSingle();
+        const { data: { user } } = await supabaseClient.auth.getUser();
 
-        if (existingUser) {
-            alert('Ez a felhasználónév már foglalt! Kérlek, válassz másikat. 🌿');
-            return;
+if (!user) {
+    alert('Kérlek jelentkezz be a családfa mentéséhez!');
+    return;
+}
+
+// Beszúrás az adatbázisba úgy, hogy rögzítjük a user_id-t is
+const { data, error } = await supabaseClient
+    .from('trees') // vagy a te táblád neve
+    .insert([
+        { 
+            name: faNev, // a fa neve (vagy amilyen mezőid vannak)
+            user_id: user.id // ITT KÖTJÜK HOZZÁ A FIÓKHOZ!
         }
+    ]);
 
-        // Ha szabad, folytatódik a regisztráció...
-        const { data, error } = await supabaseClient.auth.signUp({
-            email: email,
-            password: password,
-            options: {
-                data: {
-                    username: username
-                }
-            }
-        });
-
-        if (error) {
-            alert('Hiba a regisztráció során: ' + error.message);
-            return;
-        }
-
-        alert('Sikeres regisztráció! Üdv a családban, ' + username + '! ✨');
-        document.getElementById('authModal').style.display = 'none';
-    }
+if (error) {
+    console.error('Hiba a fa mentésekor:', error.message);
+} else {
+    alert('Sikeresen létrehoztál egy új családfát! 🌳');
+    loadUserTrees(); // Frissítjük a listát a képernyőn
+}
 }
 </script>
 
