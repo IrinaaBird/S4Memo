@@ -1832,8 +1832,37 @@ let selectedConnectionTargetId = null;
             console.error("Hiba a fa mentése során:", error);
         } else {
             console.log("Családfa sikeresen elmentve a Supabase-be!");
+       if (typeof saveSimsToSupabase === 'function') {
+        saveSimsToSupabase();
+    }
+}
+
+        async function saveSimsToSupabase() {
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    if (!user) return;
+
+    if (!currentTreeId) {
+        console.nerror("Nincs kiválasztott családfa!");
+        return;
+    }
+
+    for (const sim of simsArray) {
+        const { error } = await supabaseClient
+            .from('sims')
+            .upsert([
+                {
+                    id: sim.id,
+                    user_id: user.id,
+                    tree_id: currentTreeId,
+                    data: sim
+                }
+            ], { onConflict: 'id' });
+
+        if (error) {
+            console.error("Hiba a sim mentése során:", error);
         }
     }
+    console.log("Minden sim sikeresen elmentve a Supabase-be!");
 }
         
         async function loadTreesFromStorage() {
