@@ -1870,16 +1870,12 @@ let selectedConnectionTargetId = null;
                 }
             ], { onConflict: 'id' });
 
-        if (error) {
+if (error) {
             console.error("Hiba a sim mentése során:", error);
         }
     }
 }
-            } catch (e) {
-                console.error("Nem sikerült a simek mentése a Supabase-be:", e);
-            }
-        }
-
+        
         // Simusok betöltése a Supabase-ből
         async function loadSimsFromStorage() {
     const { data: { user } } = await supabaseClient.auth.getUser();
