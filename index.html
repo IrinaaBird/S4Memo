@@ -1877,7 +1877,7 @@ if (error) {
 }
         
         // Simusok betöltése a Supabase-ből
-        async function loadSimsFromStorage() {
+async function loadSimsFromStorage() {
     const { data: { user } } = await supabaseClient.auth.getUser();
     if (!user) return [];
 
