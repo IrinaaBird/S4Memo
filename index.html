@@ -1691,8 +1691,9 @@ let selectedConnectionTargetId = null;
         }
 
         function getCurrentTree() {
-            return familyTrees.find(t => t.id === currentTreeId);
-        }
+    if (!Array.isArray(familyTrees)) familyTrees = []; // <--- Biztonsági háló
+    return familyTrees.find(t => t.id === currentTreeId);
+}
 
         function getActiveBgConfig() {
             if (currentView === 'tree') {
