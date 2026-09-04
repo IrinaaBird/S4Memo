@@ -1625,18 +1625,111 @@
 }
 
     document.addEventListener('DOMContentLoaded', async () => {
+    // A te meglévő Supabase lekérdezésed:
     const { data, error } = await supabaseClient
         .from('trees') // Cseréld le a táblád nevére, ha nem 'trees'
         .select('bg_type')
         .limit(1);
 
     if (data && data.length > 0 && data[0].bg_type) {
-        const treeWorld = document.getElementById('treeWorld');
-        if (treeWorld) {
-            treeWorld.className = data[0].bg_type;
+        const treeworld = document.getElementById('treeworld');
+        if (treeworld) {
+            treeworld.className = data[0].bg_type;
         }
     }
+
+    // ---- IDE MÁSOLHD BE AZ ÚJ ESEMÉNYKEZELŐKET IS: ----
+    const bgStyleSelect = document.getElementById('bgStyleSelect');
+    if (bgStyleSelect) {
+        bgStyleSelect.addEventListener('change', (e) => {
+            changeBgStyle(e.target.value);
+        });
+    }
+
+    const bgSizeSelect = document.getElementById('bgSizeSelect');
+    if (bgSizeSelect) {
+        bgSizeSelect.addEventListener('change', (e) => {
+            changeBgSize(e.target.value);
+        });
+    }
+
+    const bgPosSelect = document.getElementById('bgPosSelect');
+    if (bgPosSelect) {
+        bgPosSelect.addEventListener('change', (e) => {
+            changeBgPosition(e.target.value);
+        });
+    }
+
+    const bgBlurSlider = document.getElementById('bgBlurSlider');
+    if (bgBlurSlider) {
+        bgBlurSlider.addEventListener('input', (e) => {
+            changeBgBlur(e.target.value);
+        });
+    }
+
+    const bgFileInput = document.getElementById('bgFileInput');
+    if (bgFileInput) {
+        bgFileInput.addEventListener('change', (e) => {
+            handleCustomBgUpload(e);
+        });
+    }
 });
+
+        // 1. Háttérstílus / Téma váltása
+function changeBgStyle(styleValue) {
+    const treeworld = document.getElementById('treeworld');
+    if (!treeworld) return;
+
+    // Ha egyéni kép van feltöltve, azt külön kezeljük, 
+    // de itt beállítjuk a kiválasztott stílusnak megfelelő osztályt/értéket
+    treeworld.className = styleValue;
+    
+    // Opcionálisan: ha el is szeretnéd menteni adatbázisba azonnal
+    // updateTreeBackground(currentTreeId, styleValue);
+}
+
+// 2. Háttér méretezése (background-size)
+function changeBgSize(sizeValue) {
+    const treeworld = document.getElementById('treeworld');
+    if (treeworld) {
+        treeworld.style.backgroundSize = sizeValue; // pl. 'cover', 'contain', 'auto'
+    }
+}
+
+// 3. Háttér igazítása (background-position)
+function changeBgPosition(posValue) {
+    const treeworld = document.getElementById('treeworld');
+    if (treeworld) {
+        treeworld.style.backgroundPosition = posValue; // pl. 'center', 'top', 'bottom'
+    }
+}
+
+// 4. Háttér homályosítása (blur)
+function changeBgBlur(blurValue) {
+    const treeworld = document.getElementById('treeworld');
+    if (treeworld) {
+        // A csúszka értékét (pl. 0-20) átalakítjuk pixel alapú szűrővé
+        treeworld.style.filter = `blur(${blurValue}px)`;
+    }
+}
+
+// 5. Saját kép feltöltésének kezelése
+function handleCustomBgUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const treeworld = document.getElementById('treeworld');
+        if (treeworld) {
+            // Beállítjuk háttérképnek a betöltött fájl Data URL-jét
+            treeworld.style.backgroundImage = `url('${e.target.result}')`;
+            treeworld.style.backgroundSize = 'cover';
+            treeworld.style.backgroundPosition = 'center';
+        }
+    };
+    reader.readAsDataURL(file);
+}
         
         const simsPresets = {
             'sims-willow': 'https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=1920&q=80',
