@@ -1596,6 +1596,21 @@
         const zoomPercentLabel = document.getElementById('zoomPercentLabel');
 
         let currentView = 'home';
+
+        document.addEventListener('DOMContentLoaded', async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+        const { data, error } = await supabaseClient
+            .from('user_settings')
+            .select('bg_type')
+            .eq('id', user.id)
+            .single();
+
+        if (data && data.bg_type) {
+            document.body.className = data.bg_type;
+        }
+    }
+});
         
         const simsPresets = {
             'sims-willow': 'https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=1920&q=80',
@@ -1936,6 +1951,28 @@ async function loadSimsFromStorage() {
         console.error("Hiba a sim törlésekor a Supabase-ből:", error);
     } else {
         console.log("Sim sikeresen törölve a Supabase-ből is!");
+    }
+}
+
+        async function saveBackgroundToSupabase(bgClass) {
+    // 1. Azonnal beállítjuk vizuálisan is, hogy ne legyen laggolásérzet
+    document.body.className = bgClass;
+
+    // 2. Lekérjük az aktuális felhasználót
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return; // Ha nincs bejelentkezve, nem tudjuk hova menteni
+
+    // 3. Mentés vagy frissítés (upsert) a Supabase-ben
+    const { error } = await supabase
+        .from('user_settings')
+        .upsert({ 
+            id: user.id, 
+            bg_type: bgClass,
+            updated_at: new Date()
+        });
+
+    if (error) {
+        console.error('Hiba a mentés során:', error.message);
     }
 }
         
