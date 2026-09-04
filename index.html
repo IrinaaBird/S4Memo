@@ -1682,31 +1682,20 @@ let selectedConnectionTargetId = null;
         }
 
         function applyPageBackground() {
-            const bgConfig = getActiveBgConfig();
-            document.getElementById('bgStyleSelect').value = bgConfig.style;
-            document.getElementById('bgBlurSlider').value = bgConfig.blur || 0;
-            document.getElementById('bgBlurValText').innerText = `${bgConfig.blur || 0}px`;
-            document.documentElement.style.setProperty('--bg-blur', `${bgConfig.blur || 0}px`);
+    const bgConfig = getActiveBgConfig();
+    document.getElementById('bgStyleSelect').value = bgConfig.style;
+    document.getElementById('bgBlurSlider').value = bgConfig.blur || 0;
+    document.getElementById('bgBlurValText').innerText = `${bgConfig.blur || 0}px`;
+    document.documentElement.style.setProperty('--bg-blur', `${bgConfig.blur || 0}px`);
 
-            const customBgContainer = document.getElementById('customBgContainer');
-            const imageSettingsContainer = document.getElementById('imageSettingsContainer');
-            
-            if (bgConfig.style === 'custom') {
-                customBgContainer.style.display = 'block';
-                imageSettingsContainer.style.display = 'block';
-                document.body.className = currentView === 'tree' ? 'bg-custom tree-view-active' : 'bg-custom';
-                document.body.style.backgroundImage = bgConfig.customUrl ? `url('${bgConfig.customUrl}')` : '';
-            } else if (simsPresets[bgConfig.style]) {
-                customBgContainer.style.display = 'none';
-                imageSettingsContainer.style.display = 'block';
-                document.body.className = currentView === 'tree' ? 'bg-custom tree-view-active' : 'bg-custom';
-                document.body.style.backgroundImage = `url('${simsPresets[bgConfig.style]}')`;
-            } else {
-                customBgContainer.style.display = 'none';
-                imageSettingsContainer.style.display = 'none';
-                document.body.style.backgroundImage = '';
-                document.body.className = currentView === 'tree' ? `bg-${bgConfig.style} tree-view-active` : `bg-${bgConfig.style}`;
-            }
+    if (simsPresets[bgConfig.style]) {
+        document.body.className = currentView === 'tree' ? 'bg-custom tree-view-active' : 'bg-custom';
+        document.body.style.backgroundImage = `url('${simsPresets[bgConfig.style]}')`;
+    } else {
+        document.body.style.backgroundImage = '';
+        document.body.className = currentView === 'tree' ? `bg-${bgConfig.style} tree-view-active` : `bg-${bgConfig.style}`;
+    }
+}
 
             document.getElementById('bgSizeSelect').value = bgConfig.size || 'cover';
             document.getElementById('bgPosSelect').value = bgConfig.position || 'center';
