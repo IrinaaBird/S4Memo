@@ -1597,17 +1597,52 @@
 
         let currentView = 'home';
 
-        document.addEventListener('DOMContentLoaded', async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
+        async function loadTreeBackground(treeId) {
         const { data, error } = await supabaseClient
-            .from('user_settings')
+            .from('trees') // Cseréld le a táblád nevére, ha nem 'trees'
             .select('bg_type')
-            .eq('id', user.id)
+            .eq('id', treeId)
             .single();
 
         if (data && data.bg_type) {
-            document.body.className = data.bg_type;
+            const treeWorld = document.getElementById('treeWorld');
+            treeWorld.className = data.bg_type; 
+        }
+    }
+
+        async function updateTreeBackground(treeId, newBgType) {
+    const { error } = await supabaseClient
+        .from('trees')
+        .update({ bg_type: newBgType })
+        .eq('id', treeId);
+
+    if (!error) {
+        // Azonnal alkalmazzuk is a felületen
+        document.getElementById('treeWorld').className = newBgType;
+    } else {
+        console.error('Hiba a háttér mentésekor:', error.message);
+    }
+}
+
+    document.addEventListener('DOMContentLoaded', async () => {
+    // 1. Kessük ki az URL-ből a családfa ID-ját (pl. ?id=xyz)
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentTreeId = urlParams.get('id');
+
+    if (currentTreeId) {
+        // 2. Lekérdezzük az adatbázisból az ehhez a fához tartozó hátteret
+        const { data, error } = await supabaseClient
+            .from('trees') // Cseréld le a táblád nevére, ha nem 'trees'
+            .select('bg_type')
+            .eq('id', currentTreeId)
+            .single();
+
+        // 3. Ha van mentett háttér, rárakjuk a konténerre (a body helyett)
+        if (data && data.bg_type) {
+            const treeWorld = document.getElementById('treeWorld');
+            if (treeWorld) {
+                treeWorld.className = data.bg_type;
+            }
         }
     }
 });
