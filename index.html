@@ -1972,6 +1972,19 @@ let selectedConnectionTargetId = null;
         }
     }
 }
+
+        async function saveTreeBackground(styleValue) {
+    if (!currentTreeId) return;
+
+    const { error } = await supabaseClient
+        .from('trees') // Cseréld le a táblád nevére, ha szükséges
+        .update({ bg_type: styleValue })
+        .eq('id', currentTreeId);
+
+    if (error) {
+        console.error('Hiba a háttér mentésekor:', error.message);
+    }
+}
         
         async function loadTreesFromStorage() {
     const { data: { user } } = await supabaseClient.auth.getUser();
@@ -1990,6 +2003,23 @@ let selectedConnectionTargetId = null;
     return data ? data.map(row => row.data) : [];
 }
 
+        async function loadTreeBackground() {
+    if (!currentTreeId) return;
+
+    const { data, error } = await supabaseClient
+        .from('trees')
+        .select('bg_type')
+        .eq('id', currentTreeId)
+        .single();
+
+    if (data && data.bg_type) {
+        const treeworld = document.getElementById('treeworld');
+        if (treeworld) {
+            treeworld.className = data.bg_type;
+        }
+    }
+}
+        
         async function deleteTree(treeId) {
     // 1. Kiveszi a családfát a helyi tömbből, hogy a képernyőről azonnal eltűnjön
     familyTrees = familyTrees.filter(t => t.id !== treeId);
