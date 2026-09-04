@@ -1081,41 +1081,14 @@
                         <option value="clean">Letisztult</option>
                         <option value="grid">Rácsos</option>
                     </optgroup>
-                    <optgroup label="Sims 4 Világok">
-                        <option value="sims-willow">Willow Creek</option>
-                        <option value="sims-oasis">Oasis Springs</option>
-                        <option value="sims-sulani">Sulani Tengerpart</option>
-                        <option value="sims-sanmyshuno">San Myshuno</option>
-                    </optgroup>
-                    <optgroup label="Egyéni">
-                        <option value="custom">Saját kép (Feltöltés)</option>
-                    </optgroup>
-                </select>
-                <div id="customBgContainer" style="display: none; margin-top: 4px;">
-                    <label for="bgFileInput" class="custom-file-btn">📁 Kép tallózása...</label>
-                    <input type="file" id="bgFileInput" class="custom-file-upload" accept="image/*" onchange="handleCustomBgUpload(event)">
-                </div>
-                <div id="imageSettingsContainer" style="display: none; margin-top: 4px;" class="style-group">
-                    <div class="style-group">
-                        <label>Kép Méretezése</label>
-                        <select id="bgSizeSelect" onchange="changeBgSize(this.value)">
-                            <option value="cover" selected>Kitöltés (Cover)</option>
-                            <option value="contain">Illesztés (Contain)</option>
-                            <option value="100% 100%">Nyújtás (Stretch)</option>
-                            <option value="auto">Eredeti Méret (Original)</option>
-                        </select>
-                    </div>
-                    <div style="margin-top: 6px;" class="style-group">
-                        <label>Kép Igazítása</label>
-                        <select id="bgPosSelect" onchange="changeBgPosition(this.value)">
-                            <option value="center" selected>Középre</option>
-                            <option value="top">Fent</option>
-                            <option value="bottom">Lent</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
+                   <optgroup label="Sims 4 Világok">
+        <option value="sims-willow">Willow Creek</option>
+        <option value="sims-oasis">Oasis Springs</option>
+        <option value="sims-sulani">Sulani Tengerpart</option>
+        <option value="sims-sanmyshuno">San Myshuno</option>
+    </optgroup>
+    </select>
+</div>
             <div class="style-group" style="margin-top: 4px;">
                 <label>
                     <span>Háttér Homályosítás</span>
