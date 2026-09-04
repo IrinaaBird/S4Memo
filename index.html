@@ -2126,6 +2126,15 @@ async function loadSimsFromStorage() {
 }
         
         window.switchView = function(viewName) {
+            if (viewName !== 'tree') {
+        const treeworld = document.getElementById('treeworld');
+        if (treeworld) {
+            treeworld.className = '';
+            treeworld.style.backgroundImage = '';
+            treeworld.style.filter = '';
+        }
+    }
+            
     if (!Array.isArray(familyTrees)) familyTrees = [];
     currentView = viewName;
     
