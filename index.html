@@ -1839,7 +1839,6 @@ let selectedConnectionTargetId = null;
         if (typeof saveSimsToSupabase === 'function') {
          saveSimsToSupabase();
     }
-}
         
         async function loadTreesFromStorage() {
     const { data: { user } } = await supabaseClient.auth.getUser();
