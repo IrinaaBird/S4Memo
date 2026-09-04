@@ -1821,6 +1821,8 @@ let selectedConnectionTargetId = null;
             .from('trees')
             .upsert([
                 {
+            homeBackground: typeof globalHomeBackground !== 'undefined' ? globalHomeBackground : null
+        const { error } = await supabaseClient
                     id: tree.id,
                     title: tree.name || 'Családfa',
                     user_id: user.id,
