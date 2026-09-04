@@ -973,10 +973,10 @@
             <div class="nav-left">
                 <div class="logo"><span class="plumbob"></span> S4Memo</div>
                 <div class="nav-links">
-                    <a class="nav-item active" id="navHome" onclick="switchView('home')">Főoldal</a>
-                    <a class="nav-item" id="navTree" onclick="switchView('tree')">Családfák</a>
-                    <a class="nav-item" id="navActivity" onclick="switchView('activity')">Aktivitás</a>
-                    <a class="nav-item" id="navPublic" onclick="switchView('public')">Publikum</a>
+                    <a class="nav-item active" id="navHome" onclick="document.getElementById('treeWorld').className=''; switchView('home')">Főoldal</a>
+<a class="nav-item" id="navTree" onclick="switchView('tree')">Családfák</a>
+<a class="nav-item" id="navActivity" onclick="document.getElementById('treeWorld').className=''; switchView('activity')">Aktivitás</a>
+<a class="nav-item" id="navPublic" onclick="document.getElementById('treeWorld').className=''; switchView('public')">Publikum</a>
                 </div>
             </div>
             <div class="nav-right">
@@ -995,7 +995,7 @@
     </div>
 
     <!-- 2. CSALÁDFÁK NÉZET -->
-    <div class="page-view" id="treeView">
+    <div class="page-view" id="treeView">function switchView
         <div class="tree-left-sidebar">
             <div class="accordion-group open" id="dynastyAccordion">
                 <button class="accordion-header" onclick="toggleAccordion('dynastyAccordion')">
