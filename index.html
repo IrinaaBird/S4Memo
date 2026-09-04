@@ -1625,24 +1625,15 @@
 }
 
     document.addEventListener('DOMContentLoaded', async () => {
-    // 1. Kessük ki az URL-ből a családfa ID-ját (pl. ?id=xyz)
-    const urlParams = new URLSearchParams(window.location.search);
-    const currentTreeId = urlParams.get('id');
+    const { data, error } = await supabaseClient
+        .from('trees') // Cseréld le a táblád nevére, ha nem 'trees'
+        .select('bg_type')
+        .limit(1);
 
-    if (currentTreeId) {
-        // 2. Lekérdezzük az adatbázisból az ehhez a fához tartozó hátteret
-        const { data, error } = await supabaseClient
-            .from('trees') // Cseréld le a táblád nevére, ha nem 'trees'
-            .select('bg_type')
-            .eq('id', currentTreeId)
-            .single();
-
-        // 3. Ha van mentett háttér, rárakjuk a konténerre (a body helyett)
-        if (data && data.bg_type) {
-            const treeWorld = document.getElementById('treeWorld');
-            if (treeWorld) {
-                treeWorld.className = data.bg_type;
-            }
+    if (data && data.length > 0 && data[0].bg_type) {
+        const treeWorld = document.getElementById('treeWorld');
+        if (treeWorld) {
+            treeWorld.className = data[0].bg_type;
         }
     }
 });
