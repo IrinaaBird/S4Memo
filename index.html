@@ -1904,6 +1904,42 @@ let selectedConnectionTargetId = null;
         }
     }
 }
+
+        if (typeof saveSimsToSupabase === 'function') {
+    saveSimsToSupabase();
+}
+
+        async function saveSimsToSupabase() {
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    if (!user) return;
+    if (!currentTreeId) return;
+
+    const simsList = window.sims || []; 
+
+    for (const sim of simsList) {
+        const { error } = await supabaseClient
+            .from('sims')
+            .upsert([
+                {
+                    id: sim.id,
+                    user_id: user.id,
+                    tree_id: currentTreeId,
+                    first_name: sim.firstName || sim.first_name || '',
+                    last_name: sim.lastName || sim.last_name || '',
+                    gender: sim.gender || ''
+                }
+            ], { onConflict: 'id' });
+
+        if (error) {
+            console.error("Hiba a sim mentésekor:", error);
+        }
+    }
+    console.log("Simek sikeresen elmentve a sims táblába!");
+}
+
+        if (typeof saveSimsToSupabase === 'function') {
+    saveSimsToSupabase();
+}
         
         // Simusok betöltése a Supabase-ből
 async function loadSimsFromStorage() {
