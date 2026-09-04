@@ -1835,6 +1835,11 @@ let selectedConnectionTargetId = null;
         }
     }
 }
+
+        if (typeof saveSimsToSupabase === 'function') {
+        await saveSimsToSupabase();
+    }
+}
         
         async function loadTreesFromStorage() {
     const { data: { user } } = await supabaseClient.auth.getUser();
